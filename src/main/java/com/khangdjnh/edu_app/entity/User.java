@@ -34,8 +34,11 @@ public class User {
     @Column(name = "keycloak_user_id")
     String keycloakUserId;
 
-    @Column(name = "full_name")
-    String fullName;
+    @Column(name = "first_name")
+    String firstName;
+
+    @Column(name = "last_name")
+    String lastName;
 
     String avatar;
 

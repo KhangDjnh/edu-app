@@ -19,6 +19,7 @@ public class UserUpdateRequest {
     String password;
     @Email(message = "Email must be valid")
     String email;
-    String fullName;
+    String firstName;
+    String lastName;
     LocalDate dob;
 }
