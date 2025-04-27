@@ -22,7 +22,7 @@ public class ErrorNormalizer {
         errorCodeMap = new HashMap<>();
 
         errorCodeMap.put("User exists with same username", ErrorCode.USER_EXISTED);
-        errorCodeMap.put("User exists with same email", ErrorCode.EMAIL_EXISTED);
+        errorCodeMap.put("User exists with same email", ErrorCode.EMAIL_EXISTED_IN_DATABASE);
         errorCodeMap.put("User name is missing", ErrorCode.USERNAME_IS_MISSING);
     }
 

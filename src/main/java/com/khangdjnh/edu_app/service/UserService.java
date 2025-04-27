@@ -41,6 +41,7 @@ public class UserService {
     ErrorNormalizer errorNormalizer;
     KeycloakClientTokenService keycloakClientTokenService;
     KeycloakUserTokenService keycloakUserTokenService;
+    PendingUserService pendingUserService;
 
 
     private String extractUserId(ResponseEntity<?> responseEntity) {
@@ -63,7 +64,7 @@ public class UserService {
 
     public UserResponse createUser(UserCreateRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("Email already exists");
+            throw new AppException(ErrorCode.EMAIL_EXISTED_IN_DATABASE);
         }
         try {
             var token = keycloakClientTokenService.getAccessToken();

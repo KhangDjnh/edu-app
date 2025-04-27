@@ -16,7 +16,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 @EnableWebSecurity
 public class SecurityConfig {
-    private final String[] PUBLIC_ENDPOINTS = {"/auth/login", "/auth/register", "/users"};
+    private final String[] PUBLIC_POST_ENDPOINTS = {"/auth/login", "/auth/register", "/users"};
+    private final String[] PUBLIC_GET_ENDPOINTS = {"/confirm-email"};
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);
@@ -25,8 +26,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity)
             throws Exception {
         httpSecurity.authorizeHttpRequests(authorize ->
-                authorize.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS)
-                        .permitAll()
+                authorize
+                        .requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS).permitAll()
+                        .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS).permitAll()
                         .anyRequest()
                         .authenticated());
         httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(

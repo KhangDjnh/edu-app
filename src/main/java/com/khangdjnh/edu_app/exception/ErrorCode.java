@@ -20,10 +20,13 @@ public enum ErrorCode {
     UNAUTHORIZED(1008, "User is not authorized", HttpStatus.FORBIDDEN),
     INVALID_KEY(1009, "Invalid key", HttpStatus.BAD_REQUEST),
     USER_EXISTED(1010, "User already existed", HttpStatus.CONFLICT),
-    EMAIL_EXISTED(1011, "Email already existed", HttpStatus.CONFLICT),
+    EMAIL_EXISTED_IN_DATABASE(1011, "Email already existed in database", HttpStatus.CONFLICT),
     USERNAME_IS_MISSING(1012, "Username is missing", HttpStatus.BAD_REQUEST),
     NEW_PASSWORD_SAME_AS_OLD(1013, "New password is same as old password", HttpStatus.BAD_REQUEST),
     OLD_PASSWORD_IS_INCORRECT(1014, "Old password is incorrect", HttpStatus.BAD_REQUEST),
+    EMAIL_EXISTED_IN_PENDING(1015, "Email already existed in pending", HttpStatus.CONFLICT),
+    CONFIRM_MAIL_TOKEN_IS_INVALID_OR_EXPIRED(1015, "Confirm mail token is invalid or expired", HttpStatus.BAD_REQUEST),
+    CONFIRM_MAIL_TOKEN_IS_EXPIRED(1016, "Confirm mail token is expired", HttpStatus.BAD_REQUEST),
     ;
 
     int code;

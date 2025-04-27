@@ -5,6 +5,7 @@ import com.khangdjnh.edu_app.dto.request.UserCreateRequest;
 import com.khangdjnh.edu_app.dto.response.ApiResponse;
 import com.khangdjnh.edu_app.dto.response.LoginResponse;
 import com.khangdjnh.edu_app.dto.response.UserResponse;
+import com.khangdjnh.edu_app.service.PendingUserService;
 import com.khangdjnh.edu_app.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
     UserService userService;
+    PendingUserService pendingUserService;
 
     @PostMapping("/login")
     ApiResponse<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
@@ -31,11 +33,12 @@ public class AuthController {
                 .build();
     }
     @PostMapping("/register")
-    ApiResponse<UserResponse> register(@RequestBody @Valid UserCreateRequest request) {
-        return ApiResponse.<UserResponse>builder()
+    ApiResponse<String> register(@RequestBody @Valid UserCreateRequest request) {
+        pendingUserService.createUser(request);
+        return ApiResponse.<String>builder()
                 .code(1000)
                 .message("Success")
-                .result(userService.createUser(request))
+                .result("Confirm email to complete registration")
                 .build();
     }
 
