@@ -25,6 +25,8 @@ public class ApplicationInitConfig {
                 User user = User.builder()
                         .username("admin")
                         .password(passwordEncoder.encode("admin"))
+                        .email("admin@gmail.com")
+                        .isActive(true)
                         .build();
                 userRepository.save(user);
                 log.warn("Info: Admin user created with default password");

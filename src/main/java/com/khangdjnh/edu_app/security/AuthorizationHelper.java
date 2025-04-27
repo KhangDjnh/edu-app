@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component("authz")
 public class AuthorizationHelper {
 
-    public boolean isOwner(String userId) {
+    public boolean isOwner(Long id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) return false;
 
@@ -17,7 +17,7 @@ public class AuthorizationHelper {
         if (principal instanceof Jwt) {
             Jwt jwt = (Jwt) principal;
             String sub = jwt.getClaimAsString("sub");
-            return sub.equals(userId);
+            return sub.equals(id.toString());
         }
 
         return false;

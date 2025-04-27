@@ -3,17 +3,16 @@ package com.khangdjnh.edu_app.entity;
 import com.khangdjnh.edu_app.enums.LeaveRequestStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "leave_requests")
 public class LeaveRequest {
 

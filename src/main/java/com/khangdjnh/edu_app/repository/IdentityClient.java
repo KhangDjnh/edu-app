@@ -11,22 +11,22 @@ import org.springframework.web.bind.annotation.*;
 @FeignClient(name = "identity-client", url = "${idp.url}")
 public interface IdentityClient {
     @PostMapping(
-            value = "/realms/security-keycloak/protocol/openid-connect/token",
+            value = "/realms/education-service/protocol/openid-connect/token",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     ClientTokenExchangeResponse exchangeClientToken(@QueryMap ClientTokenExchangeParam tokenExchangeParam);
 
     @PostMapping(
-            value = "/realms/security-keycloak/protocol/openid-connect/token",
+            value = "/realms/education-service/protocol/openid-connect/token",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     UserTokenExchangeResponse exchangeUserAccessToken(@QueryMap UserAccessTokenExchangeParam tokenExchangeParam);
 
     @PostMapping(
-            value = "/realms/security-keycloak/protocol/openid-connect/token",
+            value = "/realms/education-service/protocol/openid-connect/token",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     UserTokenExchangeResponse exchangeUserRefreshToken(@QueryMap UserRefreshTokenExchangeParam tokenExchangeParam);
 
     @PostMapping(
-            value = "/admin/realms/security-keycloak/users",
+            value = "/admin/realms/education-service/users",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<?> createUser(
             @RequestHeader("Authorization") String token,

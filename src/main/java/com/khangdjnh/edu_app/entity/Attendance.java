@@ -3,16 +3,15 @@ package com.khangdjnh.edu_app.entity;
 import com.khangdjnh.edu_app.enums.AttendanceStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(
         name = "attendances",
         uniqueConstraints = {

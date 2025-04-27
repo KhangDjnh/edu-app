@@ -72,7 +72,7 @@ public class UserService {
                     UserCreationParam.builder()
                             .username(request.getUsername())
                             .email(request.getEmail())
-                            .firstName(request.getFistName())
+                            .firstName(request.getFirstName())
                             .lastName(request.getLastName())
                             .enabled(true)
                             .emailVerified(false)
@@ -86,6 +86,8 @@ public class UserService {
             String userKeycloakId = extractUserId(creationResponse);
             User user = userMapper.toUser(request);
             user.setKeycloakUserId(userKeycloakId);
+            user.setActive(true);
+            user.setAvatar("https://cdn.vectorstock.com/i/1000v/92/16/default-profile-picture-avatar-user-icon-vector-46389216.jpg");
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             userRepository.save(user);
             return userMapper.toUserResponse(user);
@@ -117,13 +119,13 @@ public class UserService {
         String userKeycloakId = user.getKeycloakUserId();
         String oldEncodedPassword = user.getPassword();
         if(!passwordEncoder.matches(request.getOldPassword(), oldEncodedPassword)) {
-            throw new AppException(ErrorCode.INVALID_USERNAME_OR_PASSWORD);
+            throw new AppException(ErrorCode.OLD_PASSWORD_IS_INCORRECT);
         }
         String accessToken = keycloakClientTokenService.getAccessToken();
 
         identityClient.resetUserPassword(
                 "Bearer " + accessToken,
-                "security-keycloak",
+                "education-service",
                 userKeycloakId,
                 Credential.builder()
                         .type("password")
@@ -147,9 +149,7 @@ public class UserService {
     }
 
     public void deleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new IllegalArgumentException("User not found");
-        }
-        userRepository.deleteById(id);
+        User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        user.setActive(false);
     }
 }
