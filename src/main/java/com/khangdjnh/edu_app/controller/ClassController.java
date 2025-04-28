@@ -73,6 +73,7 @@ public class ClassController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('TEACHER')")
     ApiResponse<String> deleteClassById(@PathVariable Long id) {
+        classService.deleteClassById(id);
         return ApiResponse.<String>builder()
                 .message("Success")
                 .code(1000)

@@ -29,6 +29,8 @@ public enum ErrorCode {
     CONFIRM_MAIL_TOKEN_IS_EXPIRED(1016, "Confirm mail token is expired", HttpStatus.BAD_REQUEST),
     CLASS_EXISTED(1017, "Class code already existed", HttpStatus.CONFLICT),
     CLASS_NOT_FOUND(1018, "Class not found", HttpStatus.NOT_FOUND),
+    DOCUMENT_NOT_FOUND(1018, "Document not found", HttpStatus.NOT_FOUND),
+
 
     ;
 
