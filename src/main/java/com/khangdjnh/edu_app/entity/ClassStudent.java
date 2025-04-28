@@ -3,6 +3,7 @@ package com.khangdjnh.edu_app.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -29,5 +30,6 @@ public class ClassStudent implements Serializable {
     User student;
 
     @Column(name = "joined_at")
+    @CreationTimestamp
     LocalDateTime joinAt;
 }

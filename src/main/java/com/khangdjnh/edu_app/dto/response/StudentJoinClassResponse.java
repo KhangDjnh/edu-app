@@ -11,11 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ClassResponse {
-    Long id;
-    String name;
-    String code;
-    String description;
-    User teacher;
-    LocalDateTime createdAt;
+public class StudentJoinClassResponse {
+    Long classId;
+    User student;
 }

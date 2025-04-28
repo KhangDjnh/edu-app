@@ -15,4 +15,5 @@ public interface ClassRepository extends JpaRepository<ClassEntity, Long> {
 
     @Override
     Optional<ClassEntity> findById( Long id);
+    Optional<ClassEntity> findByCode(String code);
 }
