@@ -22,7 +22,6 @@ public class PendingUserService {
     PendingUserRepository pendingUserRepository;
     UserRepository userRepository;
     EmailService emailService;
-    PasswordEncoder passwordEncoder;
 
     public void createUser(UserCreateRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -39,7 +38,7 @@ public class PendingUserService {
         PendingUser pendingUser = PendingUser.builder()
                 .email(request.getEmail())
                 .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPassword()))
+                .password(request.getPassword())
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .dob(request.getDob())

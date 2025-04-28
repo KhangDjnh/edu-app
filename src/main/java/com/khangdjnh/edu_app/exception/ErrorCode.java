@@ -27,6 +27,9 @@ public enum ErrorCode {
     EMAIL_EXISTED_IN_PENDING(1015, "Email already existed in pending", HttpStatus.CONFLICT),
     CONFIRM_MAIL_TOKEN_IS_INVALID_OR_EXPIRED(1015, "Confirm mail token is invalid or expired", HttpStatus.BAD_REQUEST),
     CONFIRM_MAIL_TOKEN_IS_EXPIRED(1016, "Confirm mail token is expired", HttpStatus.BAD_REQUEST),
+    CLASS_EXISTED(1017, "Class code already existed", HttpStatus.CONFLICT),
+    CLASS_NOT_FOUND(1018, "Class not found", HttpStatus.NOT_FOUND),
+
     ;
 
     int code;

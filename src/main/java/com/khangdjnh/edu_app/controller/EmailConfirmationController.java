@@ -17,6 +17,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,6 +35,7 @@ public class EmailConfirmationController {
     KeycloakClientTokenService keycloakClientTokenService;
     UserRepository userRepository;
     ErrorNormalizer errorNormalizer;
+    PasswordEncoder passwordEncoder;
 
     @GetMapping("/confirm-email")
     public ApiResponse<String> confirmEmail(@RequestParam String token) {
@@ -69,7 +71,7 @@ public class EmailConfirmationController {
             User user = User.builder()
                     .username(pendingUser.getUsername())
                     .email(pendingUser.getEmail())
-                    .password(pendingUser.getPassword())
+                    .password(passwordEncoder.encode(pendingUser.getPassword()))
                     .keycloakUserId(userKeycloakId)
                     .firstName(pendingUser.getFirstName())
                     .lastName(pendingUser.getLastName())

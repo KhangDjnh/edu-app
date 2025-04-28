@@ -1,0 +1,83 @@
+package com.khangdjnh.edu_app.controller;
+
+import com.khangdjnh.edu_app.dto.request.ClassCreateRequest;
+import com.khangdjnh.edu_app.dto.request.ClassUpdateRequest;
+import com.khangdjnh.edu_app.dto.response.ApiResponse;
+import com.khangdjnh.edu_app.dto.response.ClassResponse;
+import com.khangdjnh.edu_app.service.ClassService;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/classes")
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class ClassController {
+    ClassService classService;
+
+    @PostMapping
+    @PreAuthorize("hasRole('TEACHER')")
+    ApiResponse<ClassResponse> createClass (@RequestBody ClassCreateRequest request) {
+        return ApiResponse.<ClassResponse>builder()
+                .message("Success")
+                .code(1000)
+                .result(classService.createClass(request))
+                .build();
+    }
+
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    ApiResponse<List<ClassResponse>> getAllClasses() {
+        return ApiResponse.<List<ClassResponse>>builder()
+                .message("Success")
+                .code(1000)
+                .result(classService.getAllClasses())
+                .build();
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
+    ApiResponse<ClassResponse> getClassById(@PathVariable Long id) {
+        return ApiResponse.<ClassResponse>builder()
+                .message("Success")
+                .code(1000)
+                .result(classService.getClassById(id))
+                .build();
+    }
+
+    @GetMapping("/teacher")
+    @PreAuthorize("hasRole('TEACHER')")
+    ApiResponse<List<ClassResponse>> getAllClassesByTeacherId() {
+        return ApiResponse.<List<ClassResponse>>builder()
+                .message("Success")
+                .code(1000)
+                .result(classService.getClassByTeacher())
+                .build();
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('TEACHER')")
+    ApiResponse<ClassResponse> updateClassById(@PathVariable Long id,@RequestBody ClassUpdateRequest request) {
+        return ApiResponse.<ClassResponse>builder()
+                .message("Success")
+                .code(1000)
+                .result(classService.updateClassById(id, request))
+                .build();
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('TEACHER')")
+    ApiResponse<String> deleteClassById(@PathVariable Long id) {
+        return ApiResponse.<String>builder()
+                .message("Success")
+                .code(1000)
+                .result("Class " + id + " successfully deleted")
+                .build();
+    }
+
+}
