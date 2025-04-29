@@ -41,7 +41,6 @@ public class UserService {
     ErrorNormalizer errorNormalizer;
     KeycloakClientTokenService keycloakClientTokenService;
     KeycloakUserTokenService keycloakUserTokenService;
-    PendingUserService pendingUserService;
 
 
     private String extractUserId(ResponseEntity<?> responseEntity) {
@@ -108,7 +107,8 @@ public class UserService {
     public UserResponse getMyInfo(){
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         String userKeycloakId = authentication.getName();
-        var user = userRepository.findByKeycloakUserId(userKeycloakId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        var user = userRepository.findByKeycloakUserId(userKeycloakId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         return userMapper.toUserResponse(user);
     }
     public void changePassword(Long id, ChangePasswordRequest request) {

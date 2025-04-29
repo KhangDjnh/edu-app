@@ -5,21 +5,24 @@ import com.khangdjnh.edu_app.entity.User;
 import com.khangdjnh.edu_app.exception.AppException;
 import com.khangdjnh.edu_app.exception.ErrorCode;
 import com.khangdjnh.edu_app.keycloak.UserAccessTokenExchangeParam;
-import com.khangdjnh.edu_app.keycloak.UserRefreshTokenExchangeParam;
 import com.khangdjnh.edu_app.keycloak.UserTokenExchangeResponse;
 import com.khangdjnh.edu_app.repository.IdentityClient;
 import com.khangdjnh.edu_app.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 public class KeycloakUserTokenService {
+
     private final IdentityClient identityClient;
     private final UserRepository userRepository;
+    private final RedisTemplate<String, String> redisTemplate; // inject Redis
 
     @Value("${idp.client-id}")
     private String clientId;
@@ -27,49 +30,38 @@ public class KeycloakUserTokenService {
     @Value("${idp.client-secret}")
     private String clientSecret;
 
-    private String cachedToken;
-    private Instant tokenExpiry;
-    private String refreshToken;
-    private Instant refreshTokenExpiry;
+    private static final String TOKEN_PREFIX = "user_token:";
 
+    public String getAccessToken(LoginRequest request) {
+        String cacheKey = TOKEN_PREFIX + request.getEmail();
+        ValueOperations<String, String> ops = redisTemplate.opsForValue();
 
-    public synchronized String getAccessToken(LoginRequest request) {
-        if (cachedToken == null || tokenExpiry == null || Instant.now().isAfter(tokenExpiry.minusSeconds(60))) {
-            refreshToken(request);
+        String cachedToken = ops.get(cacheKey);
+        if (cachedToken != null) {
+            return cachedToken;
         }
-        return cachedToken;
+
+        // Nếu không có cache, thì call Keycloak lấy token
+        String token = fetchTokenFromKeycloak(request);
+
+        // Cache token lại với TTL (ví dụ 4 phút, tùy theo expires_in từ Keycloak)
+        ops.set(cacheKey, token, 15, TimeUnit.MINUTES);
+
+        return token;
     }
 
-    private void refreshToken(LoginRequest request) {
-        if (refreshToken != null && Instant.now().isBefore(refreshTokenExpiry)) {
-            // Gọi grant_type=refresh_token
-            UserRefreshTokenExchangeParam param = UserRefreshTokenExchangeParam.builder()
-                    .grant_type("refresh_token")
-                    .client_id(clientId)
-                    .client_secret(clientSecret)
-                    .refresh_token(refreshToken)
-                    .build();
+    private String fetchTokenFromKeycloak(LoginRequest request) {
+        UserAccessTokenExchangeParam param = UserAccessTokenExchangeParam.builder()
+                .grant_type("password")
+                .client_id(clientId)
+                .client_secret(clientSecret)
+                .username(getKeycloakUsername(request.getEmail()))
+                .password(request.getPassword())
+                .scope("openid")
+                .build();
 
-            UserTokenExchangeResponse response = identityClient.exchangeUserRefreshToken(param);
-            this.cachedToken = response.getAccessToken();
-            this.tokenExpiry = Instant.now().plusSeconds(Long.parseLong(response.getExpiresIn()));
-            this.refreshToken = response.getRefreshToken();
-            this.refreshTokenExpiry = Instant.now().plusSeconds(Long.parseLong(response.getRefreshExpiresIn()));
-        } else {
-            UserAccessTokenExchangeParam param = UserAccessTokenExchangeParam.builder()
-                    .grant_type("password")
-                    .client_id(clientId)
-                    .client_secret(clientSecret)
-                    .username(getKeycloakUsername(request.getEmail()))
-                    .password(request.getPassword())
-                    .scope("openid")
-                    .build();
-
-            UserTokenExchangeResponse response = identityClient.exchangeUserAccessToken(param);
-
-            this.cachedToken = response.getAccessToken();
-            this.tokenExpiry = Instant.now().plusSeconds(Long.parseLong(response.getExpiresIn()));
-        }
+        UserTokenExchangeResponse response = identityClient.exchangeUserAccessToken(param);
+        return response.getAccessToken();
     }
 
     private String getKeycloakUsername(String email) {
@@ -77,5 +69,4 @@ public class KeycloakUserTokenService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         return user.getUsername();
     }
-
 }

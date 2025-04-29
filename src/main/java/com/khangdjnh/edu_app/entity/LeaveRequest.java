@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -27,6 +28,9 @@ public class LeaveRequest {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "class_id", nullable = false)
     private ClassEntity classEntity;
+
+    @Column(name = "leave_date", nullable = false)
+    private LocalDate leaveDate;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String reason;

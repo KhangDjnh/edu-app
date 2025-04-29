@@ -1,17 +1,21 @@
 package com.khangdjnh.edu_app.dto.response;
 
-import com.khangdjnh.edu_app.entity.User;
+import com.khangdjnh.edu_app.enums.LeaveRequestStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class StudentJoinClassResponse {
-    Long classId;
+public class LeaveRequestResponse {
+    Long id;
     Long studentId;
+    Long classId;
+    LocalDate leaveDate;
+    String reason;
+    LeaveRequestStatus status;
 }

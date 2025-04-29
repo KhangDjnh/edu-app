@@ -16,6 +16,6 @@ public class ClassResponse {
     String name;
     String code;
     String description;
-    User teacher;
+    Long teacherId;
     LocalDateTime createdAt;
 }

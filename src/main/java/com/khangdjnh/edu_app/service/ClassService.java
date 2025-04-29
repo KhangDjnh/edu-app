@@ -35,7 +35,7 @@ public class ClassService {
         var user = userRepository.findByKeycloakUserId(userKeycloakId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         classEntity.setTeacher(user);
         ClassResponse classResponse = classMapper.toClassResponse(classRepository.save(classEntity));
-        classResponse.setTeacher(user);
+        classResponse.setTeacherId(user.getId());
         return classResponse;
     }
 
@@ -43,7 +43,7 @@ public class ClassService {
         ClassEntity classEntity = classRepository.findById(classId)
                 .orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
         ClassResponse classResponse = classMapper.toClassResponse(classEntity);
-        classResponse.setTeacher(classEntity.getTeacher());
+        classResponse.setTeacherId(classEntity.getTeacher().getId());
         return classResponse;
     }
 

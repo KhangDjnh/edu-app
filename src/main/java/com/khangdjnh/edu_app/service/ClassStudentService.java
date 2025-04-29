@@ -43,7 +43,7 @@ public class ClassStudentService {
         classStudentRepository.save(classStudent);
         return StudentJoinClassResponse.builder()
                 .classId(request.getClassId())
-                .student(student)
+                .studentId(student.getId())
                 .build();
     }
 
@@ -82,7 +82,7 @@ public class ClassStudentService {
         classStudentRepository.save(classStudent);
         return StudentJoinClassResponse.builder()
                 .classId(classEntity.getId())
-                .student(student)
+                .studentId(student.getId())
                 .build();
     }
 }
