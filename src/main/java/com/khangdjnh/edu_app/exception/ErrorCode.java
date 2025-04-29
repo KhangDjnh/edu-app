@@ -36,10 +36,10 @@ public enum ErrorCode {
     EXAM_QUESTION_NOT_FOUND(1023, "Exam question not found", HttpStatus.NOT_FOUND),
     EXAM_NOT_FOUND(1024, "Exam not found", HttpStatus.NOT_FOUND),
 
+    FAILED_TO_GENERATE_PDF(1025, "Failed to generate pdf", HttpStatus.INTERNAL_SERVER_ERROR),
 
-
-    INVALID_EXAM_TIME(1025, "Start time must be before end time", HttpStatus.BAD_REQUEST),
-    NOT_ENOUGH_QUESTIONS(1026, "Not enough questions for this level", HttpStatus.BAD_REQUEST),
+    INVALID_EXAM_TIME(1026, "Start time must be before end time", HttpStatus.BAD_REQUEST),
+    NOT_ENOUGH_QUESTIONS(1027, "Not enough questions for this level", HttpStatus.BAD_REQUEST),
 
 
     ;
