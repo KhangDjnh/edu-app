@@ -31,6 +31,7 @@ public enum ErrorCode {
     CLASS_NOT_FOUND(1018, "Class not found", HttpStatus.NOT_FOUND),
     DOCUMENT_NOT_FOUND(1019, "Document not found", HttpStatus.NOT_FOUND),
     LEAVE_REQUEST_NOT_FOUND(1020, "Document not found", HttpStatus.NOT_FOUND),
+    ATTENDANCE_NOT_FOUND(1020, "Attendance not found", HttpStatus.NOT_FOUND),
 
     ;
 

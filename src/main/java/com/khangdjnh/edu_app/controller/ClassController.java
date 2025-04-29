@@ -5,6 +5,7 @@ import com.khangdjnh.edu_app.dto.request.ClassUpdateRequest;
 import com.khangdjnh.edu_app.dto.response.ApiResponse;
 import com.khangdjnh.edu_app.dto.response.ClassResponse;
 import com.khangdjnh.edu_app.service.ClassService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -22,7 +23,7 @@ public class ClassController {
 
     @PostMapping
     @PreAuthorize("hasRole('TEACHER')")
-    ApiResponse<ClassResponse> createClass (@RequestBody ClassCreateRequest request) {
+    ApiResponse<ClassResponse> createClass (@RequestBody @Valid ClassCreateRequest request) {
         return ApiResponse.<ClassResponse>builder()
                 .message("Success")
                 .code(1000)
@@ -62,7 +63,7 @@ public class ClassController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('TEACHER')")
-    ApiResponse<ClassResponse> updateClassById(@PathVariable Long id,@RequestBody ClassUpdateRequest request) {
+    ApiResponse<ClassResponse> updateClassById(@PathVariable Long id,@RequestBody @Valid ClassUpdateRequest request) {
         return ApiResponse.<ClassResponse>builder()
                 .message("Success")
                 .code(1000)

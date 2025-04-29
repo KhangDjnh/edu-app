@@ -10,6 +10,7 @@ import java.util.Optional;
 @Repository
 public interface LeaveRequestRepository extends JpaRepository<LeaveRequest, Long> {
     List<LeaveRequest> findByClassEntityId(Long classId);
+    List<LeaveRequest> findByStudent_Id(Long studentId);
 
     @Override
     Optional<LeaveRequest> findById(Long id);

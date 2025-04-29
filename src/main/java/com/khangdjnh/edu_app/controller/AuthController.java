@@ -4,7 +4,6 @@ import com.khangdjnh.edu_app.dto.request.LoginRequest;
 import com.khangdjnh.edu_app.dto.request.UserCreateRequest;
 import com.khangdjnh.edu_app.dto.response.ApiResponse;
 import com.khangdjnh.edu_app.dto.response.LoginResponse;
-import com.khangdjnh.edu_app.dto.response.UserResponse;
 import com.khangdjnh.edu_app.service.PendingUserService;
 import com.khangdjnh.edu_app.service.UserService;
 import jakarta.validation.Valid;

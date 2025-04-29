@@ -62,7 +62,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @authz.isOwner(#id)")
-    ApiResponse<UserResponse> updateUser (@PathVariable Long id, @RequestBody UserUpdateRequest request) {
+    ApiResponse<UserResponse> updateUser (@PathVariable Long id, @RequestBody @Valid UserUpdateRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .code(1000)
                 .message("Success")
@@ -72,7 +72,7 @@ public class UserController {
 
     @PutMapping("/{id}/change-password")
     @PreAuthorize("hasRole('ADMIN') or @authz.isOwner(#id)")
-    ApiResponse<String> changePassword (@PathVariable Long id, @RequestBody ChangePasswordRequest request) {
+    ApiResponse<String> changePassword (@PathVariable Long id, @RequestBody @Valid ChangePasswordRequest request) {
         userService.changePassword(id, request);
         return ApiResponse.<String>builder()
                 .code(1000)

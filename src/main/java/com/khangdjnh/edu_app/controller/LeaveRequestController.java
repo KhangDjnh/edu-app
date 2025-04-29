@@ -5,6 +5,7 @@ import com.khangdjnh.edu_app.dto.request.LeaveRequestCreate;
 import com.khangdjnh.edu_app.dto.response.ApiResponse;
 import com.khangdjnh.edu_app.dto.response.LeaveRequestResponse;
 import com.khangdjnh.edu_app.service.LeaveRequestService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -22,7 +23,7 @@ public class LeaveRequestController {
 
     @PostMapping
     @PreAuthorize("hasRole('STUDENT')")
-    ApiResponse<LeaveRequestResponse> createLeaveRequest (@RequestBody LeaveRequestCreate request) {
+    ApiResponse<LeaveRequestResponse> createLeaveRequest (@RequestBody @Valid LeaveRequestCreate request) {
         return ApiResponse.<LeaveRequestResponse>builder()
                 .message("Success")
                 .code(1000)
@@ -67,6 +68,15 @@ public class LeaveRequestController {
                 .message("Success")
                 .code(1000)
                 .result(leaveRequestService.getAllLeaveRequestInClass(classId))
+                .build();
+    }
+    @GetMapping("/student/{studentId}")
+    @PreAuthorize("hasRole('STUDENT')")
+    ApiResponse<List<LeaveRequestResponse>> getAllLeaveRequestStudent (@PathVariable Long studentId) {
+        return ApiResponse.<List<LeaveRequestResponse>>builder()
+                .message("Success")
+                .code(1000)
+                .result(leaveRequestService.getAllLeaveRequestStudent(studentId))
                 .build();
     }
 }

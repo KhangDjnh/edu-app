@@ -5,6 +5,7 @@ import com.khangdjnh.edu_app.dto.request.DocumentUpdateRequest;
 import com.khangdjnh.edu_app.dto.response.ApiResponse;
 import com.khangdjnh.edu_app.dto.response.DocumentResponse;
 import com.khangdjnh.edu_app.service.DocumentService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -22,7 +23,7 @@ public class DocumentController {
 
     @PostMapping
     @PreAuthorize("hasRole('TEACHER')")
-    ApiResponse<DocumentResponse> createDocument(@RequestBody DocumentCreateRequest request) {
+    ApiResponse<DocumentResponse> createDocument(@RequestBody @Valid DocumentCreateRequest request) {
         return ApiResponse.<DocumentResponse>builder()
                 .message("Success")
                 .code(1000)
@@ -62,7 +63,7 @@ public class DocumentController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('TEACHER')")
-    ApiResponse<DocumentResponse> updateDocumentById(@PathVariable Long id,@RequestBody DocumentUpdateRequest request) {
+    ApiResponse<DocumentResponse> updateDocumentById(@PathVariable Long id,@RequestBody @Valid DocumentUpdateRequest request) {
         return ApiResponse.<DocumentResponse>builder()
                 .message("Success")
                 .code(1000)

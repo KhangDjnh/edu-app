@@ -116,5 +116,22 @@ public class LeaveRequestService {
                         .build())
                 .toList();
     }
+    public List<LeaveRequestResponse> getAllLeaveRequestStudent(Long studentId) {
+        if (!userRepository.existsById(studentId)) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+        List<LeaveRequest> leaveRequests = leaveRequestRepository.findByStudent_Id(studentId);
+
+        return leaveRequests.stream()
+                .map(leaveRequest -> LeaveRequestResponse.builder()
+                        .id(leaveRequest.getId())
+                        .studentId(leaveRequest.getStudent().getId())
+                        .classId(leaveRequest.getClassEntity().getId())
+                        .leaveDate(leaveRequest.getLeaveDate())
+                        .reason(leaveRequest.getReason())
+                        .status(leaveRequest.getStatus())
+                        .build())
+                .toList();
+    }
 
 }
