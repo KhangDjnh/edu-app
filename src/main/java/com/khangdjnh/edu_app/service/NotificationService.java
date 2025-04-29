@@ -1,0 +1,40 @@
+package com.khangdjnh.edu_app.service;
+
+import com.khangdjnh.edu_app.dto.message.NotificationMessage;
+import com.khangdjnh.edu_app.entity.Notice;
+import com.khangdjnh.edu_app.entity.User;
+import com.khangdjnh.edu_app.enums.NoticeType;
+import com.khangdjnh.edu_app.repository.NoticeRepository;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+
+@Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class NotificationService {
+
+    SimpMessagingTemplate messagingTemplate;
+    NoticeRepository noticeRepository;
+
+    public void sendLeaveNotice(User receiver, String content) {
+        Notice notice = Notice.builder()
+                .receiver(receiver)
+                .content(content)
+                .createdAt(LocalDateTime.now())
+                .read(false)
+                .type(NoticeType.LEAVE_REQUEST)
+                .build();
+
+        noticeRepository.save(notice);
+
+        messagingTemplate.convertAndSend(
+                "/topic/notifications/" + receiver.getId(),
+                new NotificationMessage(content, receiver.getId())
+        );
+    }
+}

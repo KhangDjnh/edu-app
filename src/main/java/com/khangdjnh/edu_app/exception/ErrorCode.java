@@ -32,6 +32,7 @@ public enum ErrorCode {
     DOCUMENT_NOT_FOUND(1019, "Document not found", HttpStatus.NOT_FOUND),
     LEAVE_REQUEST_NOT_FOUND(1020, "Document not found", HttpStatus.NOT_FOUND),
     ATTENDANCE_NOT_FOUND(1020, "Attendance not found", HttpStatus.NOT_FOUND),
+    NOTICE_NOT_FOUND(1020, "Notice not found", HttpStatus.NOT_FOUND),
 
     ;
 

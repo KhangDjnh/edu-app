@@ -72,11 +72,11 @@ public class LeaveRequestController {
     }
     @GetMapping("/student/{studentId}")
     @PreAuthorize("hasRole('STUDENT')")
-    ApiResponse<List<LeaveRequestResponse>> getAllLeaveRequestStudent (@PathVariable Long studentId) {
+    ApiResponse<List<LeaveRequestResponse>> getAllLeaveRequestStudent (@PathVariable Long studentId, @RequestParam Long classId) {
         return ApiResponse.<List<LeaveRequestResponse>>builder()
                 .message("Success")
                 .code(1000)
-                .result(leaveRequestService.getAllLeaveRequestStudent(studentId))
+                .result(leaveRequestService.getAllLeaveRequestStudent(studentId, classId))
                 .build();
     }
 }
