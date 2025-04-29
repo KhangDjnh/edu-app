@@ -1,7 +1,7 @@
 package com.khangdjnh.edu_app.controller;
 
 import com.khangdjnh.edu_app.dto.request.LoginRequest;
-import com.khangdjnh.edu_app.dto.request.UserCreateRequest;
+import com.khangdjnh.edu_app.dto.request.user.UserCreateRequest;
 import com.khangdjnh.edu_app.dto.response.ApiResponse;
 import com.khangdjnh.edu_app.dto.response.LoginResponse;
 import com.khangdjnh.edu_app.service.PendingUserService;

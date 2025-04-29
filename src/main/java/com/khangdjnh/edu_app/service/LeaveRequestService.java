@@ -1,6 +1,6 @@
 package com.khangdjnh.edu_app.service;
 
-import com.khangdjnh.edu_app.dto.request.LeaveRequestCreate;
+import com.khangdjnh.edu_app.dto.request.leaverequest.LeaveRequestCreate;
 import com.khangdjnh.edu_app.dto.response.LeaveRequestResponse;
 import com.khangdjnh.edu_app.entity.ClassEntity;
 import com.khangdjnh.edu_app.entity.LeaveRequest;

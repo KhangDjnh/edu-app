@@ -1,6 +1,6 @@
 package com.khangdjnh.edu_app.service;
 
-import com.khangdjnh.edu_app.dto.request.StudentJoinClassRequest;
+import com.khangdjnh.edu_app.dto.request.classstudent.StudentJoinClassRequest;
 import com.khangdjnh.edu_app.dto.response.ClassResponse;
 import com.khangdjnh.edu_app.dto.response.StudentJoinClassResponse;
 import com.khangdjnh.edu_app.dto.response.UserResponse;

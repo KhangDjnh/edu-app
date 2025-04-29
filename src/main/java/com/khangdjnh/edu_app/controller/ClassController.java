@@ -1,7 +1,7 @@
 package com.khangdjnh.edu_app.controller;
 
-import com.khangdjnh.edu_app.dto.request.ClassCreateRequest;
-import com.khangdjnh.edu_app.dto.request.ClassUpdateRequest;
+import com.khangdjnh.edu_app.dto.request.classentity.ClassCreateRequest;
+import com.khangdjnh.edu_app.dto.request.classentity.ClassUpdateRequest;
 import com.khangdjnh.edu_app.dto.response.ApiResponse;
 import com.khangdjnh.edu_app.dto.response.ClassResponse;
 import com.khangdjnh.edu_app.service.ClassService;

@@ -1,4 +1,5 @@
-package com.khangdjnh.edu_app.dto.request;
+package com.khangdjnh.edu_app.dto.request.attendance;
+
 
 import com.khangdjnh.edu_app.enums.AttendanceStatus;
 import jakarta.validation.constraints.NotNull;
@@ -7,14 +8,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AttendanceStudentRequest {
+public class AttendanceUpdateRequest {
 
     @NotNull
-    private Long studentId;
+    private LocalDate attendanceDate;
 
     @NotNull
     private AttendanceStatus status;

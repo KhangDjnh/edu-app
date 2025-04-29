@@ -1,7 +1,7 @@
 package com.khangdjnh.edu_app.controller;
 
-import com.khangdjnh.edu_app.dto.request.JoinClassByCodeRequest;
-import com.khangdjnh.edu_app.dto.request.StudentJoinClassRequest;
+import com.khangdjnh.edu_app.dto.request.classstudent.JoinClassByCodeRequest;
+import com.khangdjnh.edu_app.dto.request.classstudent.StudentJoinClassRequest;
 import com.khangdjnh.edu_app.dto.response.ApiResponse;
 import com.khangdjnh.edu_app.dto.response.ClassResponse;
 import com.khangdjnh.edu_app.dto.response.StudentJoinClassResponse;

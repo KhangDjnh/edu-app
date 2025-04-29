@@ -1,6 +1,6 @@
 package com.khangdjnh.edu_app.service;
 
-import com.khangdjnh.edu_app.dto.request.UserCreateRequest;
+import com.khangdjnh.edu_app.dto.request.user.UserCreateRequest;
 import com.khangdjnh.edu_app.entity.PendingUser;
 import com.khangdjnh.edu_app.exception.AppException;
 import com.khangdjnh.edu_app.exception.ErrorCode;
@@ -9,7 +9,6 @@ import com.khangdjnh.edu_app.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

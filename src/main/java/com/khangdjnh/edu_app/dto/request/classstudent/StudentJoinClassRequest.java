@@ -1,22 +1,21 @@
-package com.khangdjnh.edu_app.dto.request;
+package com.khangdjnh.edu_app.dto.request.classstudent;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class LeaveRequestCreate {
+public class StudentJoinClassRequest {
     @NotNull
+    @Positive
     Long classId;
-    @NotBlank
-    String reason;
+
     @NotNull
-    LocalDate leaveDate;
+    @Positive
+    Long studentId;
 }

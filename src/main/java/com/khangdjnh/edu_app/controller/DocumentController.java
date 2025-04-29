@@ -1,7 +1,7 @@
 package com.khangdjnh.edu_app.controller;
 
-import com.khangdjnh.edu_app.dto.request.DocumentCreateRequest;
-import com.khangdjnh.edu_app.dto.request.DocumentUpdateRequest;
+import com.khangdjnh.edu_app.dto.request.document.DocumentCreateRequest;
+import com.khangdjnh.edu_app.dto.request.document.DocumentUpdateRequest;
 import com.khangdjnh.edu_app.dto.response.ApiResponse;
 import com.khangdjnh.edu_app.dto.response.DocumentResponse;
 import com.khangdjnh.edu_app.service.DocumentService;

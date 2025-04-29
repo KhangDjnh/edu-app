@@ -1,6 +1,8 @@
 package com.khangdjnh.edu_app.service;
 
-import com.khangdjnh.edu_app.dto.request.*;
+import com.khangdjnh.edu_app.dto.request.attendance.AttendanceCreateRequest;
+import com.khangdjnh.edu_app.dto.request.attendance.AttendanceStudentRequest;
+import com.khangdjnh.edu_app.dto.request.attendance.AttendanceUpdateRequest;
 import com.khangdjnh.edu_app.dto.response.AttendanceCreateResponse;
 import com.khangdjnh.edu_app.dto.response.AttendanceResponse;
 import com.khangdjnh.edu_app.entity.Attendance;

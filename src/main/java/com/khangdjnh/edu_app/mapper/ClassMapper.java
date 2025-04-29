@@ -1,7 +1,7 @@
 package com.khangdjnh.edu_app.mapper;
 
-import com.khangdjnh.edu_app.dto.request.ClassCreateRequest;
-import com.khangdjnh.edu_app.dto.request.ClassUpdateRequest;
+import com.khangdjnh.edu_app.dto.request.classentity.ClassCreateRequest;
+import com.khangdjnh.edu_app.dto.request.classentity.ClassUpdateRequest;
 import com.khangdjnh.edu_app.dto.response.ClassResponse;
 import com.khangdjnh.edu_app.entity.ClassEntity;
 import org.mapstruct.*;

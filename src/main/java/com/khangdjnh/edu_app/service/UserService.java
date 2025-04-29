@@ -2,8 +2,8 @@ package com.khangdjnh.edu_app.service;
 
 import com.khangdjnh.edu_app.dto.request.ChangePasswordRequest;
 import com.khangdjnh.edu_app.dto.request.LoginRequest;
-import com.khangdjnh.edu_app.dto.request.UserCreateRequest;
-import com.khangdjnh.edu_app.dto.request.UserUpdateRequest;
+import com.khangdjnh.edu_app.dto.request.user.UserCreateRequest;
+import com.khangdjnh.edu_app.dto.request.user.UserUpdateRequest;
 import com.khangdjnh.edu_app.dto.response.LoginResponse;
 import com.khangdjnh.edu_app.dto.response.UserResponse;
 import com.khangdjnh.edu_app.entity.User;

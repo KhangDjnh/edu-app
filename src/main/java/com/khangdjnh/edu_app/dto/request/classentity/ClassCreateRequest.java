@@ -1,4 +1,4 @@
-package com.khangdjnh.edu_app.dto.request;
+package com.khangdjnh.edu_app.dto.request.classentity;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

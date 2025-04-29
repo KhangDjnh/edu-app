@@ -1,4 +1,4 @@
-package com.khangdjnh.edu_app.dto.request;
+package com.khangdjnh.edu_app.dto.request.attendance;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

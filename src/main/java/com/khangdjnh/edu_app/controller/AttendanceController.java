@@ -1,7 +1,7 @@
 package com.khangdjnh.edu_app.controller;
 
-import com.khangdjnh.edu_app.dto.request.AttendanceCreateRequest;
-import com.khangdjnh.edu_app.dto.request.AttendanceUpdateRequest;
+import com.khangdjnh.edu_app.dto.request.attendance.AttendanceCreateRequest;
+import com.khangdjnh.edu_app.dto.request.attendance.AttendanceUpdateRequest;
 import com.khangdjnh.edu_app.dto.response.ApiResponse;
 import com.khangdjnh.edu_app.dto.response.AttendanceCreateResponse;
 import com.khangdjnh.edu_app.dto.response.AttendanceResponse;

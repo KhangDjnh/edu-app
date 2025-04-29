@@ -1,7 +1,7 @@
 package com.khangdjnh.edu_app.controller;
 
 
-import com.khangdjnh.edu_app.dto.request.LeaveRequestCreate;
+import com.khangdjnh.edu_app.dto.request.leaverequest.LeaveRequestCreate;
 import com.khangdjnh.edu_app.dto.response.ApiResponse;
 import com.khangdjnh.edu_app.dto.response.LeaveRequestResponse;
 import com.khangdjnh.edu_app.service.LeaveRequestService;

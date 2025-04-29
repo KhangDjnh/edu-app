@@ -1,4 +1,4 @@
-package com.khangdjnh.edu_app.dto.request;
+package com.khangdjnh.edu_app.dto.request.attendance;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

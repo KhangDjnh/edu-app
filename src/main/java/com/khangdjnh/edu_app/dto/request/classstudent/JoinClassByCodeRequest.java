@@ -1,4 +1,4 @@
-package com.khangdjnh.edu_app.dto.request;
+package com.khangdjnh.edu_app.dto.request.classstudent;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;

@@ -1,4 +1,4 @@
-package com.khangdjnh.edu_app.dto.request;
+package com.khangdjnh.edu_app.dto.request.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;

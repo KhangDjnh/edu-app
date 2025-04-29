@@ -23,6 +23,10 @@ public class ExamQuestion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "class_id", nullable = false)
+    ClassEntity classEntity;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     String question;
 

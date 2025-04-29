@@ -1,7 +1,7 @@
 package com.khangdjnh.edu_app.mapper;
 
-import com.khangdjnh.edu_app.dto.request.UserCreateRequest;
-import com.khangdjnh.edu_app.dto.request.UserUpdateRequest;
+import com.khangdjnh.edu_app.dto.request.user.UserCreateRequest;
+import com.khangdjnh.edu_app.dto.request.user.UserUpdateRequest;
 import com.khangdjnh.edu_app.dto.response.UserResponse;
 import com.khangdjnh.edu_app.entity.User;
 import org.mapstruct.BeanMapping;

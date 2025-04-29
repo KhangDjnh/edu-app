@@ -1,6 +1,6 @@
 package com.khangdjnh.edu_app.mapper;
 
-import com.khangdjnh.edu_app.dto.request.DocumentUpdateRequest;
+import com.khangdjnh.edu_app.dto.request.document.DocumentUpdateRequest;
 import com.khangdjnh.edu_app.dto.response.DocumentResponse;
 import com.khangdjnh.edu_app.entity.Document;
 import org.mapstruct.BeanMapping;
