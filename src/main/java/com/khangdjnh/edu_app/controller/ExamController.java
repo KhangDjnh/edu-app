@@ -1,7 +1,6 @@
 package com.khangdjnh.edu_app.controller;
 
 import com.khangdjnh.edu_app.dto.request.exam.ExamCreateRequest;
-import com.khangdjnh.edu_app.dto.request.examquestion.ExamQuestionCreateRequest;
 import com.khangdjnh.edu_app.dto.response.ApiResponse;
 import com.khangdjnh.edu_app.dto.response.ExamResponse;
 import com.khangdjnh.edu_app.service.ExamService;

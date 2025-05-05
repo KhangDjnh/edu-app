@@ -4,12 +4,12 @@ import com.khangdjnh.edu_app.dto.request.exam.ExamCreateRequest;
 import com.khangdjnh.edu_app.dto.response.ExamResponse;
 import com.khangdjnh.edu_app.entity.ClassEntity;
 import com.khangdjnh.edu_app.entity.Exam;
-import com.khangdjnh.edu_app.entity.ExamQuestion;
+import com.khangdjnh.edu_app.entity.Question;
 import com.khangdjnh.edu_app.enums.QuestionLevel;
 import com.khangdjnh.edu_app.exception.AppException;
 import com.khangdjnh.edu_app.exception.ErrorCode;
 import com.khangdjnh.edu_app.repository.ClassRepository;
-import com.khangdjnh.edu_app.repository.ExamQuestionRepository;
+import com.khangdjnh.edu_app.repository.QuestionRepository;
 import com.khangdjnh.edu_app.repository.ExamRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -28,10 +28,10 @@ import java.util.stream.Collectors;
 public class ExamService {
     ExamRepository examRepository;
     ClassRepository classRepository;
-    ExamQuestionRepository examQuestionRepository;
+    QuestionRepository examQuestionRepository;
 
-    private List<ExamQuestion> getRandomQuestionsFromList(List<ExamQuestion> questions, QuestionLevel level, int count) {
-        List<ExamQuestion> filtered = questions.stream()
+    private List<Question> getRandomQuestionsFromList(List<Question> questions, QuestionLevel level, int count) {
+        List<Question> filtered = questions.stream()
                 .filter(q -> q.getLevel() == level)
                 .collect(Collectors.toList());
 
@@ -54,16 +54,16 @@ public class ExamService {
         }
 
         // 1. Lấy tất cả câu hỏi thuộc classId
-        List<ExamQuestion> classQuestions = examQuestionRepository.findByClassEntityId(request.getClassId());
+        List<Question> classQuestions = examQuestionRepository.findByClassEntityId(request.getClassId());
 
         // 2. Lọc câu hỏi theo độ khó từ danh sách ở bước 1
-        List<ExamQuestion> easy = getRandomQuestionsFromList(classQuestions, QuestionLevel.EASY, request.getNumberOfEasyQuestions());
-        List<ExamQuestion> medium = getRandomQuestionsFromList(classQuestions, QuestionLevel.MEDIUM, request.getNumberOfMediumQuestions());
-        List<ExamQuestion> hard = getRandomQuestionsFromList(classQuestions, QuestionLevel.HARD, request.getNumberOfHardQuestions());
-        List<ExamQuestion> veryHard = getRandomQuestionsFromList(classQuestions, QuestionLevel.VERY_HARD, request.getNumberOfVeryHardQuestions());
+        List<Question> easy = getRandomQuestionsFromList(classQuestions, QuestionLevel.EASY, request.getNumberOfEasyQuestions());
+        List<Question> medium = getRandomQuestionsFromList(classQuestions, QuestionLevel.MEDIUM, request.getNumberOfMediumQuestions());
+        List<Question> hard = getRandomQuestionsFromList(classQuestions, QuestionLevel.HARD, request.getNumberOfHardQuestions());
+        List<Question> veryHard = getRandomQuestionsFromList(classQuestions, QuestionLevel.VERY_HARD, request.getNumberOfVeryHardQuestions());
 
         // 3. Tổng hợp và ngẫu nhiên hóa thứ tự
-        List<ExamQuestion> allQuestions = new ArrayList<>();
+        List<Question> allQuestions = new ArrayList<>();
         allQuestions.addAll(easy);
         allQuestions.addAll(medium);
         allQuestions.addAll(hard);

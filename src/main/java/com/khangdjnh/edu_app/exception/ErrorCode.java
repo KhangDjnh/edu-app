@@ -33,13 +33,16 @@ public enum ErrorCode {
     LEAVE_REQUEST_NOT_FOUND(1020, "Document not found", HttpStatus.NOT_FOUND),
     ATTENDANCE_NOT_FOUND(1021, "Attendance not found", HttpStatus.NOT_FOUND),
     NOTICE_NOT_FOUND(1022, "Notice not found", HttpStatus.NOT_FOUND),
-    EXAM_QUESTION_NOT_FOUND(1023, "Exam question not found", HttpStatus.NOT_FOUND),
+    QUESTION_NOT_FOUND(1023, "Exam question not found", HttpStatus.NOT_FOUND),
     EXAM_NOT_FOUND(1024, "Exam not found", HttpStatus.NOT_FOUND),
+    SUBMISSION_NOT_FOUND(1025, "Submission not found", HttpStatus.NOT_FOUND),
+    EXAM_NOT_AVAILABLE(1028, "Exam not available", HttpStatus.BAD_REQUEST),
 
     FAILED_TO_GENERATE_PDF(1025, "Failed to generate pdf", HttpStatus.INTERNAL_SERVER_ERROR),
 
     INVALID_EXAM_TIME(1026, "Start time must be before end time", HttpStatus.BAD_REQUEST),
     NOT_ENOUGH_QUESTIONS(1027, "Not enough questions for this level", HttpStatus.BAD_REQUEST),
+    ALREADY_SUBMITTED(1029, "Already submitted", HttpStatus.BAD_REQUEST),
 
 
     ;
