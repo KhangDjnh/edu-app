@@ -1,6 +1,5 @@
 package com.khangdjnh.edu_app.service;
 
-import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -8,7 +7,7 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
 import com.khangdjnh.edu_app.entity.Exam;
-import com.khangdjnh.edu_app.entity.ExamQuestion;
+import com.khangdjnh.edu_app.entity.Question;
 import com.khangdjnh.edu_app.exception.AppException;
 import com.khangdjnh.edu_app.exception.ErrorCode;
 import com.khangdjnh.edu_app.repository.ExamRepository;
@@ -29,7 +28,7 @@ public class ExamPdfService {
         Exam exam = examRepository.findById(examId)
                 .orElseThrow(() -> new AppException(ErrorCode.EXAM_NOT_FOUND));
 
-        List<ExamQuestion> questions = exam.getQuestions();
+        List<Question> questions = exam.getQuestions();
 
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             PdfWriter writer = new PdfWriter(out);
@@ -47,7 +46,7 @@ public class ExamPdfService {
             document.add(new Paragraph("\n"));
 
             int index = 1;
-            for (ExamQuestion q : questions) {
+            for (Question q : questions) {
                 document.add(new Paragraph(index++ + ". " + q.getQuestion()));
                 document.add(new Paragraph("A. " + q.getOptionA()));
                 document.add(new Paragraph("B. " + q.getOptionB()));

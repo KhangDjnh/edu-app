@@ -1,4 +1,4 @@
-package com.khangdjnh.edu_app.dto.request.examquestion;
+package com.khangdjnh.edu_app.dto.request.question;
 
 import com.khangdjnh.edu_app.enums.AnswerOption;
 import com.khangdjnh.edu_app.enums.QuestionLevel;
@@ -12,7 +12,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ExamQuestionCreateRequest {
+public class QuestionCreateRequest {
     @NotNull
     Long classId;
     @NotBlank

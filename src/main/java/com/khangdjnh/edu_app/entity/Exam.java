@@ -48,5 +48,5 @@ public class Exam {
             joinColumns = @JoinColumn(name = "exam_id"),
             inverseJoinColumns = @JoinColumn(name = "question_id")
     )
-    List<ExamQuestion> questions;
+    List<Question> questions;
 }

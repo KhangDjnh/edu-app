@@ -1,12 +1,12 @@
 package com.khangdjnh.edu_app.entity;
 
+import com.khangdjnh.edu_app.enums.ExamSubmissionStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
 @Entity
 @Getter
 @Setter
@@ -33,14 +33,16 @@ public class ExamSubmission {
     @JoinColumn(name = "student_id", nullable = false)
     private User student;
 
-    @Column(name = "submission_file", nullable = false)
-    private String submissionFile;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ExamSubmissionStatus status; // IN_PROGRESS, COMPLETED, CANCELED
+
+    @Column(name = "started_at", nullable = false)
+    private LocalDateTime startedAt;
+
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
 
     @Column(precision = 5, scale = 2)
     private BigDecimal score;
-
-    @Column(name = "submitted_at", updatable = false)
-    @CreationTimestamp
-    private LocalDateTime submittedAt;
-
 }
