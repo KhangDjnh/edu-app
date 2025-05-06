@@ -37,7 +37,7 @@ public class EmailConfirmationController {
     ErrorNormalizer errorNormalizer;
     PasswordEncoder passwordEncoder;
 
-    @GetMapping("/confirm-email")
+    @GetMapping("/api/confirm-email")
     public ApiResponse<String> confirmEmail(@RequestParam String token) {
         PendingUser pendingUser = pendingUserRepository.findByConfirmationToken(token)
                 .orElseThrow(() -> new AppException(ErrorCode.CONFIRM_MAIL_TOKEN_IS_INVALID_OR_EXPIRED));

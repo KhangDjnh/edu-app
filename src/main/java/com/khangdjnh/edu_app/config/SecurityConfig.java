@@ -16,8 +16,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 @EnableWebSecurity
 public class SecurityConfig {
-    private final String[] PUBLIC_POST_ENDPOINTS = {"/auth/login", "/auth/register", "/users"};
-    private final String[] PUBLIC_GET_ENDPOINTS = {"/confirm-email"};
+    private final String[] PUBLIC_POST_ENDPOINTS = {"/api/auth/login", "/api/auth/register", "/api/users"};
+    private final String[] PUBLIC_GET_ENDPOINTS = {"/api/confirm-email"};
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);
