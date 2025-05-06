@@ -11,5 +11,8 @@ import java.util.Optional;
 public interface ScoreRepository extends JpaRepository<Score, Long> {
     List<Score> findAllByStudentId(Long studentId);
     List<Score> findAllByExamId(Long examId);
+    List<Score> findAllByClassEntityIdAndExamId(Long classId, Long examId);
+    List<Score> findAllByClassEntityId(Long classId);
+
     Optional<Score> findByStudentIdAndExamId(Long studentId, Long examId);
 }
