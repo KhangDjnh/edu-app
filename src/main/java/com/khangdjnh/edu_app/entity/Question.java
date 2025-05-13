@@ -27,6 +27,9 @@ public class Question {
     @JoinColumn(name = "class_id", nullable = false)
     ClassEntity classEntity;
 
+    @Column(name = "chapter", nullable = false)
+    Integer chapter;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     String question;
 

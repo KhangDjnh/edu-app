@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ExamCreateRequest {
+public class ExamCreateRandomRequest {
     @NotNull
     Long classId;
     @NotBlank

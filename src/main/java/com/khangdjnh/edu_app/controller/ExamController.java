@@ -1,6 +1,7 @@
 package com.khangdjnh.edu_app.controller;
 
-import com.khangdjnh.edu_app.dto.request.exam.ExamCreateRequest;
+import com.khangdjnh.edu_app.dto.request.exam.ExamCreateChooseRequest;
+import com.khangdjnh.edu_app.dto.request.exam.ExamCreateRandomRequest;
 import com.khangdjnh.edu_app.dto.response.ApiResponse;
 import com.khangdjnh.edu_app.dto.response.ExamResponse;
 import com.khangdjnh.edu_app.service.ExamService;
@@ -18,13 +19,23 @@ import org.springframework.web.bind.annotation.*;
 public class ExamController {
     ExamService examService;
 
-    @PostMapping
+    @PostMapping("/random")
     @PreAuthorize("hasRole('TEACHER')")
-    ApiResponse<ExamResponse> createRandomExam (@RequestBody @Valid ExamCreateRequest request) {
+    ApiResponse<ExamResponse> createRandomExam (@RequestBody @Valid ExamCreateRandomRequest request) {
         return ApiResponse.<ExamResponse>builder()
                 .message("Success")
                 .code(1000)
                 .result(examService.createRandomExam(request))
+                .build();
+    }
+
+    @PostMapping("/choose")
+    @PreAuthorize("hasRole('TEACHER')")
+    ApiResponse<ExamResponse> createChooseExam (@RequestBody @Valid ExamCreateChooseRequest request) {
+        return ApiResponse.<ExamResponse>builder()
+                .message("Success")
+                .code(1000)
+                .result(examService.createChooseExam(request))
                 .build();
     }
 

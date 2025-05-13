@@ -46,6 +46,7 @@ public enum ErrorCode {
     NOT_ENOUGH_QUESTIONS(1027, "Not enough questions for this level", HttpStatus.BAD_REQUEST),
     ALREADY_SUBMITTED(1029, "Already submitted", HttpStatus.BAD_REQUEST),
     EXAM_NOT_AVAILABLE(1028, "Exam not available", HttpStatus.BAD_REQUEST),
+    INVALID_QUESTION_LIST(1030, "List question id is empty", HttpStatus.BAD_REQUEST)
 
 
     ;

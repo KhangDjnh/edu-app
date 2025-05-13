@@ -1,6 +1,7 @@
 package com.khangdjnh.edu_app.service;
 
-import com.khangdjnh.edu_app.dto.request.exam.ExamCreateRequest;
+import com.khangdjnh.edu_app.dto.request.exam.ExamCreateChooseRequest;
+import com.khangdjnh.edu_app.dto.request.exam.ExamCreateRandomRequest;
 import com.khangdjnh.edu_app.dto.response.ExamResponse;
 import com.khangdjnh.edu_app.entity.ClassEntity;
 import com.khangdjnh.edu_app.entity.Exam;
@@ -45,7 +46,7 @@ public class ExamService {
 
 
     @Transactional
-    public ExamResponse createRandomExam(ExamCreateRequest request) {
+    public ExamResponse createRandomExam(ExamCreateRandomRequest request) {
         ClassEntity classEntity = classRepository.findById(request.getClassId())
                 .orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
 
@@ -78,6 +79,53 @@ public class ExamService {
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
                 .questions(allQuestions)
+                .build();
+
+        exam = examRepository.save(exam);
+
+        return ExamResponse.builder()
+                .id(exam.getId())
+                .classId(classEntity.getId())
+                .title(exam.getTitle())
+                .startTime(exam.getStartTime())
+                .endTime(exam.getEndTime())
+                .description(exam.getDescription())
+                .createdAt(exam.getCreatedAt())
+                .build();
+    }
+
+    public ExamResponse createChooseExam(ExamCreateChooseRequest request) {
+        // Validate class
+        ClassEntity classEntity = classRepository.findById(request.getClassId())
+                .orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
+
+        if (request.getStartTime().isAfter(request.getEndTime())) {
+            throw new AppException(ErrorCode.INVALID_EXAM_TIME);
+        }
+
+        if (request.getQuestionIds() == null || request.getQuestionIds().isEmpty()) {
+            throw new AppException(ErrorCode.INVALID_QUESTION_LIST);
+        }
+
+        List<Question> questions = examQuestionRepository.findAllById(request.getQuestionIds());
+
+        if (questions.size() != request.getQuestionIds().size()) {
+            throw new AppException(ErrorCode.QUESTION_NOT_FOUND);
+        }
+
+        for (Question q : questions) {
+            if (!q.getClassEntity().getId().equals(classEntity.getId())) {
+                throw new AppException(ErrorCode.QUESTION_NOT_FOUND);
+            }
+        }
+
+        Exam exam = Exam.builder()
+                .classEntity(classEntity)
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .startTime(request.getStartTime())
+                .endTime(request.getEndTime())
+                .questions(questions)
                 .build();
 
         exam = examRepository.save(exam);

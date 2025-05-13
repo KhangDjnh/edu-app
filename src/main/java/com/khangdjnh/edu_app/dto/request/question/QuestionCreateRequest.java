@@ -29,4 +29,6 @@ public class QuestionCreateRequest {
     AnswerOption answer;
     @NotNull
     QuestionLevel level;
+    @NotNull
+    Integer chapter;
 }

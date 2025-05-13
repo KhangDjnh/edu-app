@@ -1,6 +1,7 @@
 package com.khangdjnh.edu_app.controller;
 
 import com.khangdjnh.edu_app.dto.request.question.QuestionCreateRequest;
+import com.khangdjnh.edu_app.dto.request.question.QuestionSearchRequest;
 import com.khangdjnh.edu_app.dto.response.ApiResponse;
 import com.khangdjnh.edu_app.dto.response.QuestionResponse;
 import com.khangdjnh.edu_app.service.QuestionService;
@@ -8,6 +9,10 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,6 +45,19 @@ public class QuestionController {
                 .message("Success")
                 .code(1000)
                 .result(examQuestionService.updateQuestion(id, request))
+                .build();
+    }
+
+    @PostMapping("/search")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ApiResponse<Page<QuestionResponse>> searchQuestions(
+            @RequestBody QuestionSearchRequest request,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        return ApiResponse.<Page<QuestionResponse>>builder()
+                .message("Success")
+                .code(1000)
+                .result(examQuestionService.searchQuestions(request, pageable))
                 .build();
     }
 
