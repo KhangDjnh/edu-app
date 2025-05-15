@@ -16,6 +16,7 @@ public class ClassResponse {
     String name;
     String code;
     String description;
+    String semester;
     Long teacherId;
     LocalDateTime createdAt;
 }

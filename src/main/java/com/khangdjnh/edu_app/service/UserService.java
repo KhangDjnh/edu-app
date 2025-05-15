@@ -15,6 +15,8 @@ import com.khangdjnh.edu_app.keycloak.UserCreationParam;
 import com.khangdjnh.edu_app.mapper.UserMapper;
 import com.khangdjnh.edu_app.repository.IdentityClient;
 import com.khangdjnh.edu_app.repository.UserRepository;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import feign.FeignException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -42,6 +45,22 @@ public class UserService {
     KeycloakClientTokenService keycloakClientTokenService;
     KeycloakUserTokenService keycloakUserTokenService;
 
+    private List<String> extractRolesFromToken(String token) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
+
+            // Lấy roles từ realm_access
+            Map<String, Object> realmAccess = (Map<String, Object>) claims.getClaim("realm_access");
+            if (realmAccess != null && realmAccess.containsKey("roles")) {
+                return (List<String>) realmAccess.get("roles");
+            }
+
+            return List.of();
+        } catch (Exception e) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
+    }
 
     private String extractUserId(ResponseEntity<?> responseEntity) {
         String location = Objects.requireNonNull(responseEntity.getHeaders().get("Location")).getFirst();
@@ -56,8 +75,20 @@ public class UserService {
         if(!passwordEncoder.matches(request.getPassword(), decodedPassword)) {
             throw new AppException(ErrorCode.INVALID_USERNAME_OR_PASSWORD);
         }
+        String accessToken = keycloakUserTokenService.getAccessToken(request);
+        List<String> roles = extractRolesFromToken(accessToken);
+
         return LoginResponse.builder()
-                .accessToken(keycloakUserTokenService.getAccessToken(request))
+                .accessToken(accessToken)
+                .roles(roles)
+                .user(UserResponse.builder()
+                        .id(user.getId())
+                        .username(user.getUsername())
+                        .email(user.getEmail())
+                        .firstName(user.getFirstName())
+                        .lastName(user.getLastName())
+                        .dob(user.getDob())
+                        .build())
                 .build();
     }
 
