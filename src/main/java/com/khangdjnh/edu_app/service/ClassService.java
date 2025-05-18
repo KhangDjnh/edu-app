@@ -36,6 +36,7 @@ public class ClassService {
         classEntity.setTeacher(user);
         ClassResponse classResponse = classMapper.toClassResponse(classRepository.save(classEntity));
         classResponse.setTeacherId(user.getId());
+        classResponse.setTeacherName(user.getFirstName() + " " + user.getLastName());
         return classResponse;
     }
 
@@ -44,6 +45,7 @@ public class ClassService {
                 .orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
         ClassResponse classResponse = classMapper.toClassResponse(classEntity);
         classResponse.setTeacherId(classEntity.getTeacher().getId());
+        classResponse.setTeacherName(classEntity.getTeacher().getFirstName() + " " + classEntity.getTeacher().getLastName());
         return classResponse;
     }
 

@@ -125,7 +125,7 @@ public class LeaveRequestService {
         if (!classRepository.existsById(classId)) {
             throw new AppException(ErrorCode.CLASS_NOT_FOUND);
         }
-        List<LeaveRequest> leaveRequests = leaveRequestRepository.findByClassEntityId(classId);
+        List<LeaveRequest> leaveRequests = leaveRequestRepository.findByClassEntityIdOrderByRequestedAtDesc(classId);
 
         return leaveRequests.stream()
                 .map(leaveRequest -> LeaveRequestResponse.builder()

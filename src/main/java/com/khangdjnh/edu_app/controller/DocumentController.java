@@ -52,7 +52,7 @@ public class DocumentController {
     }
 
     @GetMapping("/class/{classId}")
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
     ApiResponse<List<DocumentResponse>> getAllDocumentsByClassId (@PathVariable Long classId) {
         return ApiResponse.<List<DocumentResponse>>builder()
                 .message("Success")

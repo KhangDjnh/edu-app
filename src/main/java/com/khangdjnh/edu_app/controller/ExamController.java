@@ -12,6 +12,8 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/exams")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -46,6 +48,16 @@ public class ExamController {
                 .message("Success")
                 .code(1000)
                 .result(examService.getExamById(id))
+                .build();
+    }
+
+    @GetMapping("/{classId}/class")
+    @PreAuthorize("hasRole('TEACHER')")
+    ApiResponse<List<ExamResponse>> getExamsByClassId (@PathVariable Long classId) {
+        return ApiResponse.<List<ExamResponse>>builder()
+                .message("Success")
+                .code(1000)
+                .result(examService.getExamsByClassId(classId))
                 .build();
     }
 }

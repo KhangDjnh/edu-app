@@ -1,6 +1,5 @@
 package com.khangdjnh.edu_app.dto.response;
 
-import com.khangdjnh.edu_app.entity.User;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -18,5 +17,6 @@ public class ClassResponse {
     String description;
     String semester;
     Long teacherId;
+    String teacherName;
     LocalDateTime createdAt;
 }

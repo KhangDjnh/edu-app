@@ -154,6 +154,20 @@ public class ExamService {
                 .createdAt(exam.getCreatedAt())
                 .build();
     }
-
+    public List<ExamResponse> getExamsByClassId (Long classId) {
+        return examRepository.findAllByClassEntityId(classId)
+                .stream()
+                .map( exam -> ExamResponse.builder()
+                        .id(exam.getId())
+                        .classId(exam.getClassEntity().getId())
+                        .title(exam.getTitle())
+                        .startTime(exam.getStartTime())
+                        .endTime(exam.getEndTime())
+                        .description(exam.getDescription())
+                        .createdAt(exam.getCreatedAt())
+                        .build()
+                )
+                .toList();
+    }
 
 }
