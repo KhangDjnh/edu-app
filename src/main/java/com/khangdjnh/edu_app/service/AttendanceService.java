@@ -69,6 +69,7 @@ public class AttendanceService {
                 .id(attendance.getId())
                 .classId(attendance.getClassEntity().getId())
                 .studentId(attendance.getStudent().getId())
+                .studentName(attendance.getStudent().getFirstName() + " " + attendance.getStudent().getLastName())
                 .attendanceDate(request.getAttendanceDate())
                 .status(request.getStatus())
                 .build();
@@ -81,6 +82,7 @@ public class AttendanceService {
                 .id(attendance.getId())
                 .classId(attendance.getClassEntity().getId())
                 .studentId(attendance.getStudent().getId())
+                .studentName(attendance.getStudent().getFirstName() + " " + attendance.getStudent().getLastName())
                 .attendanceDate(attendance.getAttendanceDate())
                 .status(attendance.getStatus())
                 .build();
@@ -94,6 +96,7 @@ public class AttendanceService {
                         .id(attendance.getId())
                         .classId(attendance.getClassEntity().getId())
                         .studentId(attendance.getStudent().getId())
+                        .studentName(attendance.getStudent().getFirstName() + " " + attendance.getStudent().getLastName())
                         .attendanceDate(attendance.getAttendanceDate())
                         .status(attendance.getStatus())
                         .build())
@@ -108,6 +111,7 @@ public class AttendanceService {
                         .id(attendance.getId())
                         .classId(attendance.getClassEntity().getId())
                         .studentId(attendance.getStudent().getId())
+                        .studentName(attendance.getStudent().getFirstName() + " " + attendance.getStudent().getLastName())
                         .attendanceDate(attendance.getAttendanceDate())
                         .status(attendance.getStatus())
                         .build())

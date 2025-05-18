@@ -14,6 +14,7 @@ import java.time.LocalDate;
 public class LeaveRequestResponse {
     Long id;
     Long studentId;
+    String studentName;
     Long classId;
     LocalDate leaveDate;
     String reason;

@@ -2,6 +2,7 @@ package com.khangdjnh.edu_app.service;
 
 import com.khangdjnh.edu_app.dto.request.question.QuestionCreateRequest;
 import com.khangdjnh.edu_app.dto.request.question.QuestionSearchRequest;
+import com.khangdjnh.edu_app.dto.response.QuestionDetailResponse;
 import com.khangdjnh.edu_app.dto.response.QuestionResponse;
 import com.khangdjnh.edu_app.entity.ClassEntity;
 import com.khangdjnh.edu_app.entity.Question;
@@ -14,7 +15,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -157,37 +160,42 @@ public class QuestionService {
                 .build();
     }
 
-    public QuestionResponse getQuestionById(Long id) {
+    public QuestionDetailResponse getQuestionById(Long id) {
         Question question = examQuestionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Exam question not found"));
 
-        return QuestionResponse.builder()
+        return QuestionDetailResponse.builder()
                 .id(question.getId())
                 .classId(question.getClassEntity().getId())
                 .chapter(question.getChapter())
                 .question(question.getQuestion())
+                .optionA(question.getOptionA())
+                .optionB(question.getOptionB())
+                .optionC(question.getOptionC())
+                .optionD(question.getOptionD())
                 .answer(question.getAnswer())
                 .level(question.getLevel())
                 .build();
     }
 
-    public List<QuestionResponse> getAllQuestionByClass(Long classId) {
-        return examQuestionRepository.findByClassEntityId(classId)
-                .stream()
-                .map(q -> QuestionResponse.builder()
-                        .id(q.getId())
-                        .classId(q.getClassEntity().getId())
-                        .chapter(q.getChapter())
-                        .question(q.getQuestion())
-                        .answer(q.getAnswer())
-                        .level(q.getLevel())
-                        .build())
-                .collect(Collectors.toList());
+    public Page<QuestionResponse> getAllQuestionByClass(Long classId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+
+        Page<Question> questions = examQuestionRepository.findByClassEntityId(classId, pageable);
+
+        return questions.map(q -> QuestionResponse.builder()
+                .id(q.getId())
+                .classId(q.getClassEntity().getId())
+                .chapter(q.getChapter())
+                .question(q.getQuestion())
+                .answer(q.getAnswer())
+                .level(q.getLevel())
+                .build());
     }
 
     public void deleteQuestion(Long id) {
         if (!examQuestionRepository.existsById(id)) {
-            throw new RuntimeException("Exam question not found");
+            throw new AppException(ErrorCode.QUESTION_NOT_FOUND);
         }
         examQuestionRepository.deleteById(id);
     }

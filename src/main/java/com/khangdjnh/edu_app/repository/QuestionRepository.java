@@ -24,4 +24,6 @@ public interface QuestionRepository extends JpaRepository<Question, Long>, JpaSp
     List<Question> findByLevel(QuestionLevel level);
 
     List<Question> findByClassEntityId(Long classId);
+
+    Page<Question> findByClassEntityId(Long classId, Pageable pageable);
 }

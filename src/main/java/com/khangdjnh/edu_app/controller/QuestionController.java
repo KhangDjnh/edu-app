@@ -3,6 +3,7 @@ package com.khangdjnh.edu_app.controller;
 import com.khangdjnh.edu_app.dto.request.question.QuestionCreateRequest;
 import com.khangdjnh.edu_app.dto.request.question.QuestionSearchRequest;
 import com.khangdjnh.edu_app.dto.response.ApiResponse;
+import com.khangdjnh.edu_app.dto.response.QuestionDetailResponse;
 import com.khangdjnh.edu_app.dto.response.QuestionResponse;
 import com.khangdjnh.edu_app.service.QuestionService;
 import jakarta.validation.Valid;
@@ -63,8 +64,8 @@ public class QuestionController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('TEACHER')")
-    ApiResponse<QuestionResponse> getQuestionById(@PathVariable Long id) {
-        return ApiResponse.<QuestionResponse>builder()
+    ApiResponse<QuestionDetailResponse> getQuestionById(@PathVariable Long id) {
+        return ApiResponse.<QuestionDetailResponse>builder()
                 .message("Success")
                 .code(1000)
                 .result(examQuestionService.getQuestionById(id))
@@ -73,13 +74,18 @@ public class QuestionController {
 
     @GetMapping
     @PreAuthorize("hasRole('TEACHER')")
-    ApiResponse<List<QuestionResponse>> getAllQuestion(@RequestParam Long classId) {
-        return ApiResponse.<List<QuestionResponse>>builder()
+    ApiResponse<Page<QuestionResponse>> getAllQuestionInClass(
+            @RequestParam Long classId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        return ApiResponse.<Page<QuestionResponse>>builder()
                 .message("Success")
                 .code(1000)
-                .result(examQuestionService.getAllQuestionByClass(classId))
+                .result(examQuestionService.getAllQuestionByClass(classId, page, size))
                 .build();
     }
+
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('TEACHER')")

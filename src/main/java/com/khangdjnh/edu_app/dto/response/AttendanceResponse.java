@@ -14,6 +14,7 @@ import java.time.LocalDate;
 public class AttendanceResponse {
     Long id;
     Long studentId;
+    String studentName;
     Long classId;
     LocalDate attendanceDate;
     AttendanceStatus status;
