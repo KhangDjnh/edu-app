@@ -7,6 +7,7 @@ import org.apache.poi.hpsf.Decimal;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -43,4 +44,7 @@ public class Submission {
 
     @Column(columnDefinition = "TEXT")
     String feedback;
+
+    @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    List<SubmissionFile> submissionFiles;
 }
