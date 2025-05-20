@@ -12,6 +12,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.MalformedURLException;
@@ -19,13 +20,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @RestController
-@RequestMapping("/api/assignments/files")
+@RequestMapping("/api/files")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AssignmentFileController {
     AssignmentFileService assignmentFileService;
 
     @GetMapping("/{fileId}")
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
     public ResponseEntity<Resource> downloadFile(@PathVariable Long fileId) {
         AssignmentFile file = assignmentFileService.getFileById(fileId);
 
@@ -41,9 +43,9 @@ public class AssignmentFileController {
         }
 
         return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .contentType(MediaType.parseMediaType(file.getFileType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + file.getFileName() + "\"")
+                        "inline; filename=\"" + file.getFileName() + "\"")
                 .body(resource);
     }
 

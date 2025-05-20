@@ -175,6 +175,7 @@ public class AssignmentService {
                         .fileName(file.getFileName())
                         .fileType(file.getFileType())
                         .filePath(file.getFilePath())
+                        .downloadUrl("/api/files/" + file.getId())
                         .fileSize(file.getFileSize())
                         .uploadedAt(file.getUploadedAt())
                         .build())

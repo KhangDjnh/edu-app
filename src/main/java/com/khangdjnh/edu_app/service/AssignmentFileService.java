@@ -5,6 +5,7 @@ import com.khangdjnh.edu_app.entity.AssignmentFile;
 import com.khangdjnh.edu_app.exception.AppException;
 import com.khangdjnh.edu_app.exception.ErrorCode;
 import com.khangdjnh.edu_app.repository.AssignmentFileRepository;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Log4j2
 public class AssignmentFileService {
     final AssignmentFileRepository assignmentFileRepository;
 
@@ -33,6 +35,7 @@ public class AssignmentFileService {
     public void saveFile(List<MultipartFile> files, Assignment assignment) throws IOException {
         // Tạo thư mục nếu chưa có
         Path uploadPath = Paths.get(uploadDir);
+        log.info("uploadPath: " + uploadPath.toAbsolutePath());
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
