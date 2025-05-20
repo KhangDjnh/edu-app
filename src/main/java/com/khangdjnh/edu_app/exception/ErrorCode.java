@@ -38,6 +38,7 @@ public enum ErrorCode {
     SUBMISSION_NOT_FOUND(1025, "Submission not found", HttpStatus.NOT_FOUND),
     NO_ANSWER_FOUND_IN_SUBMISSION(1026, "No answer found in submission", HttpStatus.NOT_FOUND),
     SCORES_NOT_FOUND(1027, "Scores not found", HttpStatus.NOT_FOUND),
+    ASSIGNMENT_NOT_FOUND(1031, "Assignment not found", HttpStatus.NOT_FOUND),
 
 
     FAILED_TO_GENERATE_PDF(1025, "Failed to generate pdf", HttpStatus.INTERNAL_SERVER_ERROR),
