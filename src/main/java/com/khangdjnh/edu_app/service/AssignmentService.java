@@ -147,7 +147,7 @@ public class AssignmentService {
                         .uploadedAt(LocalDateTime.now())
                         .build();
 
-                assignment.getAssignmentFiles().add(assignmentFile); // 👈 quan trọng
+                assignment.getAssignmentFiles().add(assignmentFile);
             }
         }
 
@@ -164,8 +164,6 @@ public class AssignmentService {
         }
         assignmentRepository.deleteById(id);
     }
-
-    // ==================== UTILITIES ====================
 
     private AssignmentResponse mapAssignmentToResponse(Assignment assignment) {
         List<AssignmentFileResponse> fileResponses = Optional.ofNullable(assignment.getAssignmentFiles())

@@ -2,6 +2,7 @@ package com.khangdjnh.edu_app.controller;
 
 import com.khangdjnh.edu_app.dto.request.exam.ExamCreateChooseRequest;
 import com.khangdjnh.edu_app.dto.request.exam.ExamCreateRandomRequest;
+import com.khangdjnh.edu_app.dto.request.exam.ExamUpdateRequest;
 import com.khangdjnh.edu_app.dto.response.ApiResponse;
 import com.khangdjnh.edu_app.dto.response.ExamResponse;
 import com.khangdjnh.edu_app.service.ExamService;
@@ -58,6 +59,37 @@ public class ExamController {
                 .message("Success")
                 .code(1000)
                 .result(examService.getExamsByClassId(classId))
+                .build();
+    }
+
+    @PutMapping("/{examId}")
+    @PreAuthorize("hasRole('TEACHER')")
+    ApiResponse<ExamResponse> updateExam (@PathVariable Long examId, @RequestBody @Valid ExamUpdateRequest request) {
+        return ApiResponse.<ExamResponse>builder()
+                .code(1000)
+                .message("Success")
+                .result(examService.updateExam(examId, request))
+                .build();
+    }
+
+    @PutMapping("/{examId}/start")
+    @PreAuthorize("hasRole('TEACHER')")
+    ApiResponse<ExamResponse> markExamStarted (@PathVariable Long examId) {
+        return ApiResponse.<ExamResponse>builder()
+                .code(1000)
+                .message("Success")
+                .result(examService.markExamStarted(examId))
+                .build();
+    }
+
+    @DeleteMapping("/{examId}")
+    @PreAuthorize("hasRole('TEACHER')")
+    ApiResponse<String> deleteExam (@PathVariable Long examId) {
+        examService.deleteExam(examId);
+        return ApiResponse.<String>builder()
+                .code(1000)
+                .message("Success")
+                .result("Delete Exam Successfully")
                 .build();
     }
 }

@@ -32,6 +32,9 @@ public class Exam {
     @Column(columnDefinition = "TEXT")
     String description;
 
+    @Column(name = "is_started")
+    Boolean isStarted = false;
+
     @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;
 
