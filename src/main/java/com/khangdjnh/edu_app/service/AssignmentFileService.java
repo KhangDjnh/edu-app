@@ -2,6 +2,8 @@ package com.khangdjnh.edu_app.service;
 
 import com.khangdjnh.edu_app.entity.Assignment;
 import com.khangdjnh.edu_app.entity.AssignmentFile;
+import com.khangdjnh.edu_app.exception.AppException;
+import com.khangdjnh.edu_app.exception.ErrorCode;
 import com.khangdjnh.edu_app.repository.AssignmentFileRepository;
 import org.springframework.beans.factory.annotation.Value;
 import lombok.AccessLevel;
@@ -51,5 +53,18 @@ public class AssignmentFileService {
 
             assignmentFileRepository.save(assignmentFile);
         }
+    }
+
+    public AssignmentFile getFileById(Long fileId) {
+        if(!assignmentFileRepository.existsById(fileId)) throw new AppException((ErrorCode.FILE_NOT_FOUND));
+        return assignmentFileRepository.findByIdAndIsDeletedFalse(fileId);
+    }
+
+    public void softDeleteFile(Long fileId) {
+        if(!assignmentFileRepository.existsById(fileId)) throw new AppException((ErrorCode.FILE_NOT_FOUND));
+        AssignmentFile file = assignmentFileRepository.findByIdAndIsDeletedFalse(fileId);
+
+        file.setIsDeleted(true);
+        assignmentFileRepository.save(file);
     }
 }

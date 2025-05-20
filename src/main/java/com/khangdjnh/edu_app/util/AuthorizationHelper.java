@@ -1,4 +1,4 @@
-package com.khangdjnh.edu_app.security;
+package com.khangdjnh.edu_app.util;
 
 import com.khangdjnh.edu_app.entity.User;
 import com.khangdjnh.edu_app.exception.AppException;

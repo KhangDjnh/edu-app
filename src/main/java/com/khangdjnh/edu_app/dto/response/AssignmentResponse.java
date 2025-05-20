@@ -17,6 +17,7 @@ public class AssignmentResponse {
     String content;
     Long classId;
     List<AssignmentFileResponse> files;
+    String status;
     LocalDateTime startAt;
     LocalDateTime endAt;
     LocalDateTime createdAt;

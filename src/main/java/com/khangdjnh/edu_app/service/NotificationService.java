@@ -37,4 +37,44 @@ public class NotificationService {
                 new NotificationMessage(content, receiver.getId())
         );
     }
+
+    public void sendNewAssignmentNotice(User receiver, String assignmentTitle) {
+        String content = "Bài tập mới: " + assignmentTitle;
+
+        Notice notice = Notice.builder()
+                .receiver(receiver)
+                .content(content)
+                .createdAt(LocalDateTime.now())
+                .read(false)
+                .type(NoticeType.ASSIGNMENT_NEW)
+                .build();
+
+        noticeRepository.save(notice);
+
+        messagingTemplate.convertAndSend(
+                "/topic/notifications/" + receiver.getId(),
+                new NotificationMessage(content, receiver.getId())
+        );
+    }
+
+    public void sendAssignmentDeadlineNotice(User receiver, String assignmentTitle, LocalDateTime deadline) {
+        String content = "Bài tập \"" + assignmentTitle + "\" sắp hết hạn lúc " + deadline.toString();
+
+        Notice notice = Notice.builder()
+                .receiver(receiver)
+                .content(content)
+                .createdAt(LocalDateTime.now())
+                .read(false)
+                .type(NoticeType.ASSIGNMENT_DEADLINE)
+                .build();
+
+        noticeRepository.save(notice);
+
+        messagingTemplate.convertAndSend(
+                "/topic/notifications/" + receiver.getId(),
+                new NotificationMessage(content, receiver.getId())
+        );
+    }
+
+
 }
