@@ -14,17 +14,24 @@ import com.khangdjnh.edu_app.repository.ClassStudentRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -38,6 +45,9 @@ public class AssignmentService {
     final ClassRepository classRepository;
     final ClassStudentRepository classStudentRepository;
     final NotificationService notificationService;
+
+    @Value("${file.upload-dir}")
+    String uploadDir;
 
     public AssignmentResponse createAssignment(AssignmentCreateRequest request) throws IOException {
         ClassEntity classEntity = classRepository.findById(request.getClassId())
@@ -113,15 +123,40 @@ public class AssignmentService {
         if (request.getStartAt() != null) assignment.setStartAt(request.getStartAt());
         if (request.getEndAt() != null) assignment.setEndAt(request.getEndAt());
 
+        // Nếu có file mới upload
         if (request.getFiles() != null && !request.getFiles().isEmpty()) {
-            assignmentFileService.saveFile(request.getFiles(), assignment);
+            // Xóa hết file cũ
+            assignment.getAssignmentFiles().clear();
+
+            // Tạo danh sách file mới và add vào assignment
+            for (MultipartFile file : request.getFiles()) {
+                String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+                Path uploadPath = Paths.get(uploadDir);
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
+                Path filePath = uploadPath.resolve(fileName);
+                Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+                AssignmentFile assignmentFile = AssignmentFile.builder()
+                        .assignment(assignment)
+                        .fileName(file.getOriginalFilename())
+                        .filePath(filePath.toString())
+                        .fileType(file.getContentType())
+                        .fileSize(file.getSize())
+                        .uploadedAt(LocalDateTime.now())
+                        .build();
+
+                assignment.getAssignmentFiles().add(assignmentFile); // 👈 quan trọng
+            }
         }
 
-        assignment.setAssignmentFiles(assignmentFileRepository.findAllByAssignmentId(id));
+
         assignment = assignmentRepository.save(assignment);
 
         return mapAssignmentToResponse(assignment);
     }
+
 
     public void deleteAssignmentById(Long id) {
         if (!assignmentRepository.existsById(id)) {

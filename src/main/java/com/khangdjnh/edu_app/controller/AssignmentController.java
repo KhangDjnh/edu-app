@@ -4,7 +4,6 @@ import com.khangdjnh.edu_app.dto.request.assignments.AssignmentCreateRequest;
 import com.khangdjnh.edu_app.dto.request.assignments.AssignmentUpdateRequest;
 import com.khangdjnh.edu_app.dto.response.ApiResponse;
 import com.khangdjnh.edu_app.dto.response.AssignmentResponse;
-import com.khangdjnh.edu_app.service.AssignmentFileService;
 import com.khangdjnh.edu_app.service.AssignmentService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -34,7 +33,7 @@ public class AssignmentController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('TEACHER')")
     public ApiResponse<AssignmentResponse> createAssignment(
-            @ModelAttribute AssignmentCreateRequest request,
+            @ModelAttribute @Valid AssignmentCreateRequest request,
             @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) throws IOException {
         request.setFiles(files);
@@ -58,6 +57,7 @@ public class AssignmentController {
     }
 
     @GetMapping("/student/{studentId}")
+        @PreAuthorize("hasRole('STUDENT')")
     public ApiResponse<Page<AssignmentResponse>> getAssignmentsForStudent(
             @PathVariable Long studentId,
             @RequestParam(required = false) Long classId,
@@ -87,7 +87,12 @@ public class AssignmentController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('TEACHER')")
-    public ApiResponse<AssignmentResponse> updateAssignment(@RequestBody @Valid AssignmentUpdateRequest request, @PathVariable Long id) throws IOException {
+    public ApiResponse<AssignmentResponse> updateAssignment(
+            @ModelAttribute @Valid AssignmentUpdateRequest request,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            @PathVariable Long id
+    ) throws IOException {
+        request.setFiles(files);
         return ApiResponse.<AssignmentResponse>builder()
                 .code(1000)
                 .message("Success")
