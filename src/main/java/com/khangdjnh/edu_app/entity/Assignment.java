@@ -41,6 +41,6 @@ public class Assignment {
     @CreationTimestamp
     LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     List<AssignmentFile> assignmentFiles;
 }

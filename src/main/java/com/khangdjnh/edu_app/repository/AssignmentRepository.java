@@ -14,7 +14,7 @@ import java.util.List;
 
 @Repository
 public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
-    List<Assignment> findAllByClassIdOrderByCreatedAtDesc(Long classId);
+    List<Assignment> findAllByClassEntityIdOrderByCreatedAtDesc(Long classId);
 
     List<Assignment> findByEndAtBetween(LocalDateTime from, LocalDateTime to);
 
