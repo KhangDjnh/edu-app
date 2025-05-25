@@ -2,10 +2,7 @@ package com.khangdjnh.edu_app.controller;
 
 import com.khangdjnh.edu_app.dto.request.classstudent.JoinClassByCodeRequest;
 import com.khangdjnh.edu_app.dto.request.classstudent.StudentJoinClassRequest;
-import com.khangdjnh.edu_app.dto.response.ApiResponse;
-import com.khangdjnh.edu_app.dto.response.ClassResponse;
-import com.khangdjnh.edu_app.dto.response.StudentJoinClassResponse;
-import com.khangdjnh.edu_app.dto.response.UserResponse;
+import com.khangdjnh.edu_app.dto.response.*;
 import com.khangdjnh.edu_app.service.ClassStudentService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -43,6 +40,16 @@ public class ClassStudentController {
                 .build();
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
+    @GetMapping("/students/attendance/{classId}")
+    ApiResponse<List<UserAttendanceResponse>> getStudentAttendancesByClassId (@PathVariable Long classId) {
+        return ApiResponse.<List<UserAttendanceResponse>>builder()
+                .message("Success")
+                .code(1000)
+                .result(classStudentService.getStudentAttendancesByClassId(classId))
+                .build();
+    }
+
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/classes/{studentId}")
     ApiResponse<List<ClassResponse>> getAllClassesStudentIn (@PathVariable Long studentId) {
@@ -60,6 +67,17 @@ public class ClassStudentController {
                 .message("Success")
                 .code(1000)
                 .result(classStudentService.joinClassByCode(request.getCode()))
+                .build();
+    }
+
+    @PreAuthorize("hasRole('TEACHER')")
+    @DeleteMapping()
+    ApiResponse<String> deleteStudentInClassId (@RequestParam Long classId, @RequestParam Long studentId) {
+        classStudentService.deleteClassStudent(classId, studentId);
+        return ApiResponse.<String>builder()
+                .message("Success")
+                .code(1000)
+                .result("Delete Student Successfully")
                 .build();
     }
 }

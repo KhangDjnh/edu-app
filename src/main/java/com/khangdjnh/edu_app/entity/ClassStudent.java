@@ -29,6 +29,15 @@ public class ClassStudent implements Serializable {
     @JoinColumn(name = "student_id", nullable = false)
     User student;
 
+    @Column(name = "present_number")
+    Integer presentNumber;
+
+    @Column(name = "late_number")
+    Integer lateNumber;
+
+    @Column(name = "absence_number")
+    Integer absenceNumber;
+
     @Column(name = "joined_at")
     @CreationTimestamp
     LocalDateTime joinAt;

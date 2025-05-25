@@ -7,11 +7,14 @@ import com.khangdjnh.edu_app.dto.response.AttendanceCreateResponse;
 import com.khangdjnh.edu_app.dto.response.AttendanceResponse;
 import com.khangdjnh.edu_app.entity.Attendance;
 import com.khangdjnh.edu_app.entity.ClassEntity;
+import com.khangdjnh.edu_app.entity.ClassStudent;
 import com.khangdjnh.edu_app.entity.User;
+import com.khangdjnh.edu_app.enums.AttendanceStatus;
 import com.khangdjnh.edu_app.exception.AppException;
 import com.khangdjnh.edu_app.exception.ErrorCode;
 import com.khangdjnh.edu_app.repository.AttendanceRepository;
 import com.khangdjnh.edu_app.repository.ClassRepository;
+import com.khangdjnh.edu_app.repository.ClassStudentRepository;
 import com.khangdjnh.edu_app.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +31,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AttendanceService {
     AttendanceRepository attendanceRepository;
+    ClassStudentRepository classStudentRepository;
     ClassRepository classRepository;
     UserRepository userRepository;
 
@@ -42,6 +46,12 @@ public class AttendanceService {
             User student = userRepository.findById(attendanceRequest.getStudentId())
                     .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
+            ClassStudent classStudent = classStudentRepository
+                    .findByClassEntity_IdAndStudent_Id(request.getClassId(), attendanceRequest.getStudentId());
+
+            updateClassStudentAttendance(classStudent, attendanceRequest.getStatus());
+            classStudentRepository.save(classStudent);
+
             Attendance attendance = Attendance.builder()
                     .attendanceDate(request.getAttendanceDate())
                     .classEntity(classEntity)
@@ -50,7 +60,6 @@ public class AttendanceService {
                     .build();
 
             Attendance savedAttendance = attendanceRepository.save(attendance);
-
             attendanceIds.add(savedAttendance.getId());
         }
 
@@ -60,6 +69,26 @@ public class AttendanceService {
                 .attendanceIds(attendanceIds)
                 .build();
     }
+
+    private void updateClassStudentAttendance(ClassStudent classStudent, AttendanceStatus status) {
+        switch (status.toString()) {
+            case "PRESENT" -> classStudent.setPresentNumber(
+                    defaultIfNull(classStudent.getPresentNumber()) + 1
+            );
+            case "LATE" -> classStudent.setLateNumber(
+                    defaultIfNull(classStudent.getLateNumber()) + 1
+            );
+            case "ABSENT" -> classStudent.setAbsenceNumber(
+                    defaultIfNull(classStudent.getAbsenceNumber()) + 1
+            );
+            default -> throw new AppException(ErrorCode.INVALID_ATTENDANCE_STATUS);
+        }
+    }
+
+    private int defaultIfNull(Integer value) {
+        return value != null ? value : 0;
+    }
+
 
     public AttendanceResponse updateAttendance (AttendanceUpdateRequest request, Long id) {
         Attendance attendance = attendanceRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.ATTENDANCE_NOT_FOUND));

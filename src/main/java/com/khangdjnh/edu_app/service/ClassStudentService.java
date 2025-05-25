@@ -3,6 +3,7 @@ package com.khangdjnh.edu_app.service;
 import com.khangdjnh.edu_app.dto.request.classstudent.StudentJoinClassRequest;
 import com.khangdjnh.edu_app.dto.response.ClassResponse;
 import com.khangdjnh.edu_app.dto.response.StudentJoinClassResponse;
+import com.khangdjnh.edu_app.dto.response.UserAttendanceResponse;
 import com.khangdjnh.edu_app.dto.response.UserResponse;
 import com.khangdjnh.edu_app.entity.ClassEntity;
 import com.khangdjnh.edu_app.entity.ClassStudent;
@@ -58,6 +59,26 @@ public class ClassStudentService {
                 .toList();
     }
 
+    public List<UserAttendanceResponse> getStudentAttendancesByClassId(Long classId) {
+        if(!classStudentRepository.existsByClassEntity_Id(classId)) {
+            throw new AppException(ErrorCode.CLASS_NOT_FOUND);
+        }
+        List<ClassStudent> classStudents = classStudentRepository.findByClassEntity_Id(classId);
+
+        return classStudents.stream()
+                .map(this::toUserAttendanceResponse)
+                .toList();
+    }
+
+    private UserAttendanceResponse toUserAttendanceResponse (ClassStudent classStudent) {
+        return UserAttendanceResponse.builder()
+                .presentNumber(classStudent.getPresentNumber())
+                .lateNumber(classStudent.getLateNumber())
+                .absenceNumber(classStudent.getAbsenceNumber())
+                .userResponse(userMapper.toUserResponse(classStudent.getStudent()))
+                .build();
+    }
+
     public List<ClassResponse> getAllClassesStudentIn(Long studentId) {
         if(!classStudentRepository.existsByStudent_Id(studentId)) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
@@ -85,4 +106,10 @@ public class ClassStudentService {
                 .studentId(student.getId())
                 .build();
     }
+
+    public void deleteClassStudent(Long classId, Long studentId) {
+        ClassStudent classStudent = classStudentRepository.findByClassEntity_IdAndStudent_Id(classId, studentId);
+        classStudentRepository.delete(classStudent);
+    }
+
 }

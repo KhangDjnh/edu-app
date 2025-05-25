@@ -40,6 +40,7 @@ public enum ErrorCode {
     SCORES_NOT_FOUND(1027, "Scores not found", HttpStatus.NOT_FOUND),
     ASSIGNMENT_NOT_FOUND(1031, "Assignment not found", HttpStatus.NOT_FOUND),
     FILE_NOT_FOUND(1032, "File not found", HttpStatus.NOT_FOUND),
+    CLASS_STUDENT_NOT_FOUND(1033, "Class student not found", HttpStatus.NOT_FOUND),
 
 
     FAILED_TO_GENERATE_PDF(1025, "Failed to generate pdf", HttpStatus.INTERNAL_SERVER_ERROR),
@@ -48,7 +49,9 @@ public enum ErrorCode {
     NOT_ENOUGH_QUESTIONS(1027, "Not enough questions for this level", HttpStatus.BAD_REQUEST),
     ALREADY_SUBMITTED(1029, "Already submitted", HttpStatus.BAD_REQUEST),
     EXAM_NOT_AVAILABLE(1028, "Exam not available", HttpStatus.BAD_REQUEST),
-    INVALID_QUESTION_LIST(1030, "List question id is empty", HttpStatus.BAD_REQUEST)
+    INVALID_QUESTION_LIST(1030, "List question id is empty", HttpStatus.BAD_REQUEST),
+
+    INVALID_ATTENDANCE_STATUS(1031, "Invalid attendance status", HttpStatus.BAD_REQUEST),
 
 
     ;
