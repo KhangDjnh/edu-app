@@ -1,4 +1,4 @@
-package com.khangdjnh.edu_app.service.Impl;
+package com.khangdjnh.edu_app.service.impl;
 
 import com.khangdjnh.edu_app.dto.request.submission.GradeRequest;
 import com.khangdjnh.edu_app.dto.request.submission.SubmissionRequest;
@@ -132,6 +132,7 @@ public class SubmissionServiceImpl implements SubmissionService {
                         .fileName(file.getFileName())
                         .filePath(file.getFilePath())
                         .fileType(file.getFileType())
+                        .downloadUrl("/api/files/" + file.getId())
                         .fileSize(file.getFileSize())
                         .uploadedAt(file.getUploadedAt())
                         .build()).collect(Collectors.toList()))

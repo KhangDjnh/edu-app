@@ -15,6 +15,7 @@ public class SubmissionFileResponse {
     String fileName;
     String filePath;
     String fileType;
+    String downloadUrl;
     Long fileSize;
     LocalDateTime uploadedAt;
 }

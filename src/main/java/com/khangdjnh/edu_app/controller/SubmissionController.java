@@ -5,9 +5,12 @@ import com.khangdjnh.edu_app.dto.request.submission.SubmissionRequest;
 import com.khangdjnh.edu_app.dto.response.ApiResponse;
 import com.khangdjnh.edu_app.dto.response.SubmissionResponse;
 import com.khangdjnh.edu_app.service.SubmissionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -17,9 +20,13 @@ import java.util.List;
 public class SubmissionController {
     private final SubmissionService submissionService;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('STUDENT')")
-    public ApiResponse<SubmissionResponse> createSubmission(@ModelAttribute SubmissionRequest request) {
+    public ApiResponse<SubmissionResponse> createSubmission(
+            @ModelAttribute @Valid SubmissionRequest request,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files
+    ) {
+        if(files != null && !files.isEmpty()) request.setFiles(files);
         return ApiResponse.<SubmissionResponse>builder()
                 .code(1000)
                 .message("Success")
