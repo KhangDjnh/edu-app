@@ -178,16 +178,20 @@ public class QuestionService {
                 .build();
     }
 
-    public Page<QuestionResponse> getAllQuestionByClass(Long classId, int page, int size) {
+    public Page<QuestionDetailResponse> getAllQuestionByClass(Long classId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
 
         Page<Question> questions = examQuestionRepository.findByClassEntityId(classId, pageable);
 
-        return questions.map(q -> QuestionResponse.builder()
+        return questions.map(q -> QuestionDetailResponse.builder()
                 .id(q.getId())
                 .classId(q.getClassEntity().getId())
                 .chapter(q.getChapter())
                 .question(q.getQuestion())
+                .optionA(q.getOptionA())
+                .optionB(q.getOptionB())
+                .optionC(q.getOptionC())
+                .optionD(q.getOptionD())
                 .answer(q.getAnswer())
                 .level(q.getLevel())
                 .build());

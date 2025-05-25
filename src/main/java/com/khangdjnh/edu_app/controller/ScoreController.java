@@ -70,7 +70,7 @@ public class ScoreController {
     }
 
     @GetMapping("/summary")
-    @PreAuthorize("hasAnyRole('TEACHER')")
+    @PreAuthorize("hasRole('TEACHER')")
     public ApiResponse<ClassScoreSummaryResponse> getScoreSummaryByClassId(@RequestParam Long classId) {
         return ApiResponse.<ClassScoreSummaryResponse>builder()
                 .message("Success")
@@ -80,6 +80,7 @@ public class ScoreController {
     }
 
     @GetMapping("/classes/{classId}/scores/export")
+    @PreAuthorize("hasRole('TEACHER')")
     public void exportClassScores(@PathVariable Long classId, HttpServletResponse response) throws IOException, IOException {
         ClassScoreSummaryResponse summary = scoreService.getScoreSummaryByClassId(classId);
         excelExportService.exportScoreToExcel(summary, response);

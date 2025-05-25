@@ -74,12 +74,12 @@ public class QuestionController {
 
     @GetMapping
     @PreAuthorize("hasRole('TEACHER')")
-    ApiResponse<Page<QuestionResponse>> getAllQuestionInClass(
+    ApiResponse<Page<QuestionDetailResponse>> getAllQuestionInClass(
             @RequestParam Long classId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        return ApiResponse.<Page<QuestionResponse>>builder()
+        return ApiResponse.<Page<QuestionDetailResponse>>builder()
                 .message("Success")
                 .code(1000)
                 .result(examQuestionService.getAllQuestionByClass(classId, page, size))

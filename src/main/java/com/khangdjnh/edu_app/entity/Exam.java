@@ -32,7 +32,7 @@ public class Exam {
     @Column(columnDefinition = "TEXT")
     String description;
 
-    @Column(name = "is_started")
+    @Column(name = "is_started", nullable = false)
     Boolean isStarted = false;
 
     @Column(name = "start_time", nullable = false)
