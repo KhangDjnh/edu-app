@@ -17,6 +17,7 @@ import com.khangdjnh.edu_app.repository.UserRepository;
 import com.khangdjnh.edu_app.service.NotificationService;
 import com.khangdjnh.edu_app.service.SubmissionService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SubmissionServiceImpl implements SubmissionService {
 
     private final SubmissionRepository submissionRepository;
@@ -73,24 +75,34 @@ public class SubmissionServiceImpl implements SubmissionService {
         return toDto(submission);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public SubmissionResponse getSubmissionById(Long id) {
-        return toDto(submissionRepository.findById(id).orElseThrow());
+        return toDto(submissionRepository.findWithFilesById(id).orElseThrow(() -> new AppException(ErrorCode.SUBMISSION_NOT_FOUND)));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<SubmissionResponse> getSubmissionsByAssignment(Long assignmentId) {
-        return submissionRepository.findByAssignmentId(assignmentId)
+        return submissionRepository.findWithFilesByAssignmentId(assignmentId)
                 .stream().map(this::toDto).collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public SubmissionResponse getSubmissionsByAssignmentAndStudent(Long assignmentId, Long studentId) {
         Submission submission = submissionRepository
-                .findByAssignmentIdAndStudentId(assignmentId, studentId)
+                .findWithFilesByAssignmentIdAndStudentId(assignmentId, studentId)
                 .orElseThrow(() -> new AppException(ErrorCode.SUBMISSION_NOT_FOUND));
 
         return toDto(submission);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SubmissionResponse> getSubmissionsByStudentIdAndClassId(Long studentId, Long classId) {
+        List<Submission> list1 = submissionRepository.findWithFilesByStudentIdAndClassId(studentId, classId);
+        return list1.stream().map(this::toDto).toList();
     }
 
 

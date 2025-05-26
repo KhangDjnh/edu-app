@@ -13,6 +13,8 @@ public interface SubmissionService {
 
     SubmissionResponse getSubmissionsByAssignmentAndStudent(Long assignmentId, Long studentId);
 
+    List<SubmissionResponse> getSubmissionsByStudentIdAndClassId(Long studentId, Long classId);
+
     List<SubmissionResponse> getSubmissionsByAssignment(Long assignmentId);
 
     SubmissionResponse gradeSubmission(Long id, GradeRequest request);

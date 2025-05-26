@@ -54,6 +54,16 @@ public class SubmissionController {
                 .build();
     }
 
+    @GetMapping("/class/{classId}/student/{studentId}")
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
+    public ApiResponse<List<SubmissionResponse>> getSubmissionsByStudentIdAndClassId(@PathVariable Long studentId, @PathVariable Long classId) {
+        return ApiResponse.<List<SubmissionResponse>>builder()
+                .code(1000)
+                .message("Success")
+                .result(submissionService.getSubmissionsByStudentIdAndClassId(studentId, classId))
+                .build();
+    }
+
     @GetMapping("/assignment/{assignmentId}")
     @PreAuthorize("hasRole('TEACHER')")
     public ApiResponse<List<SubmissionResponse>> getSubmissionsByAssignment(@PathVariable Long assignmentId) {
