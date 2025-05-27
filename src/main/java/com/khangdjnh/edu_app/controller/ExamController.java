@@ -62,6 +62,16 @@ public class ExamController {
                 .build();
     }
 
+    @GetMapping("/class/{classId}/student")
+    @PreAuthorize("hasRole('STUDENT')")
+    ApiResponse<List<ExamResponse>> getExamsInClassIdByStudent (@PathVariable Long classId) {
+        return ApiResponse.<List<ExamResponse>>builder()
+                .message("Success")
+                .code(1000)
+                .result(examService.getExamsInClassIdByStudent(classId))
+                .build();
+    }
+
     @PutMapping("/{examId}")
     @PreAuthorize("hasRole('TEACHER')")
     ApiResponse<ExamResponse> updateExam (@PathVariable Long examId, @RequestBody @Valid ExamUpdateRequest request) {

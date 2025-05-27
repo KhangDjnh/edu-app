@@ -99,6 +99,12 @@ public class ExamSubmissionService {
         }
     }
 
+    public BigDecimal getScoreBySubmissionId (Long submissionId) {
+        ExamSubmission result = submissionRepository.findById(submissionId)
+                .orElseThrow(() -> new AppException(ErrorCode.SUBMISSION_NOT_FOUND));
+        return result.getScore();
+    }
+
     private BigDecimal calculateScore(List<ExamAnswer> answers) {
         long correctCount = answers.stream()
                 .filter(ans -> ans.getSelectedOption() == ans.getQuestion().getAnswer())

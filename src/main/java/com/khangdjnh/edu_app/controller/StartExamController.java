@@ -11,6 +11,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -43,8 +44,18 @@ public class StartExamController {
                 .build();
     }
 
+    @GetMapping("/submission/{submissionId}/result")
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
+    public ApiResponse<BigDecimal> getScore(@PathVariable Long submissionId) {
+        return ApiResponse.<BigDecimal>builder()
+                .code(1000)
+                .message("Success")
+                .result(examSubmissionService.getScoreBySubmissionId(submissionId))
+                .build();
+    }
+
     @GetMapping("/{examId}/results")
-    @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
     public ApiResponse<List<ExamSubmissionResultResponse>> getExamResults(@PathVariable Long examId) {
         return ApiResponse.<List<ExamSubmissionResultResponse>>builder()
                 .message("Results fetched")

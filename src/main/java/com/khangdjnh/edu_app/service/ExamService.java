@@ -151,6 +151,13 @@ public class ExamService {
                 .toList();
     }
 
+    public List<ExamResponse> getExamsInClassIdByStudent(Long classId) {
+        return examRepository.findAllByClassEntityIdAndIsStarted(classId, true)
+                .stream()
+                .map(this::toExamResponse)
+                .toList();
+    }
+
     @Transactional
     public ExamResponse updateExam(Long examId, ExamUpdateRequest request) {
         Exam exam = examRepository.findById(examId)
