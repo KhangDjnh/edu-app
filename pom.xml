@@ -12,11 +12,11 @@
 		<relativePath/>
 	</parent>
 
-	<groupId>com.devteria</groupId>
-	<artifactId>indentity-service</artifactId>
+	<groupId>com.khangdev</groupId>
+	<artifactId>education-system</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>indentity-service</name>
-	<description>indentity service</description>
+	<name>education-system</name>
+	<description>Education system</description>
 
 	<properties>
 		<java.version>21</java.version>

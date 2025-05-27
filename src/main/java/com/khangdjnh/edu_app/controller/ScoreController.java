@@ -70,7 +70,7 @@ public class ScoreController {
     }
 
     @GetMapping("/summary")
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
     public ApiResponse<ClassScoreSummaryResponse> getScoreSummaryByClassId(@RequestParam Long classId) {
         return ApiResponse.<ClassScoreSummaryResponse>builder()
                 .message("Success")
