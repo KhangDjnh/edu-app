@@ -14,6 +14,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -26,6 +27,7 @@ public class DocumentService {
     DocumentMapper documentMapper;
 
     //Create document
+    @Transactional(rollbackFor = Exception.class)
     public DocumentResponse createDocument(DocumentCreateRequest request) {
         ClassEntity classEntity = classRepository.findById(request.getClassId())
                 .orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
@@ -38,6 +40,7 @@ public class DocumentService {
         return documentMapper.toDocumentResponse(document);
     }
     //Get document by id
+    @Transactional(readOnly = true)
     public DocumentResponse getDocumentById(Long id) {
         Document document = documentRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.DOCUMENT_NOT_FOUND));
@@ -45,16 +48,19 @@ public class DocumentService {
     }
 
     //Get all documents
+    @Transactional(readOnly = true)
     public List<DocumentResponse> getAllDocuments() {
         return documentRepository.findAll().stream().map(documentMapper::toDocumentResponse).toList();
     }
 
     //Get documents in class
+    @Transactional(readOnly = true)
     public List<DocumentResponse> getDocumentsInClass(Long classId){
         return documentRepository.findByClassEntityId(classId).stream().map(documentMapper::toDocumentResponse).toList();
     }
 
     //Update document by id
+    @Transactional(rollbackFor = Exception.class)
     public DocumentResponse updateDocumentById(Long id, DocumentUpdateRequest request) {
         Document document = documentRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.DOCUMENT_NOT_FOUND));
@@ -63,6 +69,7 @@ public class DocumentService {
     }
 
     //Delete document by id
+    @Transactional(rollbackFor = Exception.class)
     public void deleteDocumentById(Long id) {
         if(!documentRepository.existsById(id)) {
             throw new AppException(ErrorCode.DOCUMENT_NOT_FOUND);

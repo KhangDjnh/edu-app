@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -32,40 +33,6 @@ import java.util.stream.Collectors;
 public class QuestionService {
     QuestionRepository examQuestionRepository;
     private final ClassRepository classRepository;
-
-//    public Page<QuestionResponse> searchQuestions(QuestionSearchRequest request, Pageable pageable) {
-//        Specification<Question> spec = (root, query, cb) -> {
-//            Predicate predicate = cb.conjunction();
-//
-//            if (request.getKeyword() != null && !request.getKeyword().isBlank()) {
-//                predicate = cb.and(predicate, cb.like(cb.lower(root.get("question")), "%" + request.getKeyword().toLowerCase() + "%"));
-//            }
-//
-//            if (request.getClassId() != null) {
-//                predicate = cb.and(predicate, cb.equal(root.get("classEntity").get("id"), request.getClassId()));
-//            }
-//
-//            if (request.getChapter() != null) {
-//                predicate = cb.and(predicate, cb.equal(root.get("chapter"), request.getChapter()));
-//            }
-//
-//            if (request.getLevel() != null) {
-//                predicate = cb.and(predicate, cb.equal(root.get("level"), request.getLevel()));
-//            }
-//
-//            return predicate;
-//        };
-//
-//        return examQuestionRepository.findAll(spec, pageable)
-//                .map(q -> QuestionResponse.builder()
-//                        .id(q.getId())
-//                        .classId(q.getClassEntity().getId())
-//                        .chapter(q.getChapter())
-//                        .question(q.getQuestion())
-//                        .answer(q.getAnswer())
-//                        .level(q.getLevel())
-//                        .build());
-//    }
 
     public Page<QuestionResponse> searchQuestions(QuestionSearchRequest request, Pageable pageable) {
         Specification<Question> spec = (root, query, cb) -> {
@@ -106,6 +73,7 @@ public class QuestionService {
                         .build());
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public QuestionResponse createQuestion (QuestionCreateRequest request) {
         ClassEntity classEntity = classRepository.findById(request.getClassId())
                 .orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
@@ -133,6 +101,7 @@ public class QuestionService {
                 .build();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public QuestionResponse updateQuestion(Long id, QuestionCreateRequest request) {
         Question question = examQuestionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Exam question not found"));
@@ -160,6 +129,7 @@ public class QuestionService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public QuestionDetailResponse getQuestionById(Long id) {
         Question question = examQuestionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Exam question not found"));
@@ -178,6 +148,7 @@ public class QuestionService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public Page<QuestionDetailResponse> getAllQuestionByClass(Long classId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
 
@@ -197,6 +168,7 @@ public class QuestionService {
                 .build());
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void deleteQuestion(Long id) {
         if (!examQuestionRepository.existsById(id)) {
             throw new AppException(ErrorCode.QUESTION_NOT_FOUND);

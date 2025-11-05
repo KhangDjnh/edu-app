@@ -16,19 +16,24 @@ import feign.FeignException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class EmailConfirmationController {
     PendingUserRepository pendingUserRepository;
     IdentityClient identityClient;
@@ -38,6 +43,7 @@ public class EmailConfirmationController {
     PasswordEncoder passwordEncoder;
 
     @GetMapping("/api/confirm-email")
+    @Transactional(rollbackFor = Exception.class)
     public ApiResponse<String> confirmEmail(@RequestParam String token) {
         PendingUser pendingUser = pendingUserRepository.findByConfirmationToken(token)
                 .orElseThrow(() -> new AppException(ErrorCode.CONFIRM_MAIL_TOKEN_IS_INVALID_OR_EXPIRED));
@@ -67,6 +73,9 @@ public class EmailConfirmationController {
 
             String userKeycloakId = extractUserId(creationResponse);
 
+            assignRoleToUser("Bearer " + keycloakToken, userKeycloakId,
+                    pendingUser.getRole() != null ? pendingUser.getRole().name() : "USER");
+
             // Lưu vào bảng users
             User user = User.builder()
                     .username(pendingUser.getUsername())
@@ -75,12 +84,19 @@ public class EmailConfirmationController {
                     .keycloakUserId(userKeycloakId)
                     .firstName(pendingUser.getFirstName())
                     .lastName(pendingUser.getLastName())
+                    .phoneNumber(pendingUser.getPhoneNumber())
+                    .address(pendingUser.getAddress())
+                    .gender(pendingUser.getGender())
+                    .role(pendingUser.getRole())
+                    .primarySubject(pendingUser.getPrimarySubject())
                     .dob(pendingUser.getDob())
                     .isActive(true)
                     .avatar("https://cdn.vectorstock.com/i/1000v/92/16/default-profile-picture-avatar-user-icon-vector-46389216.jpg")
                     .build();
             userRepository.save(user);
         } catch (FeignException exception) {
+            log.error("Error while confirming email", exception);
+            log.error("Error message: {}", exception.getMessage());
             throw errorNormalizer.handleKeycloakException(exception);
         }
         // Xoá pending user
@@ -98,4 +114,27 @@ public class EmailConfirmationController {
         String[] splittedString = location.split("/");
         return splittedString[splittedString.length - 1];
     }
+
+    private void assignRoleToUser(String token, String userId, String roleName) {
+        String realm = "education-service";
+
+        ResponseEntity<Map<String, Object>> roleResponse = identityClient.getRoleByName(
+                "Bearer " + token,
+                realm,
+                roleName
+        );
+
+        Map<String, Object> role = roleResponse.getBody();
+        if (role == null) {
+            throw new RuntimeException("Role not found: " + roleName);
+        }
+
+        identityClient.assignRoleToUser(
+                "Bearer " + token,
+                realm,
+                userId,
+                List.of(role)
+        );
+    }
+
 }

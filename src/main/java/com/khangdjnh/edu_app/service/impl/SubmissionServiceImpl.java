@@ -37,7 +37,7 @@ public class SubmissionServiceImpl implements SubmissionService {
     private final NotificationService notificationService;
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public SubmissionResponse createSubmission(SubmissionRequest request) {
         User student = userRepository.findById(request.getStudentId()).orElseThrow();
         Assignment assignment = assignmentRepository.findById(request.getAssignmentId()).orElseThrow();

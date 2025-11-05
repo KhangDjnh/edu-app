@@ -35,6 +35,131 @@ public class ExamService {
     ClassStudentRepository classStudentRepository;
     NotificationService notificationService;
 
+    @Transactional(rollbackFor = Exception.class)
+    public ExamResponse createRandomExam(ExamCreateRandomRequest request) {
+        ClassEntity classEntity = validateClass(request.getClassId());
+        validateExamTime(request.getStartTime(), request.getEndTime());
+
+        List<Question> classQuestions = examQuestionRepository.findByClassEntityId(request.getClassId());
+
+        List<Question> allQuestions = new ArrayList<>();
+        allQuestions.addAll(getRandomQuestionsFromList(classQuestions, QuestionLevel.EASY, request.getNumberOfEasyQuestions()));
+        allQuestions.addAll(getRandomQuestionsFromList(classQuestions, QuestionLevel.MEDIUM, request.getNumberOfMediumQuestions()));
+        allQuestions.addAll(getRandomQuestionsFromList(classQuestions, QuestionLevel.HARD, request.getNumberOfHardQuestions()));
+        allQuestions.addAll(getRandomQuestionsFromList(classQuestions, QuestionLevel.VERY_HARD, request.getNumberOfVeryHardQuestions()));
+        Collections.shuffle(allQuestions);
+
+        Exam exam = Exam.builder()
+                .classEntity(classEntity)
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .isStarted(false)
+                .startTime(request.getStartTime())
+                .endTime(request.getEndTime())
+                .questions(allQuestions)
+                .build();
+
+        return toExamResponse(examRepository.save(exam));
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public ExamResponse createChooseExam(ExamCreateChooseRequest request) {
+        ClassEntity classEntity = validateClass(request.getClassId());
+        validateExamTime(request.getStartTime(), request.getEndTime());
+
+        List<Question> questions = getValidatedQuestions(request.getQuestionIds(), request.getClassId());
+
+        Exam exam = Exam.builder()
+                .classEntity(classEntity)
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .isStarted(false)
+                .startTime(request.getStartTime())
+                .endTime(request.getEndTime())
+                .questions(questions)
+                .build();
+
+        return toExamResponse(examRepository.save(exam));
+    }
+
+    @Transactional(readOnly = true)
+    public ExamResponse getExamById(Long id) {
+        Exam exam = examRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.EXAM_NOT_FOUND));
+        return toExamResponse(exam);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ExamResponse> getExamsByClassId(Long classId) {
+        return examRepository.findAllByClassEntityId(classId)
+                .stream()
+                .map(this::toExamResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ExamResponse> getExamsInClassIdByStudent(Long classId) {
+        return examRepository.findAllByClassEntityIdAndIsStarted(classId, true)
+                .stream()
+                .map(this::toExamResponse)
+                .toList();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public ExamResponse updateExam(Long examId, ExamUpdateRequest request) {
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new AppException(ErrorCode.EXAM_NOT_FOUND));
+
+        ClassEntity classEntity = validateClass(request.getClassId());
+        validateExamTime(request.getStartTime(), request.getEndTime());
+
+        exam.setTitle(request.getTitle());
+        exam.setDescription(request.getDescription());
+        exam.setStartTime(request.getStartTime());
+        exam.setEndTime(request.getEndTime());
+        exam.setClassEntity(classEntity);
+
+        return toExamResponse(examRepository.save(exam));
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public ExamResponse markExamStarted (Long examId) {
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new AppException(ErrorCode.EXAM_NOT_FOUND));
+        exam.setIsStarted(true);
+        examRepository.save(exam);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        // Format lại thời gian bắt đầu kỳ thi
+        String examStartTime = exam.getStartTime().format(formatter);
+        List<User> students = classStudentRepository.findByClassEntity_Id(exam.getClassEntity().getId())
+                .stream().map(ClassStudent::getStudent).toList();
+        String content = "Giáo viên của bạn lớp " + exam.getClassEntity().getName()
+                + " đã bắt đầu kì thi " + exam.getTitle()
+                + " lúc " + examStartTime
+                + ". Bạn nhớ tham gia kì thi đúng giờ nhé!";
+
+        for (User student : students) {
+            notificationService.sendNewAssignmentNotice(student, content);
+        }
+
+        return toExamResponse(exam);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteExam(Long examId) {
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new AppException(ErrorCode.EXAM_NOT_FOUND));
+
+        // Xóa liên kết với question trước (clear bảng nối)
+        exam.getQuestions().clear();
+        examRepository.save(exam);
+
+        // Sau đó mới xóa exam
+        examRepository.delete(exam);
+    }
+
     private ClassEntity validateClass(Long classId) {
         return classRepository.findById(classId)
                 .orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
@@ -89,125 +214,5 @@ public class ExamService {
                 .description(exam.getDescription())
                 .createdAt(exam.getCreatedAt())
                 .build();
-    }
-
-    @Transactional
-    public ExamResponse createRandomExam(ExamCreateRandomRequest request) {
-        ClassEntity classEntity = validateClass(request.getClassId());
-        validateExamTime(request.getStartTime(), request.getEndTime());
-
-        List<Question> classQuestions = examQuestionRepository.findByClassEntityId(request.getClassId());
-
-        List<Question> allQuestions = new ArrayList<>();
-        allQuestions.addAll(getRandomQuestionsFromList(classQuestions, QuestionLevel.EASY, request.getNumberOfEasyQuestions()));
-        allQuestions.addAll(getRandomQuestionsFromList(classQuestions, QuestionLevel.MEDIUM, request.getNumberOfMediumQuestions()));
-        allQuestions.addAll(getRandomQuestionsFromList(classQuestions, QuestionLevel.HARD, request.getNumberOfHardQuestions()));
-        allQuestions.addAll(getRandomQuestionsFromList(classQuestions, QuestionLevel.VERY_HARD, request.getNumberOfVeryHardQuestions()));
-        Collections.shuffle(allQuestions);
-
-        Exam exam = Exam.builder()
-                .classEntity(classEntity)
-                .title(request.getTitle())
-                .description(request.getDescription())
-                .isStarted(false)
-                .startTime(request.getStartTime())
-                .endTime(request.getEndTime())
-                .questions(allQuestions)
-                .build();
-
-        return toExamResponse(examRepository.save(exam));
-    }
-
-    @Transactional
-    public ExamResponse createChooseExam(ExamCreateChooseRequest request) {
-        ClassEntity classEntity = validateClass(request.getClassId());
-        validateExamTime(request.getStartTime(), request.getEndTime());
-
-        List<Question> questions = getValidatedQuestions(request.getQuestionIds(), request.getClassId());
-
-        Exam exam = Exam.builder()
-                .classEntity(classEntity)
-                .title(request.getTitle())
-                .description(request.getDescription())
-                .isStarted(false)
-                .startTime(request.getStartTime())
-                .endTime(request.getEndTime())
-                .questions(questions)
-                .build();
-
-        return toExamResponse(examRepository.save(exam));
-    }
-
-    public ExamResponse getExamById(Long id) {
-        Exam exam = examRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.EXAM_NOT_FOUND));
-        return toExamResponse(exam);
-    }
-
-    public List<ExamResponse> getExamsByClassId(Long classId) {
-        return examRepository.findAllByClassEntityId(classId)
-                .stream()
-                .map(this::toExamResponse)
-                .toList();
-    }
-
-    public List<ExamResponse> getExamsInClassIdByStudent(Long classId) {
-        return examRepository.findAllByClassEntityIdAndIsStarted(classId, true)
-                .stream()
-                .map(this::toExamResponse)
-                .toList();
-    }
-
-    @Transactional
-    public ExamResponse updateExam(Long examId, ExamUpdateRequest request) {
-        Exam exam = examRepository.findById(examId)
-                .orElseThrow(() -> new AppException(ErrorCode.EXAM_NOT_FOUND));
-
-        ClassEntity classEntity = validateClass(request.getClassId());
-        validateExamTime(request.getStartTime(), request.getEndTime());
-
-        exam.setTitle(request.getTitle());
-        exam.setDescription(request.getDescription());
-        exam.setStartTime(request.getStartTime());
-        exam.setEndTime(request.getEndTime());
-        exam.setClassEntity(classEntity);
-
-        return toExamResponse(examRepository.save(exam));
-    }
-
-    public ExamResponse markExamStarted (Long examId) {
-        Exam exam = examRepository.findById(examId)
-                .orElseThrow(() -> new AppException(ErrorCode.EXAM_NOT_FOUND));
-        exam.setIsStarted(true);
-        examRepository.save(exam);
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-
-        // Format lại thời gian bắt đầu kỳ thi
-        String examStartTime = exam.getStartTime().format(formatter);
-        List<User> students = classStudentRepository.findByClassEntity_Id(exam.getClassEntity().getId())
-                .stream().map(ClassStudent::getStudent).toList();
-        String content = "Giáo viên của bạn lớp " + exam.getClassEntity().getName()
-                + " đã bắt đầu kì thi " + exam.getTitle()
-                + " lúc " + examStartTime
-                + ". Bạn nhớ tham gia kì thi đúng giờ nhé!";
-
-        for (User student : students) {
-            notificationService.sendNewAssignmentNotice(student, content);
-        }
-
-        return toExamResponse(exam);
-    }
-
-    public void deleteExam(Long examId) {
-        Exam exam = examRepository.findById(examId)
-                .orElseThrow(() -> new AppException(ErrorCode.EXAM_NOT_FOUND));
-
-        // Xóa liên kết với question trước (clear bảng nối)
-        exam.getQuestions().clear();
-        examRepository.save(exam);
-
-        // Sau đó mới xóa exam
-        examRepository.delete(exam);
     }
 }

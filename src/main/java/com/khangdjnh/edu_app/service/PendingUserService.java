@@ -2,6 +2,9 @@ package com.khangdjnh.edu_app.service;
 
 import com.khangdjnh.edu_app.dto.request.user.UserCreateRequest;
 import com.khangdjnh.edu_app.entity.PendingUser;
+import com.khangdjnh.edu_app.enums.Gender;
+import com.khangdjnh.edu_app.enums.PrimarySubject;
+import com.khangdjnh.edu_app.enums.UserRole;
 import com.khangdjnh.edu_app.exception.AppException;
 import com.khangdjnh.edu_app.exception.ErrorCode;
 import com.khangdjnh.edu_app.repository.PendingUserRepository;
@@ -10,6 +13,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -22,6 +26,7 @@ public class PendingUserService {
     UserRepository userRepository;
     EmailService emailService;
 
+    @Transactional(rollbackFor = Exception.class)
     public void createUser(UserCreateRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new AppException(ErrorCode.EMAIL_EXISTED_IN_DATABASE);
@@ -40,6 +45,11 @@ public class PendingUserService {
                 .password(request.getPassword())
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
+                .gender(request.getGender())
+                .phoneNumber(request.getPhoneNumber())
+                .address(request.getAddress())
+                .role(request.getRole())
+                .primarySubject(request.getPrimarySubject())
                 .dob(request.getDob())
                 .confirmationToken(token)
                 .tokenExpiration(LocalDateTime.now().plusHours(24))

@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -29,6 +30,7 @@ public class LeaveRequestService {
     NotificationService notificationService;
 
     //Create leave request
+    @Transactional(rollbackFor = Exception.class)
     public LeaveRequestResponse createLeaveRequest(LeaveRequestCreate request) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         String userKeycloakId = authentication.getName();
@@ -62,6 +64,7 @@ public class LeaveRequestService {
     }
 
     //Get Leave Request by id
+    @Transactional(readOnly = true)
     public LeaveRequestResponse getLeaveRequestById(Long id) {
         LeaveRequest leaveRequest = leaveRequestRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.LEAVE_REQUEST_NOT_FOUND));
@@ -77,6 +80,7 @@ public class LeaveRequestService {
     }
 
     //Teacher approve leave request
+    @Transactional(rollbackFor = Exception.class)
     public LeaveRequestResponse approveLeaveRequest(Long id){
         LeaveRequest leaveRequest = leaveRequestRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.LEAVE_REQUEST_NOT_FOUND));
@@ -99,6 +103,7 @@ public class LeaveRequestService {
     }
 
     //Teacher reject leave request
+    @Transactional(rollbackFor = Exception.class)
     public LeaveRequestResponse rejectLeaveRequest(Long id){
         LeaveRequest leaveRequest = leaveRequestRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.LEAVE_REQUEST_NOT_FOUND));
@@ -121,6 +126,7 @@ public class LeaveRequestService {
     }
 
     //Teacher get all leave request in class
+    @Transactional(readOnly = true)
     public List<LeaveRequestResponse> getAllLeaveRequestInClass(Long classId) {
         if (!classRepository.existsById(classId)) {
             throw new AppException(ErrorCode.CLASS_NOT_FOUND);
@@ -139,6 +145,8 @@ public class LeaveRequestService {
                         .build())
                 .toList();
     }
+
+    @Transactional(readOnly = true)
     public List<LeaveRequestResponse> getAllLeaveRequestStudent(Long studentId, Long classId) {
         if (!userRepository.existsById(studentId)) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);

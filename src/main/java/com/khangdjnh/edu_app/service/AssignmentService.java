@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -49,6 +50,7 @@ public class AssignmentService {
     @Value("${file.upload-dir}")
     String uploadDir;
 
+    @Transactional(rollbackFor = Exception.class)
     public AssignmentResponse createAssignment(AssignmentCreateRequest request) throws IOException {
         ClassEntity classEntity = classRepository.findById(request.getClassId())
                 .orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
@@ -114,6 +116,7 @@ public class AssignmentService {
         return assignments.map(this::mapAssignmentToResponse);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public AssignmentResponse updateAssignment(AssignmentUpdateRequest request, Long id) throws IOException {
         Assignment assignment = assignmentRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ASSIGNMENT_NOT_FOUND));
@@ -157,7 +160,7 @@ public class AssignmentService {
         return mapAssignmentToResponse(assignment);
     }
 
-
+    @Transactional(rollbackFor = Exception.class)
     public void deleteAssignmentById(Long id) {
         if (!assignmentRepository.existsById(id)) {
             throw new AppException(ErrorCode.ASSIGNMENT_NOT_FOUND);

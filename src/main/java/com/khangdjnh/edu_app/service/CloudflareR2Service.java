@@ -7,6 +7,7 @@ import com.khangdjnh.edu_app.repository.FileRecordRepository;
 import com.khangdjnh.edu_app.util.SecurityUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
@@ -31,6 +32,7 @@ public class CloudflareR2Service {
         this.fileRecordRepository = fileRecordRepository;
     }
 
+    @Transactional(readOnly = true)
     public ApiResponse<?> getFileFromS3(Long fileId) {
         FileRecord rec = fileRecordRepository.findById(fileId)
                 .orElseThrow(() -> new RuntimeException("File not found"));
@@ -40,6 +42,7 @@ public class CloudflareR2Service {
                 .build();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public ApiResponse<?> uploadFileToS3(MultipartFile file) {
         try {
             String url = uploadFile(file, "images");

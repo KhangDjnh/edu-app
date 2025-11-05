@@ -5,6 +5,7 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class EmailService {
 
     JavaMailSender mailSender;
@@ -37,7 +39,16 @@ public class EmailService {
             helper.setText(htmlContent, true);
 
             mailSender.send(message);
+            log.info("Send email to {}", to);
         } catch (MessagingException e) {
+            log.error("Email sending failed: {}", e.getMessage(), e);
+
+            // In thêm nguyên nhân gốc (nested exception)
+            Exception nextEx = e.getNextException();
+            if (nextEx != null) {
+                log.error("Root cause: {}", nextEx.getMessage(), nextEx);
+            }
+
             throw new RuntimeException("Failed to send email", e);
         }
     }

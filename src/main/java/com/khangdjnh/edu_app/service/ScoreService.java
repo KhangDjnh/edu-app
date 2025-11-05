@@ -13,11 +13,11 @@ import com.khangdjnh.edu_app.exception.ErrorCode;
 import com.khangdjnh.edu_app.repository.ClassStudentRepository;
 import com.khangdjnh.edu_app.repository.ExamRepository;
 import com.khangdjnh.edu_app.repository.ScoreRepository;
-import com.khangdjnh.edu_app.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -32,9 +32,9 @@ import java.util.stream.Collectors;
 public class ScoreService {
     ScoreRepository scoreRepository;
     ExamRepository examRepository;
-    UserRepository userRepository;
     ClassStudentRepository classStudentRepository;
 
+    @Transactional(readOnly = true)
     public List<ScoreResponse> getAllScoreByStudentId(Long studentId) {
         return scoreRepository.findAllByStudentId(studentId)
                 .stream()
@@ -47,6 +47,7 @@ public class ScoreService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<ScoreResponse> getAllScoreByExamId(Long examId) {
         return scoreRepository.findAllByExamId(examId)
                 .stream()
@@ -59,6 +60,7 @@ public class ScoreService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<ScoreResponse> getAllScoreByClassIdExamId(Long classId, Long examId) {
         return scoreRepository.findAllByClassEntityIdAndExamId(classId, examId)
                 .stream()
@@ -71,6 +73,7 @@ public class ScoreService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public ScoreResponse getScoreByExamIdAndStudentId(Long studentId, Long examId) {
         Score score = scoreRepository.findByStudentIdAndExamId(studentId, examId)
                 .orElseThrow(() -> new AppException(ErrorCode.SCORES_NOT_FOUND));
@@ -82,6 +85,7 @@ public class ScoreService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public ClassScoreSummaryResponse getScoreSummaryByClassId(Long classId) {
         List<Exam> exams = examRepository.findAllByClassEntityId(classId);
         List<User> students = classStudentRepository.findByClassEntity_Id(classId).stream().map(ClassStudent::getStudent).toList();

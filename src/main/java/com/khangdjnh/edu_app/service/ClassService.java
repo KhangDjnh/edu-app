@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class ClassService {
     ClassRepository classRepository;
     ClassMapper classMapper;
 
+    @Transactional(rollbackFor = Exception.class)
     public ClassResponse createClass(ClassCreateRequest request) {
         if(classRepository.existsByCode(request.getCode())) {
             throw new AppException(ErrorCode.CLASS_EXISTED);
@@ -40,6 +42,7 @@ public class ClassService {
         return classResponse;
     }
 
+    @Transactional(readOnly = true)
     public ClassResponse getClassById(Long classId) {
         ClassEntity classEntity = classRepository.findById(classId)
                 .orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
@@ -49,10 +52,12 @@ public class ClassService {
         return classResponse;
     }
 
+    @Transactional(readOnly = true)
     public List<ClassResponse> getAllClasses() {
         return classRepository.findAll().stream().map(classMapper::toClassResponse).toList();
     }
 
+    @Transactional(readOnly = true)
     public List<ClassResponse> getClassByTeacher() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         String userKeycloakId = authentication.getName();
@@ -60,12 +65,14 @@ public class ClassService {
         return classRepository.findAllByTeacherIdOrderByCreatedAtDesc(teacher.getId()).stream().map(classMapper::toClassResponse).toList();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public ClassResponse updateClassById(Long id, ClassUpdateRequest request) {
         ClassEntity classEntity = classRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
         classMapper.updateClassFromRequest(classEntity, request);
         return classMapper.toClassResponse(classRepository.save(classEntity));
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void deleteClassById(Long id) {
         if(!classRepository.existsById(id)) {
             throw new AppException(ErrorCode.CLASS_NOT_FOUND);

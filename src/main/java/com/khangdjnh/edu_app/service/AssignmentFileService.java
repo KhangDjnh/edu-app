@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -32,6 +33,7 @@ public class AssignmentFileService {
     @Value("${file.upload-dir}")
     String uploadDir;
 
+    @Transactional(rollbackFor = Exception.class)
     public void saveFile(List<MultipartFile> files, Assignment assignment) throws IOException {
         // Tạo thư mục nếu chưa có
         Path uploadPath = Paths.get(uploadDir);
@@ -58,11 +60,13 @@ public class AssignmentFileService {
         }
     }
 
+    @Transactional(readOnly = true)
     public AssignmentFile getFileById(Long fileId) {
         if(!assignmentFileRepository.existsById(fileId)) throw new AppException((ErrorCode.FILE_NOT_FOUND));
         return assignmentFileRepository.findByIdAndIsDeletedFalse(fileId);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void softDeleteFile(Long fileId) {
         if(!assignmentFileRepository.existsById(fileId)) throw new AppException((ErrorCode.FILE_NOT_FOUND));
         AssignmentFile file = assignmentFileRepository.findByIdAndIsDeletedFalse(fileId);

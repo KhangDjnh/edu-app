@@ -27,6 +27,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -44,29 +45,6 @@ public class UserService {
     ErrorNormalizer errorNormalizer;
     KeycloakClientTokenService keycloakClientTokenService;
     KeycloakUserTokenService keycloakUserTokenService;
-
-    private List<String> extractRolesFromToken(String token) {
-        try {
-            SignedJWT signedJWT = SignedJWT.parse(token);
-            JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
-
-            // Lấy roles từ realm_access
-            Map<String, Object> realmAccess = (Map<String, Object>) claims.getClaim("realm_access");
-            if (realmAccess != null && realmAccess.containsKey("roles")) {
-                return (List<String>) realmAccess.get("roles");
-            }
-
-            return List.of();
-        } catch (Exception e) {
-            throw new AppException(ErrorCode.INVALID_TOKEN);
-        }
-    }
-
-    private String extractUserId(ResponseEntity<?> responseEntity) {
-        String location = Objects.requireNonNull(responseEntity.getHeaders().get("Location")).getFirst();
-        String[] splittedString = location.split("/");
-        return splittedString[splittedString.length - 1];
-    }
 
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
@@ -92,6 +70,7 @@ public class UserService {
                 .build();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public UserResponse createUser(UserCreateRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new AppException(ErrorCode.EMAIL_EXISTED_IN_DATABASE);
@@ -142,6 +121,8 @@ public class UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         return userMapper.toUserResponse(user);
     }
+
+    @Transactional(rollbackFor = Exception.class)
     public void changePassword(Long id, ChangePasswordRequest request) {
         if (request.getOldPassword().equals(request.getNewPassword())) {
             throw new AppException(ErrorCode.NEW_PASSWORD_SAME_AS_OLD);
@@ -170,6 +151,7 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public UserResponse updateUser(Long id, UserUpdateRequest request) {
         if (!userRepository.existsById(id)) {
             throw new IllegalArgumentException("User not found");
@@ -180,9 +162,33 @@ public class UserService {
         return userMapper.toUserResponse(user);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void deleteUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         user.setActive(false);
         userRepository.save(user);
+    }
+
+    private List<String> extractRolesFromToken(String token) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
+
+            // Lấy roles từ realm_access
+            Map<String, Object> realmAccess = (Map<String, Object>) claims.getClaim("realm_access");
+            if (realmAccess != null && realmAccess.containsKey("roles")) {
+                return (List<String>) realmAccess.get("roles");
+            }
+
+            return List.of();
+        } catch (Exception e) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
+    }
+
+    private String extractUserId(ResponseEntity<?> responseEntity) {
+        String location = Objects.requireNonNull(responseEntity.getHeaders().get("Location")).getFirst();
+        String[] splittedString = location.split("/");
+        return splittedString[splittedString.length - 1];
     }
 }

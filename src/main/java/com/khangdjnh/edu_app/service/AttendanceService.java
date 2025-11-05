@@ -35,7 +35,7 @@ public class AttendanceService {
     ClassRepository classRepository;
     UserRepository userRepository;
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public AttendanceCreateResponse createClassAttendance(AttendanceCreateRequest request) {
         ClassEntity classEntity = classRepository.findById(request.getClassId())
                 .orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
@@ -89,7 +89,7 @@ public class AttendanceService {
         return value != null ? value : 0;
     }
 
-
+    @Transactional(rollbackFor = Exception.class)
     public AttendanceResponse updateAttendance (AttendanceUpdateRequest request, Long id) {
         Attendance attendance = attendanceRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.ATTENDANCE_NOT_FOUND));
         attendance.setStatus(request.getStatus());
@@ -117,6 +117,7 @@ public class AttendanceService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public List<AttendanceResponse> getAllAttendanceInClass(Long classId , LocalDate attendanceDate) {
         return attendanceRepository
                 .findByClassEntityIdAndAttendanceDate(classId, attendanceDate)
@@ -132,6 +133,7 @@ public class AttendanceService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<AttendanceResponse> getAllAttendanceInClassAndStudent(Long studentId, Long classId) {
         return attendanceRepository
                 .findByStudentIdAndClassEntity_Id(studentId, classId)

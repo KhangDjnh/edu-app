@@ -4,6 +4,7 @@ import com.khangdjnh.edu_app.dto.response.ExamSubmissionResultResponse;
 import com.khangdjnh.edu_app.repository.ExamSubmissionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 public class ExamResultService {
     private final ExamSubmissionRepository submissionRepository;
 
+    @Transactional(readOnly = true)
     public List<ExamSubmissionResultResponse> getResults(Long examId) {
         return submissionRepository.findAllByExamId(examId)
                 .stream()

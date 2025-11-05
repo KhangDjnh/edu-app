@@ -14,6 +14,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +24,7 @@ public class ExamAnswerService {
     ExamSubmissionRepository examSubmissionRepository;
     QuestionRepository questionRepository;
 
+    @Transactional(rollbackFor = Exception.class)
     public void submitAnswer(Long submissionId, SubmitAnswerRequest request) {
         ExamSubmission submission = examSubmissionRepository.findById(submissionId)
                 .orElseThrow(() -> new AppException(ErrorCode.SUBMISSION_NOT_FOUND));

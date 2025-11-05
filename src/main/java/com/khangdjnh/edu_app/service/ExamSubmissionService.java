@@ -15,6 +15,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -34,6 +35,7 @@ public class ExamSubmissionService {
     ExamAnswerRepository examAnswerRepository;
     ScoreRepository scoreRepository;
 
+    @Transactional(rollbackFor = Exception.class)
     public StartExamResponse startExam(Long examId) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         String userKeycloakId = authentication.getName();
@@ -67,6 +69,8 @@ public class ExamSubmissionService {
                 .endTime(exam.getEndTime())
                 .build();
     }
+
+    @Transactional(rollbackFor = Exception.class)
     public void submitExam(Long submissionId) {
         ExamSubmission submission = submissionRepository.findById(submissionId)
                 .orElseThrow(() -> new AppException(ErrorCode.SUBMISSION_NOT_FOUND));
@@ -99,6 +103,7 @@ public class ExamSubmissionService {
         }
     }
 
+    @Transactional(readOnly = true)
     public BigDecimal getScoreBySubmissionId (Long submissionId) {
         ExamSubmission result = submissionRepository.findById(submissionId)
                 .orElseThrow(() -> new AppException(ErrorCode.SUBMISSION_NOT_FOUND));

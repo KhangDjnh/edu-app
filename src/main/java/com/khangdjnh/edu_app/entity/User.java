@@ -1,5 +1,8 @@
 package com.khangdjnh.edu_app.entity;
 
+import com.khangdjnh.edu_app.enums.Gender;
+import com.khangdjnh.edu_app.enums.PrimarySubject;
+import com.khangdjnh.edu_app.enums.UserRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
@@ -40,6 +43,23 @@ public class User {
 
     @Column(name = "last_name")
     String lastName;
+
+    @Column(name = "phone_number")
+    String phoneNumber;
+
+    @Column(name = "address")
+    String address;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender")
+    Gender gender;
+
+    @Enumerated(EnumType.STRING)
+    UserRole role;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "primary_subject")
+    PrimarySubject primarySubject;
 
     String avatar;
 

@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -33,6 +34,7 @@ public class ClassStudentService {
     UserMapper userMapper;
     ClassMapper classMapper;
 
+    @Transactional(rollbackFor = Exception.class)
     public StudentJoinClassResponse createClassStudent(StudentJoinClassRequest request) {
         ClassEntity classEntity = classRepository.findById(request.getClassId())
                 .orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
@@ -48,6 +50,7 @@ public class ClassStudentService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public List<UserResponse> getStudentsByClassId(Long classId) {
         if(!classStudentRepository.existsByClassEntity_Id(classId)) {
             throw new AppException(ErrorCode.CLASS_NOT_FOUND);
@@ -59,6 +62,7 @@ public class ClassStudentService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<UserAttendanceResponse> getStudentAttendancesByClassId(Long classId) {
         if(!classStudentRepository.existsByClassEntity_Id(classId)) {
             throw new AppException(ErrorCode.CLASS_NOT_FOUND);
@@ -79,6 +83,7 @@ public class ClassStudentService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public List<ClassResponse> getAllClassesStudentIn(Long studentId) {
         if(!classStudentRepository.existsByStudent_Id(studentId)) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
@@ -90,6 +95,7 @@ public class ClassStudentService {
                 .toList();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public StudentJoinClassResponse joinClassByCode(String code) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         String userKeycloakId = authentication.getName();
@@ -107,6 +113,7 @@ public class ClassStudentService {
                 .build();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void deleteClassStudent(Long classId, Long studentId) {
         ClassStudent classStudent = classStudentRepository.findByClassEntity_IdAndStudent_Id(classId, studentId);
         classStudentRepository.delete(classStudent);
