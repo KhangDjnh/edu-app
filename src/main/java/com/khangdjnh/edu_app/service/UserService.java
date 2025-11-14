@@ -15,6 +15,7 @@ import com.khangdjnh.edu_app.keycloak.UserCreationParam;
 import com.khangdjnh.edu_app.mapper.UserMapper;
 import com.khangdjnh.edu_app.repository.IdentityClient;
 import com.khangdjnh.edu_app.repository.UserRepository;
+import com.khangdjnh.edu_app.util.StringUtil;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import feign.FeignException;
@@ -66,6 +67,12 @@ public class UserService {
                         .firstName(user.getFirstName())
                         .lastName(user.getLastName())
                         .dob(user.getDob())
+                        .role(StringUtil.getStringValue(user.getRole()))
+                        .address(user.getAddress())
+                        .phoneNumber(user.getPhoneNumber())
+                        .gender(StringUtil.getStringValue(user.getGender()))
+                        .primarySubject(user.getPrimarySubject())
+                        .avatar(user.getAvatar())
                         .build())
                 .build();
     }
