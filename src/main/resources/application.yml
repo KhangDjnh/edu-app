@@ -71,9 +71,6 @@ cloud:
     bucket: ${R2_BUCKET:e-learning}
     region: ${R2_REGION:auto}
 
-file:
-  upload-dir: ${UPLOAD_DIR:uploads/assignments/}
-
 springdoc:
   swagger-ui:
     path: /swagger-ui/index.html

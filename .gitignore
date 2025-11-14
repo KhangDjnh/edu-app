@@ -5,7 +5,7 @@ target/
 !**/src/test/**/target/
 
 # src/main/resources/application-local.yml
-src/main/resources/application-local.yml
+src/main/resources/application-*.yml
 
 # File upload local
 uploads/
