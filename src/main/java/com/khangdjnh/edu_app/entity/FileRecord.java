@@ -23,7 +23,7 @@ public class FileRecord {
     private String fileUrl;
     private String fileType;
     private Long fileSize;
-
+    private String folder;
     private String uploadedBy;
     @CreationTimestamp
     private LocalDateTime uploadedAt;

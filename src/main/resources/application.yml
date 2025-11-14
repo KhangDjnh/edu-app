@@ -1,0 +1,84 @@
+# src/main/resources/application.yml
+
+server:
+  port: ${PORT:8080}
+  servlet:
+    context-path: /education
+
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3307/education_system}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: ${DDL_AUTO:update}
+    show-sql: ${SHOW_SQL:true}
+    properties:
+      hibernate:
+        format_sql: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8180/realms/education-service}
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: ${REDIS_TIMEOUT:5000ms}
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 20MB
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:education.system042025@gmail.com}
+    password: ${MAIL_PASSWORD:uoqn bmfq sslw paqt}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+        debug: ${MAIL_DEBUG:true}
+
+
+
+# Custom properties
+idp:
+  url: ${KEYCLOAK_URL:http://localhost:8180}
+  client-id: ${KEYCLOAK_CLIENT_ID:education_app}
+  client-secret: ${KEYCLOAK_CLIENT_SECRET:VzYF8s3JFejTwDFTE0df2GH5YuF4AXNA}
+
+cloud:
+  r2:
+    endpoint: ${R2_ENDPOINT:https://499ff9f796f74256796a481346726f6e.r2.cloudflarestorage.com}
+    access-key: ${R2_ACCESS_KEY:caaaf6f80bd0ca0fe384aa256a0b25a3}
+    secret-key: ${R2_SECRET_KEY:d34955c37c61fb506137d85e1e0173b551e81f87b1033dadd4f2c360e2b1aeea}
+    bucket: ${R2_BUCKET:e-learning}
+    region: ${R2_REGION:auto}
+
+file:
+  upload-dir: ${UPLOAD_DIR:uploads/assignments/}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui/index.html
+
+logging:
+  level:
+    org.springframework.security: ${LOG_SECURITY:DEBUG}
+    org.springframework.web: ${LOG_WEB:DEBUG}

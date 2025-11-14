@@ -3,8 +3,11 @@ package com.khangdjnh.edu_app.service;
 import com.khangdjnh.edu_app.config.CloudflareR2Properties;
 import com.khangdjnh.edu_app.dto.response.ApiResponse;
 import com.khangdjnh.edu_app.entity.FileRecord;
+import com.khangdjnh.edu_app.exception.AppException;
+import com.khangdjnh.edu_app.exception.ErrorCode;
 import com.khangdjnh.edu_app.repository.FileRecordRepository;
 import com.khangdjnh.edu_app.util.SecurityUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,11 +16,15 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.core.sync.RequestBody;
 
+import java.io.IOException;
 import java.net.URLConnection;
 import java.time.Instant;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class CloudflareR2Service {
 
     private final S3Client s3;
@@ -31,6 +38,14 @@ public class CloudflareR2Service {
         this.endpoint = props.getEndpoint();
         this.fileRecordRepository = fileRecordRepository;
     }
+
+    private static final Set<String> IMAGE_EXTENSIONS = Set.of(
+            ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".svg"
+    );
+
+    private static final Set<String> DOCUMENT_EXTENSIONS = Set.of(
+            ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".txt", ".csv"
+    );
 
     @Transactional(readOnly = true)
     public ApiResponse<?> getFileFromS3(Long fileId) {
@@ -68,6 +83,105 @@ public class CloudflareR2Service {
         }
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResponse<?> uploadFile(MultipartFile file) {
+        try {
+            // 1. Xác định folder dựa trên loại file
+            String folder = determineFolder(file.getOriginalFilename());
+
+            // 2. Upload lên R2
+            String fileUrl = uploadToR2(file, folder);
+
+            // 3. Lưu vào DB
+            FileRecord record = FileRecord.builder()
+                    .fileName(file.getOriginalFilename())
+                    .fileUrl(fileUrl)
+                    .fileType(getMimeType(file.getOriginalFilename()))
+                    .fileSize(file.getSize())
+                    .uploadedBy(SecurityUtils.getCurrentUsername())
+                    .folder(folder)
+                    .build();
+
+            fileRecordRepository.save(record);
+
+            return ApiResponse.builder()
+                    .code(1000)
+                    .message("Upload thành công")
+                    .result(Map.of(
+                            "fileId", record.getId(),
+                            "url", fileUrl,
+                            "folder", folder
+                    ))
+                    .build();
+
+        } catch (Exception e) {
+            log.error("Upload file thất bại: {}", e.getMessage(), e);
+            return ApiResponse.builder()
+                    .code(1100)
+                    .message("Upload thất bại: " + e.getMessage())
+                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build();
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public ApiResponse<?> getFileInfo(Long fileId) {
+        FileRecord record = fileRecordRepository.findById(fileId)
+                .orElseThrow(() -> new AppException(ErrorCode.FILE_NOT_FOUND));
+
+        return ApiResponse.builder()
+                .code(1000)
+                .message("Thành công")
+                .result(record)
+                .build();
+    }
+
+    private String determineFolder(String originalFilename) {
+        if (originalFilename == null) {
+            return "others";
+        }
+
+        String ext = getFileExtension(originalFilename).toLowerCase();
+
+        if (IMAGE_EXTENSIONS.contains(ext)) {
+            return "images";
+        } else if (DOCUMENT_EXTENSIONS.contains(ext)) {
+            return "documents";
+        } else {
+            return "others";
+        }
+    }
+
+    private String getFileExtension(String fileName) {
+        int dotIndex = fileName.lastIndexOf('.');
+        return (dotIndex == -1) ? "" : fileName.substring(dotIndex);
+    }
+
+    private String uploadToR2(MultipartFile file, String folder) throws IOException {
+        String originalName = file.getOriginalFilename();
+        if (originalName == null) {
+            originalName = "unknown-file-" + UUID.randomUUID();
+        }
+
+        String extension = getFileExtension(originalName);
+        String key = folder + "/" +
+                Instant.now().getEpochSecond() + "-" +
+                UUID.randomUUID() + extension;
+
+        PutObjectRequest request = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .contentType(file.getContentType())
+                .contentLength(file.getSize())
+                .build();
+
+        s3.putObject(request,
+                RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+
+        // Trả về URL công khai (bucket phải public)
+        return String.format("%s/%s/%s", endpoint.trim(), bucket, key);
+    }
+
     private String getMimeType(String originalFilename) {
         if (originalFilename == null) {
             return "application/octet-stream"; // default binary
@@ -98,3 +212,4 @@ public class CloudflareR2Service {
         return String.format("%s/%s/%s", endpoint, bucket, key);
     }
 }
+

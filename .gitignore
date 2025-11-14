@@ -4,6 +4,13 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# src/main/resources/application-local.yml
+src/main/resources/application-local.yml
+
+# File upload local
+uploads/
+uploads/**
+
 ### STS ###
 .apt_generated
 .classpath
@@ -31,3 +38,14 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.local
