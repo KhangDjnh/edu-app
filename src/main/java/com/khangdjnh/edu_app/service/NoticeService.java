@@ -31,6 +31,7 @@ public class NoticeService {
                 .createAt(notice.getCreatedAt())
                 .read(notice.getRead())
                 .type(notice.getType())
+                .senderUserName(notice.getSenderUserName())
                 .build();
     }
 
@@ -47,6 +48,7 @@ public class NoticeService {
                         .createAt(notice.getCreatedAt())
                         .read(notice.getRead())
                         .type(notice.getType())
+                        .senderUserName(notice.getSenderUserName())
                         .build())
                 .toList();
     }

@@ -36,6 +36,8 @@ public class Notice {
     @Column(name = "readed", nullable = false)
     Boolean read = false;
 
+    String senderUserName;
+
     NoticeType type; // Optional: leave_request, attendance, etc
 }
 

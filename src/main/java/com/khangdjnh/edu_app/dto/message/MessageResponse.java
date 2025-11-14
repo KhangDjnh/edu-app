@@ -17,4 +17,5 @@ public class MessageResponse {
     LocalDateTime createAt;
     Boolean read;
     NoticeType type;
+    String senderUserName;
 }

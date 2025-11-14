@@ -5,6 +5,7 @@ import com.khangdjnh.edu_app.entity.Notice;
 import com.khangdjnh.edu_app.entity.User;
 import com.khangdjnh.edu_app.enums.NoticeType;
 import com.khangdjnh.edu_app.repository.NoticeRepository;
+import com.khangdjnh.edu_app.util.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -30,6 +31,7 @@ public class NotificationService {
                 .createdAt(LocalDateTime.now())
                 .read(false)
                 .type(NoticeType.LEAVE_REQUEST)
+                .senderUserName(SecurityUtils.getCurrentUsernameV2())
                 .build();
 
         noticeRepository.save(notice);
@@ -50,6 +52,7 @@ public class NotificationService {
                 .createdAt(LocalDateTime.now())
                 .read(false)
                 .type(NoticeType.ASSIGNMENT_NEW)
+                .senderUserName(SecurityUtils.getCurrentUsernameV2())
                 .build();
 
         noticeRepository.save(notice);
@@ -70,6 +73,7 @@ public class NotificationService {
                 .createdAt(LocalDateTime.now())
                 .read(false)
                 .type(NoticeType.ASSIGNMENT_DEADLINE)
+                .senderUserName(SecurityUtils.getCurrentUsernameV2())
                 .build();
 
         noticeRepository.save(notice);

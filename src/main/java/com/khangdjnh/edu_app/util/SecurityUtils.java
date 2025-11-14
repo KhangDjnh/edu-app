@@ -1,6 +1,7 @@
 package com.khangdjnh.edu_app.util;
 
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
@@ -14,6 +15,16 @@ public class SecurityUtils {
             return jwt.getClaimAsString("preferred_username");
         }
 
+        return null;
+    }
+
+    public static String getCurrentUsernameV2() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername();
+        } else if (principal instanceof String) {
+            return (String) principal;
+        }
         return null;
     }
 }
