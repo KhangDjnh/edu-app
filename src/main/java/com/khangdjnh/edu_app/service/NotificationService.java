@@ -31,7 +31,9 @@ public class NotificationService {
                 .createdAt(LocalDateTime.now())
                 .read(false)
                 .type(NoticeType.LEAVE_REQUEST)
-                .senderUserName(SecurityUtils.getCurrentUsernameV2())
+                .senderUserName(SecurityUtils.getCurrentUsername())
+                .senderUserEmail(SecurityUtils.getCurrentUserEmail())
+                .senderUserFullName(SecurityUtils.getCurrentUserFullName())
                 .build();
 
         noticeRepository.save(notice);
@@ -52,7 +54,9 @@ public class NotificationService {
                 .createdAt(LocalDateTime.now())
                 .read(false)
                 .type(NoticeType.ASSIGNMENT_NEW)
-                .senderUserName(SecurityUtils.getCurrentUsernameV2())
+                .senderUserName(SecurityUtils.getCurrentUsername())
+                .senderUserEmail(SecurityUtils.getCurrentUsername())
+                .senderUserFullName(SecurityUtils.getCurrentUserFullName())
                 .build();
 
         noticeRepository.save(notice);
@@ -73,7 +77,9 @@ public class NotificationService {
                 .createdAt(LocalDateTime.now())
                 .read(false)
                 .type(NoticeType.ASSIGNMENT_DEADLINE)
-                .senderUserName(SecurityUtils.getCurrentUsernameV2())
+                .senderUserName(SecurityUtils.getCurrentUsername())
+                .senderUserEmail(SecurityUtils.getCurrentUserEmail())
+                .senderUserFullName(SecurityUtils.getCurrentUserFullName())
                 .build();
 
         noticeRepository.save(notice);

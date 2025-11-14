@@ -36,7 +36,14 @@ public class Notice {
     @Column(name = "readed", nullable = false)
     Boolean read = false;
 
+    @Column(name = "sender_user_name", nullable = false)
     String senderUserName;
+
+    @Column(name = "sender_user_email", nullable = false)
+    String senderUserEmail;
+
+    @Column(name = "sender_user_full_name")
+    String senderUserFullName;
 
     NoticeType type; // Optional: leave_request, attendance, etc
 }

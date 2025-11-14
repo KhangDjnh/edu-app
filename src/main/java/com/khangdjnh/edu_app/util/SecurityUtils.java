@@ -1,7 +1,6 @@
 package com.khangdjnh.edu_app.util;
 
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
@@ -11,20 +10,31 @@ public class SecurityUtils {
 
         if (authentication instanceof JwtAuthenticationToken jwtAuth) {
             Jwt jwt = jwtAuth.getToken();
-            // Trường này thường là "preferred_username" trong token của Keycloak
             return jwt.getClaimAsString("preferred_username");
         }
 
         return null;
     }
 
-    public static String getCurrentUsernameV2() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof UserDetails) {
-            return ((UserDetails) principal).getUsername();
-        } else if (principal instanceof String) {
-            return (String) principal;
+    public static String getCurrentUserFullName() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication instanceof JwtAuthenticationToken jwtAuth) {
+            Jwt jwt = jwtAuth.getToken();
+            return jwt.getClaimAsString("name");
         }
+
+        return null;
+    }
+
+    public static String getCurrentUserEmail() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication instanceof JwtAuthenticationToken jwtAuth) {
+            Jwt jwt = jwtAuth.getToken();
+            return jwt.getClaimAsString("email");
+        }
+
         return null;
     }
 }

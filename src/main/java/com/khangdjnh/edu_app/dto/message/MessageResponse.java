@@ -18,4 +18,6 @@ public class MessageResponse {
     Boolean read;
     NoticeType type;
     String senderUserName;
+    String senderUserEmail;
+    String senderUserFullName;
 }
