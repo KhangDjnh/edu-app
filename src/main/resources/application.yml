@@ -63,8 +63,6 @@ idp:
   realm: ${KEYCLOAK_REALM:education-service}
   client-id: ${KEYCLOAK_CLIENT_ID:education_app}
   client-secret: ${KEYCLOAK_CLIENT_SECRET:VzYF8s3JFejTwDFTE0df2GH5YuF4AXNA}
-  username: ${KEYCLOAK_USERNAME:admin}
-  password: ${KEYCLOAK_PASSWORD:password}
 
 cloud:
   r2:
