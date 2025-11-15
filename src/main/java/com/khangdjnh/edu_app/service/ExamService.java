@@ -91,7 +91,7 @@ public class ExamService {
 
     @Transactional(readOnly = true)
     public List<ExamResponse> getExamsByClassId(Long classId) {
-        return examRepository.findAllByClassEntityId(classId)
+        return examRepository.findAllByClassEntityIdOrderByCreatedAtDesc(classId)
                 .stream()
                 .map(this::toExamResponse)
                 .toList();

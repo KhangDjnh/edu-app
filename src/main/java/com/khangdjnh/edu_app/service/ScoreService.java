@@ -87,7 +87,7 @@ public class ScoreService {
 
     @Transactional(readOnly = true)
     public ClassScoreSummaryResponse getScoreSummaryByClassId(Long classId) {
-        List<Exam> exams = examRepository.findAllByClassEntityId(classId);
+        List<Exam> exams = examRepository.findAllByClassEntityIdOrderByCreatedAt(classId);
         List<User> students = classStudentRepository.findByClassEntity_Id(classId).stream().map(ClassStudent::getStudent).toList();
         List<Score> scores = scoreRepository.findAllByClassEntityId(classId); // Hoặc join theo student + exam + class
 
