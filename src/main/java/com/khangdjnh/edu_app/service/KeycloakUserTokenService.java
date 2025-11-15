@@ -30,6 +30,9 @@ public class KeycloakUserTokenService {
     @Value("${idp.client-secret}")
     private String clientSecret;
 
+    @Value("${idp.realm}")
+    private String realm;
+
     private static final String TOKEN_PREFIX = "user_token:";
 
     public String getAccessToken(LoginRequest request) {
@@ -60,7 +63,7 @@ public class KeycloakUserTokenService {
                 .scope("openid")
                 .build();
 
-        UserTokenExchangeResponse response = identityClient.exchangeUserAccessToken(param);
+        UserTokenExchangeResponse response = identityClient.exchangeUserAccessToken(param, realm);
         return response.getAccessToken();
     }
 

@@ -20,6 +20,9 @@ public class KeycloakClientTokenService {
     @Value("${idp.client-secret}")
     private String clientSecret;
 
+    @Value("${idp.realm}")
+    private String realm;
+
     private String cachedToken;
     private Instant tokenExpiry;
 
@@ -39,7 +42,7 @@ public class KeycloakClientTokenService {
                 .scope("openid")
                 .build();
 
-        ClientTokenExchangeResponse response = identityClient.exchangeClientToken(param);
+        ClientTokenExchangeResponse response = identityClient.exchangeClientToken(param, realm);
 
         this.cachedToken = response.getAccessToken();
         this.tokenExpiry = Instant.now().plusSeconds(Long.parseLong(response.getExpiresIn()));

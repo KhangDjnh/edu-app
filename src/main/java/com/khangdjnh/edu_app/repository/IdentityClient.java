@@ -18,25 +18,26 @@ import java.util.Map;
 )
 public interface IdentityClient {
     @PostMapping(
-            value = "/realms/education-service/protocol/openid-connect/token",
+            value = "/realms/{realm}/protocol/openid-connect/token",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    ClientTokenExchangeResponse exchangeClientToken(@QueryMap ClientTokenExchangeParam tokenExchangeParam);
+    ClientTokenExchangeResponse exchangeClientToken(@QueryMap ClientTokenExchangeParam tokenExchangeParam, @PathVariable ("realm") String realm);
 
     @PostMapping(
-            value = "/realms/education-service/protocol/openid-connect/token",
+            value = "/realms/{realm}/protocol/openid-connect/token",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    UserTokenExchangeResponse exchangeUserAccessToken(@QueryMap UserAccessTokenExchangeParam tokenExchangeParam);
+    UserTokenExchangeResponse exchangeUserAccessToken(@QueryMap UserAccessTokenExchangeParam tokenExchangeParam, @PathVariable ("realm") String realm);
 
     @PostMapping(
-            value = "/realms/education-service/protocol/openid-connect/token",
+            value = "/realms/{realm}/protocol/openid-connect/token",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    UserTokenExchangeResponse exchangeUserRefreshToken(@QueryMap UserRefreshTokenExchangeParam tokenExchangeParam);
+    UserTokenExchangeResponse exchangeUserRefreshToken(@QueryMap UserRefreshTokenExchangeParam tokenExchangeParam, @PathVariable ("realm") String realm);
 
     @PostMapping(
-            value = "/admin/realms/education-service/users",
+            value = "/admin/realms/{realm}/users",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<?> createUser(
             @RequestHeader("Authorization") String token,
+            @PathVariable("realm") String realm,
             @RequestBody UserCreationParam userCreationParam);
 
     @PutMapping("/admin/realms/{realm}/users/{id}/reset-password")

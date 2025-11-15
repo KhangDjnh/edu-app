@@ -24,7 +24,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8180/realms/education-service}
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8180/realms/${idp.realm}}
 
   data:
     redis:
@@ -60,6 +60,7 @@ spring:
 # Custom properties
 idp:
   url: ${KEYCLOAK_URL:http://localhost:8180}
+  realm: ${KEYCLOAK_REALM:education-service}
   client-id: ${KEYCLOAK_CLIENT_ID:education_app}
   client-secret: ${KEYCLOAK_CLIENT_SECRET:VzYF8s3JFejTwDFTE0df2GH5YuF4AXNA}
 

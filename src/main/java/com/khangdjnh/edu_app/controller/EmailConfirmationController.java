@@ -17,6 +17,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,15 +33,17 @@ import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class EmailConfirmationController {
-    PendingUserRepository pendingUserRepository;
-    IdentityClient identityClient;
-    KeycloakClientTokenService keycloakClientTokenService;
-    UserRepository userRepository;
-    ErrorNormalizer errorNormalizer;
-    PasswordEncoder passwordEncoder;
+    private final PendingUserRepository pendingUserRepository;
+    private final IdentityClient identityClient;
+    private final KeycloakClientTokenService keycloakClientTokenService;
+    private final UserRepository userRepository;
+    private final ErrorNormalizer errorNormalizer;
+    private final PasswordEncoder passwordEncoder;
+
+    @Value("${idp.realm}")
+    private String realm;
 
     @GetMapping("/api/confirm-email")
     @Transactional(rollbackFor = Exception.class)
@@ -57,6 +60,7 @@ public class EmailConfirmationController {
             var keycloakToken = keycloakClientTokenService.getAccessToken();
             var creationResponse = identityClient.createUser(
                     "Bearer " + keycloakToken,
+                    realm,
                     UserCreationParam.builder()
                             .username(pendingUser.getUsername())
                             .email(pendingUser.getEmail())
@@ -69,7 +73,8 @@ public class EmailConfirmationController {
                                     .value(pendingUser.getPassword())
                                     .temporary(false)
                                     .build()))
-                            .build());
+                            .build()
+                    );
 
             String userKeycloakId = extractUserId(creationResponse);
 
@@ -116,8 +121,6 @@ public class EmailConfirmationController {
     }
 
     private void assignRoleToUser(String token, String userId, String roleName) {
-        String realm = "education-service";
-
         ResponseEntity<Map<String, Object>> roleResponse = identityClient.getRoleByName(
                 "Bearer " + token,
                 realm,

@@ -23,6 +23,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,17 +36,19 @@ import java.util.Map;
 import java.util.Objects;
 
 @Service
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
-    UserRepository userRepository;
-    UserMapper userMapper;
-    PasswordEncoder passwordEncoder;
-    IdentityClient identityClient;
-    ErrorNormalizer errorNormalizer;
-    KeycloakClientTokenService keycloakClientTokenService;
-    KeycloakUserTokenService keycloakUserTokenService;
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
+    private final IdentityClient identityClient;
+    private final ErrorNormalizer errorNormalizer;
+    private final KeycloakClientTokenService keycloakClientTokenService;
+    private final KeycloakUserTokenService keycloakUserTokenService;
+
+    @Value("${idp.realm}")
+    private String realm;
 
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
@@ -86,6 +89,7 @@ public class UserService {
             var token = keycloakClientTokenService.getAccessToken();
             var creationResponse = identityClient.createUser(
                     "Bearer " + token,
+                    realm,
                     UserCreationParam.builder()
                             .username(request.getUsername())
                             .email(request.getEmail())
@@ -145,7 +149,7 @@ public class UserService {
 
         identityClient.resetUserPassword(
                 "Bearer " + accessToken,
-                "education-service",
+                realm,
                 userKeycloakId,
                 Credential.builder()
                         .type("password")
