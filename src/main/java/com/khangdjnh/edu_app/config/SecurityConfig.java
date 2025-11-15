@@ -20,7 +20,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableMethodSecurity
 @EnableWebSecurity
 public class SecurityConfig {
-    private final String[] PUBLIC_POST_ENDPOINTS = {"/api/auth/login", "/api/auth/register", "/api/users"};
+    private final String[] PUBLIC_POST_ENDPOINTS = {"/api/auth/login", "/api/auth/register", "/api/users", "/api/confirm-email"};
     private final String[] PUBLIC_GET_ENDPOINTS = {"/api/confirm-email"};
     @Bean
     public PasswordEncoder passwordEncoder() {

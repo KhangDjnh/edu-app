@@ -52,7 +52,7 @@ public enum ErrorCode {
     INVALID_QUESTION_LIST(1030, "List question id is empty", HttpStatus.BAD_REQUEST),
 
     INVALID_ATTENDANCE_STATUS(1031, "Invalid attendance status", HttpStatus.BAD_REQUEST),
-
+    NOT_FOUND_ROLE(1032, "Role not found in identity provider", HttpStatus.NOT_FOUND)
 
     ;
 
