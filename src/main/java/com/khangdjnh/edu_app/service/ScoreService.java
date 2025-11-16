@@ -33,7 +33,6 @@ public class ScoreService {
     ScoreRepository scoreRepository;
     ExamRepository examRepository;
     ClassStudentRepository classStudentRepository;
-
     @Transactional(readOnly = true)
     public List<ScoreResponse> getAllScoreByStudentId(Long studentId) {
         return scoreRepository.findAllByStudentId(studentId)
@@ -41,6 +40,7 @@ public class ScoreService {
                 .map(score -> ScoreResponse.builder()
                         .classId(score.getClassEntity().getId())
                         .studentId(score.getStudent().getId())
+                        .studentName(score.getStudent().getFirstName() + " " + score.getStudent().getLastName())
                         .ExamId(score.getExam().getId())
                         .score(score.getScore())
                         .build())
@@ -54,6 +54,7 @@ public class ScoreService {
                 .map(score -> ScoreResponse.builder()
                         .classId(score.getClassEntity().getId())
                         .studentId(score.getStudent().getId())
+                        .studentName(score.getStudent().getFirstName() + " " + score.getStudent().getLastName())
                         .ExamId(score.getExam().getId())
                         .score(score.getScore())
                         .build())
@@ -62,11 +63,12 @@ public class ScoreService {
 
     @Transactional(readOnly = true)
     public List<ScoreResponse> getAllScoreByClassIdExamId(Long classId, Long examId) {
-        return scoreRepository.findAllByClassEntityIdAndExamId(classId, examId)
-                .stream()
+        List<Score> scores = scoreRepository.findAllByClassEntityIdAndExamId(classId, examId);
+        return scores.stream()
                 .map(score -> ScoreResponse.builder()
                         .classId(score.getClassEntity().getId())
                         .studentId(score.getStudent().getId())
+                        .studentName(score.getStudent().getFirstName() + " " + score.getStudent().getLastName())
                         .ExamId(score.getExam().getId())
                         .score(score.getScore())
                         .build())
@@ -83,6 +85,20 @@ public class ScoreService {
                 .ExamId(score.getExam().getId())
                 .score(score.getScore())
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ScoreResponse> getAllScoreByClassIdStudentId(Long classId, Long studentId) {
+        List<Score> scores = scoreRepository.findAllByClassEntityIdAndStudentId(classId, studentId);
+        return scores.stream()
+                .map(score -> ScoreResponse.builder()
+                        .classId(score.getClassEntity().getId())
+                        .studentId(score.getStudent().getId())
+                        .studentName(score.getStudent().getFirstName() + " " + score.getStudent().getLastName())
+                        .ExamId(score.getExam().getId())
+                        .score(score.getScore())
+                        .build())
+                .toList();
     }
 
     @Transactional(readOnly = true)

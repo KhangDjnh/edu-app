@@ -13,6 +13,7 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
     List<Score> findAllByExamId(Long examId);
     List<Score> findAllByClassEntityIdAndExamId(Long classId, Long examId);
     List<Score> findAllByClassEntityId(Long classId);
+    List<Score> findAllByClassEntityIdAndStudentId(Long classId, Long studentId);
 
     Optional<Score> findByStudentIdAndExamId(Long studentId, Long examId);
 }

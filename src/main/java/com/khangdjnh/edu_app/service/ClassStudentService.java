@@ -88,7 +88,7 @@ public class ClassStudentService {
         if(!classStudentRepository.existsByStudent_Id(studentId)) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
-        List<ClassStudent> classStudents = classStudentRepository.findByStudent_Id(studentId);
+        List<ClassStudent> classStudents = classStudentRepository.findByStudent_IdOrderByJoinAtDesc(studentId);
 
         return classStudents.stream()
                 .map(classStudent -> classMapper.toClassResponse(classStudent.getClassEntity()))

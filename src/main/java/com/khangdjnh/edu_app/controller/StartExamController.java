@@ -3,6 +3,7 @@ package com.khangdjnh.edu_app.controller;
 import com.khangdjnh.edu_app.dto.response.ApiResponse;
 import com.khangdjnh.edu_app.dto.response.ExamSubmissionResultResponse;
 import com.khangdjnh.edu_app.dto.response.StartExamResponse;
+import com.khangdjnh.edu_app.entity.ExamSubmission;
 import com.khangdjnh.edu_app.service.ExamResultService;
 import com.khangdjnh.edu_app.service.ExamSubmissionService;
 import lombok.AccessLevel;
@@ -23,7 +24,7 @@ public class StartExamController {
     ExamResultService examResultService;
 
     @PostMapping("/{examId}/start")
-    @PreAuthorize("hasRole('STUDENT')")
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
     public ApiResponse<StartExamResponse> startExam(@PathVariable Long examId) {
         return ApiResponse.<StartExamResponse>builder()
                 .message("Success")
@@ -32,6 +33,15 @@ public class StartExamController {
                 .build();
     }
 
+    @GetMapping("/{examId}/get-submission")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ApiResponse<ExamSubmissionResultResponse> getExamSubmission(@PathVariable Long examId){
+        return ApiResponse.<ExamSubmissionResultResponse>builder()
+                .message("Success")
+                .code(1000)
+                .result(examSubmissionService.getExamSubmission(examId))
+                .build();
+    }
 
     @PostMapping("/{submissionId}/submit")
     @PreAuthorize("hasRole('STUDENT')")

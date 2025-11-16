@@ -1,5 +1,6 @@
 package com.khangdjnh.edu_app.service;
 
+import com.khangdjnh.edu_app.dto.response.ExamSubmissionResultResponse;
 import com.khangdjnh.edu_app.dto.response.StartExamResponse;
 import com.khangdjnh.edu_app.entity.Exam;
 import com.khangdjnh.edu_app.entity.ExamAnswer;
@@ -30,7 +31,7 @@ import java.util.Optional;
 public class ExamSubmissionService {
 
     ExamRepository examRepository;
-    ExamSubmissionRepository submissionRepository;
+    ExamSubmissionRepository examSubmissionRepository;
     UserRepository userRepository;
     ExamAnswerRepository examAnswerRepository;
     ScoreRepository scoreRepository;
@@ -50,7 +51,7 @@ public class ExamSubmissionService {
             throw new AppException(ErrorCode.EXAM_NOT_AVAILABLE);
         }
 
-        ExamSubmission submission = submissionRepository.findByExamAndStudent(exam, currentStudent)
+        ExamSubmission submission = examSubmissionRepository.findByExamIdAndStudentId(examId, currentStudent.getId())
                 .orElseGet(() -> {
                     // Tạo mới nếu chưa tồn tại
                     ExamSubmission newSubmission = ExamSubmission.builder()
@@ -59,7 +60,7 @@ public class ExamSubmissionService {
                             .status(ExamSubmissionStatus.IN_PROGRESS)
                             .startedAt(now)
                             .build();
-                    return submissionRepository.save(newSubmission);
+                    return examSubmissionRepository.save(newSubmission);
                 });
 
         return StartExamResponse.builder()
@@ -70,9 +71,29 @@ public class ExamSubmissionService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
+    public ExamSubmissionResultResponse getExamSubmission(Long examId) {
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new AppException(ErrorCode.EXAM_NOT_FOUND));
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userKeycloakId = authentication.getName();
+        var currentStudent = userRepository.findByKeycloakUserId(userKeycloakId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        ExamSubmission result =  examSubmissionRepository.findByExamIdAndStudentId(exam.getId(), currentStudent.getId())
+                .orElseThrow(() -> new AppException(ErrorCode.SUBMISSION_NOT_FOUND));
+        return ExamSubmissionResultResponse.builder()
+                .id(result.getId())
+                .studentId(currentStudent.getId())
+                .examId(exam.getId())
+                .studentName(currentStudent.getFirstName() + " " + currentStudent.getLastName())
+                .status(result.getStatus())
+                .build();
+    }
+
+
     @Transactional(rollbackFor = Exception.class)
     public void submitExam(Long submissionId) {
-        ExamSubmission submission = submissionRepository.findById(submissionId)
+        ExamSubmission submission = examSubmissionRepository.findById(submissionId)
                 .orElseThrow(() -> new AppException(ErrorCode.SUBMISSION_NOT_FOUND));
 
         if (submission.getCompletedAt() != null)
@@ -87,7 +108,7 @@ public class ExamSubmissionService {
         submission.setScore(scoreValue);
         submission.setCompletedAt(LocalDateTime.now());
         submission.setStatus(ExamSubmissionStatus.COMPLETED);
-        submissionRepository.save(submission);
+        examSubmissionRepository.save(submission);
 
         Optional<Score> existingScore = scoreRepository.findByStudentIdAndExamId(
                 submission.getStudent().getId(), submission.getExam().getId()
@@ -105,7 +126,7 @@ public class ExamSubmissionService {
 
     @Transactional(readOnly = true)
     public BigDecimal getScoreBySubmissionId (Long submissionId) {
-        ExamSubmission result = submissionRepository.findById(submissionId)
+        ExamSubmission result = examSubmissionRepository.findById(submissionId)
                 .orElseThrow(() -> new AppException(ErrorCode.SUBMISSION_NOT_FOUND));
         return result.getScore();
     }

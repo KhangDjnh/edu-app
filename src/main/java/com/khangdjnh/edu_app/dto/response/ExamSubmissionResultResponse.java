@@ -14,7 +14,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ExamSubmissionResultResponse {
+    private Long id;
     private Long studentId;
+    private Long examId;
     private String studentName;
     private BigDecimal score;
     private LocalDateTime submittedAt;

@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ScoreResponse {
     Long studentId;
+    String studentName;
     Long classId;
     Long ExamId;
     BigDecimal score;

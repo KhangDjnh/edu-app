@@ -22,5 +22,5 @@ public interface ClassStudentRepository extends JpaRepository<ClassStudent, Long
 
     List<ClassStudent> findByClassEntity_Id(Long classId);
 
-    List<ClassStudent> findByStudent_Id(Long studentId);
+    List<ClassStudent> findByStudent_IdOrderByJoinAtDesc(Long studentId);
 }

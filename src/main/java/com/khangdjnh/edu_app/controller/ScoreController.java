@@ -69,6 +69,19 @@ public class ScoreController {
                 .build();
     }
 
+    @GetMapping("/exam-student")
+    @PreAuthorize("hasAnyRole('TEACHER','STUDENT')")
+    ApiResponse<List<ScoreResponse>> getAllScoreByClassIdStudentId (
+            @RequestParam Long classId,
+            @RequestParam Long studentId
+    ) {
+        return ApiResponse.<List<ScoreResponse>>builder()
+                .message("Success")
+                .code(1000)
+                .result(scoreService.getAllScoreByClassIdStudentId(classId, studentId))
+                .build();
+    }
+
     @GetMapping("/summary")
     @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
     public ApiResponse<ClassScoreSummaryResponse> getScoreSummaryByClassId(@RequestParam Long classId) {
@@ -81,7 +94,7 @@ public class ScoreController {
 
     @GetMapping("/classes/{classId}/scores/export")
     @PreAuthorize("hasRole('TEACHER')")
-    public void exportClassScores(@PathVariable Long classId, HttpServletResponse response) throws IOException, IOException {
+    public void exportClassScores(@PathVariable Long classId, HttpServletResponse response) throws IOException {
         ClassScoreSummaryResponse summary = scoreService.getScoreSummaryByClassId(classId);
         excelExportService.exportScoreToExcel(summary, response);
     }
