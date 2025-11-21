@@ -20,6 +20,9 @@ public class ClassEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
+    @Column(name = "class_code", nullable = false)
+    String classCode;
+
     @Column(nullable = false)
     String name;
 

@@ -11,6 +11,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ClassUpdateRequest {
     @NotBlank
+    String classCode;
+    @NotBlank
     String name;
     @NotBlank
     String semester;

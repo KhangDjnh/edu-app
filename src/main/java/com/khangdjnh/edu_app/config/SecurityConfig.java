@@ -3,7 +3,6 @@ package com.khangdjnh.edu_app.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -20,7 +19,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableMethodSecurity
 @EnableWebSecurity
 public class SecurityConfig {
-    private final String[] PUBLIC_POST_ENDPOINTS = {"/api/auth/login", "/api/auth/register", "/api/users", "/api/confirm-email"};
+    private final String[] PUBLIC_POST_ENDPOINTS = {"/api/auth/login", "/api/auth/register", "api/auth/validate-token", "api/users", "/api/confirm-email"};
     private final String[] PUBLIC_GET_ENDPOINTS = {"/api/confirm-email"};
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -57,6 +56,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS).permitAll()
+                        .requestMatchers("/ws/**").permitAll()
                         .anyRequest()
                         .authenticated());
         httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(
@@ -69,7 +69,7 @@ public class SecurityConfig {
                         .policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
                 )
         );
-        httpSecurity.cors(Customizer.withDefaults());
+        httpSecurity.cors(cors -> cors.configurationSource(corsConfigurationSource()));
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
         return httpSecurity.build();
     }

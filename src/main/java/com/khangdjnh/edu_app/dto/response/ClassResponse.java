@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ClassResponse {
     Long id;
+    String classCode;
     String name;
     String code;
     String description;

@@ -37,4 +37,15 @@ public class SecurityUtils {
 
         return null;
     }
+
+    public static String getAccessToken() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication instanceof JwtAuthenticationToken jwtAuth) {
+            Jwt jwt = jwtAuth.getToken();
+            return jwt.getTokenValue();
+        }
+
+        return null;
+    }
 }

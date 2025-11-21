@@ -7,6 +7,8 @@ import com.khangdjnh.edu_app.dto.response.LoginResponse;
 import com.khangdjnh.edu_app.dto.response.ValidateTokenResponse;
 import com.khangdjnh.edu_app.service.PendingUserService;
 import com.khangdjnh.edu_app.service.UserService;
+import com.khangdjnh.edu_app.util.JwtUtils;
+import com.khangdjnh.edu_app.util.SecurityUtils;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ import java.security.Principal;
 public class AuthController {
     UserService userService;
     PendingUserService pendingUserService;
+    JwtUtils jwtUtils;
 
     @PostMapping("/login")
     ApiResponse<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
@@ -42,8 +45,14 @@ public class AuthController {
                 .build();
     }
 
-    @GetMapping("/validate-token")
-    public ResponseEntity<ValidateTokenResponse> validateToken(Principal principal) {
-        return ResponseEntity.ok(new ValidateTokenResponse(true));
+    @PostMapping("/validate-token")
+    public ApiResponse<ValidateTokenResponse> validateToken(@RequestBody String token) {
+        return ApiResponse.<ValidateTokenResponse>builder()
+                .code(1000)
+                .message("Success")
+                .result(ValidateTokenResponse.builder()
+                        .valid(jwtUtils.validateToken(token))
+                        .build())
+                .build();
     }
 }
