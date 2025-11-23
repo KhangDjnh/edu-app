@@ -46,7 +46,6 @@ public class RoomService {
         newRoom.setRoomCode(generateRoomCode(request.getClassId()));
         newRoom.setStatus(RoomStatus.STARTED);
         newRoom.setIsActive(true);
-        newRoom.setStartTime(LocalDateTime.now());
         newRoom = roomRepository.save(newRoom);
 
         //create join room history

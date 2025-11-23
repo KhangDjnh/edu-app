@@ -29,4 +29,13 @@ public class RoomCreationRequest {
     LocalDateTime startTime;
 
     String description;
+
+    public RoomCreationRequest(Long classId, Long teacherId, String roomName, PrimarySubject subject, LocalDateTime startTime, String description) {
+        this.classId = classId;
+        this.teacherId = teacherId;
+        this.roomName = roomName;
+        this.subject = subject;
+        this.startTime = startTime;
+        this.description = description;
+    }
 }
