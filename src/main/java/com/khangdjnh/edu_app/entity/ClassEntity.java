@@ -23,6 +23,9 @@ public class ClassEntity {
     @Column(nullable = false)
     String name;
 
+    @Column(name = "class_code")
+    String classCode;
+
     @Column(nullable = false)
     String semester;
 

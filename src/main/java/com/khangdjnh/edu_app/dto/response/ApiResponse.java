@@ -3,6 +3,7 @@ package com.khangdjnh.edu_app.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 
 @Data
 @AllArgsConstructor
@@ -14,5 +15,5 @@ public class ApiResponse<T> {
     int code;
     T result;
     @Builder.Default
-    private HttpStatus httpStatus = HttpStatus.OK;
+    private HttpStatusCode httpStatus = HttpStatus.OK;
 }

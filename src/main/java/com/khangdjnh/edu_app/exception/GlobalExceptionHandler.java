@@ -15,10 +15,11 @@ import java.util.Objects;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = Exception.class)
-    ResponseEntity<ApiResponse> runningExeptionHandler(Exception e) {
+    ResponseEntity<ApiResponse> runningExceptionHandler(Exception e) {
         ApiResponse apiResponse = new ApiResponse();
         apiResponse.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
         apiResponse.setMessage(e.getMessage());
+        apiResponse.setHttpStatus(HttpStatus.BAD_REQUEST);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
     }
 
@@ -28,6 +29,7 @@ public class GlobalExceptionHandler {
         ApiResponse apiResponse = new ApiResponse();
         apiResponse.setCode(errorCode.getCode());
         apiResponse.setMessage(errorCode.getMessage());
+        apiResponse.setHttpStatus(errorCode.getHttpStatusCode());
         return ResponseEntity.status(errorCode.getHttpStatusCode()).body(apiResponse);
     }
 
@@ -35,7 +37,11 @@ public class GlobalExceptionHandler {
     ResponseEntity<ApiResponse> accessDeniedException(AccessDeniedException e) {
         ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
         return ResponseEntity.status(errorCode.getHttpStatusCode()).body(
-                ApiResponse.builder().message(errorCode.getMessage()).code(errorCode.getCode()).build()
+                ApiResponse.builder()
+                        .message(errorCode.getMessage())
+                        .code(errorCode.getCode())
+                        .httpStatus(errorCode.getHttpStatusCode())
+                        .build()
         );
     }
 
@@ -50,6 +56,7 @@ public class GlobalExceptionHandler {
         ApiResponse apiResponse = new ApiResponse();
         apiResponse.setMessage(errorCode.getMessage());
         apiResponse.setCode(errorCode.getCode());
+        apiResponse.setHttpStatus(errorCode.getHttpStatusCode());
         return ResponseEntity.badRequest().body(apiResponse);
     }
 }
