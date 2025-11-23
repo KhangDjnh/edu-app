@@ -3,11 +3,13 @@ package com.khangdjnh.edu_app.service;
 import com.khangdjnh.edu_app.dto.request.room.JoinRoomCreation;
 import com.khangdjnh.edu_app.dto.request.room.RoomCreationRequest;
 import com.khangdjnh.edu_app.dto.response.JoinRoomResponse;
+import com.khangdjnh.edu_app.dto.response.RoomActiveResponse;
 import com.khangdjnh.edu_app.dto.response.RoomResponse;
 import com.khangdjnh.edu_app.entity.ClassEntity;
 import com.khangdjnh.edu_app.entity.JoinRoomHistory;
 import com.khangdjnh.edu_app.entity.Room;
 import com.khangdjnh.edu_app.entity.User;
+import com.khangdjnh.edu_app.enums.JoinRoomStatus;
 import com.khangdjnh.edu_app.enums.RoomStatus;
 import com.khangdjnh.edu_app.exception.AppException;
 import com.khangdjnh.edu_app.exception.ErrorCode;
@@ -24,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +46,7 @@ public class RoomService {
         newRoom.setRoomCode(generateRoomCode(request.getClassId()));
         newRoom.setStatus(RoomStatus.STARTED);
         newRoom.setIsActive(true);
+        newRoom.setStartTime(LocalDateTime.now());
         newRoom = roomRepository.save(newRoom);
 
         //create join room history
@@ -67,6 +71,7 @@ public class RoomService {
         JoinRoomHistory newJoinRoomHistory = JoinRoomHistory.builder()
                 .roomId(room.getId())
                 .userId(user.getId())
+                .joinRoomStatus(JoinRoomStatus.ONLINE)
                 .joinedAt(LocalDateTime.now())
                 .build();
         newJoinRoomHistory = joinRoomHistoryRepository.save(newJoinRoomHistory);
@@ -80,10 +85,47 @@ public class RoomService {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         JoinRoomHistory joinRoomHistory = joinRoomHistoryRepository
-                        .findTopByUserIdAndRoomIdOrderByIdDesc(request.getUserId(), request.getRoomId());
+                .findTopByUserIdAndRoomIdOrderByIdDesc(request.getUserId(), request.getRoomId());
         joinRoomHistory.setLeftAt(LocalDateTime.now());
+        joinRoomHistory.setJoinRoomStatus(JoinRoomStatus.OFFLINE);
         joinRoomHistory = joinRoomHistoryRepository.save(joinRoomHistory);
         return toJoinRoomResponse(room, user, joinRoomHistory);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public RoomResponse calloutRoom(Long roomId){
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
+        room.setStatus(RoomStatus.FINISHED);
+        room.setFinishTime(LocalDateTime.now());
+        room = roomRepository.save(room);
+
+        //set left out for all student in room
+        LocalDateTime now = LocalDateTime.now();
+        List<JoinRoomHistory> listUserHistoryInRoom = joinRoomHistoryRepository
+                .findByRoomIdAndJoinRoomStatus(roomId, JoinRoomStatus.ONLINE);
+        listUserHistoryInRoom.forEach(joinRoomHistory -> {
+            joinRoomHistory.setLeftAt(now);
+            joinRoomHistory.setJoinRoomStatus(JoinRoomStatus.OFFLINE);
+        });
+        joinRoomHistoryRepository.saveAll(listUserHistoryInRoom);
+        return roomMapper.toRoomResponse(room);
+    }
+
+    @Transactional(readOnly = true)
+    public RoomActiveResponse getActiveRoom(Long classId) {
+        List<Room> listActiveRooms = roomRepository.findByClassIdAndStatus(classId, RoomStatus.STARTED);
+        if (!listActiveRooms.isEmpty()) {
+            return RoomActiveResponse.builder()
+                    .hasRoom(true)
+                    .listRooms(listActiveRooms
+                            .stream()
+                            .map(roomMapper::toRoomResponse)
+                            .toList()
+                    )
+                    .build();
+        }
+        return RoomActiveResponse.builder().hasRoom(false).build();
     }
 
     private String generateRoomCode(Long classId) {

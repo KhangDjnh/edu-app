@@ -1,5 +1,6 @@
 package com.khangdjnh.edu_app.entity;
 
+import com.khangdjnh.edu_app.enums.JoinRoomStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -25,6 +26,10 @@ public class JoinRoomHistory {
 
     @Column(name = "room_id", nullable = false)
     Long roomId;
+
+    @Column(name = "join_room_status")
+    @Enumerated(EnumType.STRING)
+    JoinRoomStatus joinRoomStatus;
 
     @Column(name = "joined_at")
     LocalDateTime joinedAt;

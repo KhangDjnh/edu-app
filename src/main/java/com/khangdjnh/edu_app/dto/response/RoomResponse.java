@@ -26,6 +26,8 @@ public class RoomResponse {
 
     LocalDateTime startTime;
 
+    LocalDateTime finishTime;
+
     String description;
 
     RoomStatus status = RoomStatus.STARTED;

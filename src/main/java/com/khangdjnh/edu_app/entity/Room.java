@@ -42,6 +42,9 @@ public class Room {
     @Column(name = "start_time")
     LocalDateTime startTime;
 
+    @Column(name = "finish_time")
+    LocalDateTime finishTime;
+
     @Column(name = "description")
     String description;
 

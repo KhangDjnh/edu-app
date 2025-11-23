@@ -7,10 +7,7 @@ import com.khangdjnh.edu_app.service.RoomService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,6 +43,26 @@ public class RoomController {
                 .code(1000)
                 .message("Success")
                 .result(roomService.leftRoom(request))
+                .build();
+    }
+
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
+    @PutMapping("/{roomId}/callout")
+    public ApiResponse<?> calloutRoom (@PathVariable Long roomId){
+        return ApiResponse.builder()
+                .code(1000)
+                .message("Success")
+                .result(roomService.calloutRoom(roomId))
+                .build();
+    }
+
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
+    @GetMapping("/class/{classId}/check")
+    public ApiResponse<?> checkRoom (@PathVariable Long classId){
+        return ApiResponse.builder()
+                .code(1000)
+                .message("Success")
+                .result(roomService.getActiveRoom(classId))
                 .build();
     }
 
