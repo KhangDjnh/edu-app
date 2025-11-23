@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -111,9 +112,25 @@ public class RoomService {
         return roomMapper.toRoomResponse(room);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public RoomResponse saveClassRoomPath (Long roomId, String path){
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
+        room.setClassRoomPath(path);
+        room = roomRepository.save(room);
+        return roomMapper.toRoomResponse(room);
+    }
+
+
     @Transactional(readOnly = true)
     public RoomActiveResponse getActiveRoom(Long classId) {
+        String userEmail = SecurityUtils.getCurrentUserEmail();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         List<Room> listActiveRooms = roomRepository.findByClassIdAndStatus(classId, RoomStatus.STARTED);
+        listActiveRooms.forEach(room -> {
+            room.setClassRoomPath(generateClassRoomPathForUser(room.getClassRoomPath(), user.getId(), userEmail));
+        });
         if (!listActiveRooms.isEmpty()) {
             return RoomActiveResponse.builder()
                     .hasRoom(true)
@@ -137,6 +154,15 @@ public class RoomService {
         return classCode + String.format("%02d%02d%03d", month, year % 100, index + 1);
     }
 
+    private String generateClassRoomPathForUser(String rootUrl, Long userId, String userName) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(rootUrl);
+
+        return builder
+                .replaceQueryParam("userId", userId)
+                .replaceQueryParam("userName", userName)
+                .build()
+                .toUriString();
+    }
     private JoinRoomResponse toJoinRoomResponse(Room room, User user, JoinRoomHistory joinRoomHistory) {
         return JoinRoomResponse.builder()
                 .username(user.getUsername())

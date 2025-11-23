@@ -52,6 +52,9 @@ public class Room {
     @Enumerated(EnumType.STRING)
     RoomStatus status = RoomStatus.STARTED;
 
+    @Column(name = "class_room_path")
+    String classRoomPath;
+
     @Column(name = "is_active", nullable = false)
     Boolean isActive = true;
 

@@ -57,6 +57,16 @@ public class RoomController {
     }
 
     @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
+    @PutMapping("/{roomId}/save-path")
+    public ApiResponse<?> saveClassRoomPath (@PathVariable Long roomId, @RequestParam("path") String path){
+        return ApiResponse.builder()
+                .code(1000)
+                .message("Success")
+                .result(roomService.saveClassRoomPath(roomId, path))
+                .build();
+    }
+
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
     @GetMapping("/class/{classId}/check")
     public ApiResponse<?> checkRoom (@PathVariable Long classId){
         return ApiResponse.builder()

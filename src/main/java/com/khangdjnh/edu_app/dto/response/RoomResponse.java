@@ -32,6 +32,8 @@ public class RoomResponse {
 
     RoomStatus status = RoomStatus.STARTED;
 
+    String classRoomPath;
+
     Boolean isActive = true;
 
     String createdBy;
