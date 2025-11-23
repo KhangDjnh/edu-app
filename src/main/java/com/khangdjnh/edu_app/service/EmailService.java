@@ -20,7 +20,7 @@ public class EmailService {
 
     public void sendConfirmationEmail(String to, String token) {
         String subject = "Xác nhận tài khoản Education System";
-        String confirmationLink = "http://localhost:5173/confirm-email?token=" + token;
+        String confirmationLink = "http://localhost:3000/confirmEmail?token=" + token;
         String content = "<p>Chào bạn,</p>"
                 + "<p>Vui lòng click vào link dưới đây để xác nhận đăng ký tài khoản:</p>"
                 + "<p><a href=\"" + confirmationLink + "\">Xác nhận tài khoản</a></p>"

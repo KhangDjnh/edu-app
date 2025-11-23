@@ -22,6 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -85,11 +86,10 @@ public class ClassStudentService {
 
     @Transactional(readOnly = true)
     public List<ClassResponse> getAllClassesStudentIn(Long studentId) {
-        if(!classStudentRepository.existsByStudent_Id(studentId)) {
-            throw new AppException(ErrorCode.USER_NOT_FOUND);
-        }
         List<ClassStudent> classStudents = classStudentRepository.findByStudent_IdOrderByJoinAtDesc(studentId);
-
+        if(classStudents == null || classStudents.isEmpty()) {
+            return new ArrayList<>();
+        }
         return classStudents.stream()
                 .map(classStudent -> classMapper.toClassResponse(classStudent.getClassEntity()))
                 .toList();

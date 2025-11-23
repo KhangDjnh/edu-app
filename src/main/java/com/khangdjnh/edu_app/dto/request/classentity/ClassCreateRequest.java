@@ -1,6 +1,7 @@
 package com.khangdjnh.edu_app.dto.request.classentity;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -13,10 +14,16 @@ import lombok.experimental.FieldDefaults;
 public class ClassCreateRequest {
     @NotBlank
     String name;
+
     @NotBlank
     String semester;
+
     @NotBlank
     @Size(min = 6, max = 6, message = "code must be 6 character")
     String code;
+
+    @NotNull
+    String classCode;
+
     String description;
 }
