@@ -75,4 +75,28 @@ public class User {
     @Column(name = "updated_at")
     @UpdateTimestamp
     LocalDateTime updatedAt;
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", password='***'" +  + '\'' +
+                ", keycloakUserId='" + keycloakUserId + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", address='" + address + '\'' +
+                ", gender=" + gender +
+                ", role=" + role +
+                ", primarySubject=" + primarySubject +
+                ", avatar='" + avatar + '\'' +
+                ", dob=" + dob +
+                ", isActive=" + isActive +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+    }
+
 }

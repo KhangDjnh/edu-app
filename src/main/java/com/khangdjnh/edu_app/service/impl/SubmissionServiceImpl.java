@@ -39,8 +39,10 @@ public class SubmissionServiceImpl implements SubmissionService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public SubmissionResponse createSubmission(SubmissionRequest request) {
-        User student = userRepository.findById(request.getStudentId()).orElseThrow();
-        Assignment assignment = assignmentRepository.findById(request.getAssignmentId()).orElseThrow();
+        User student = userRepository.findById(request.getStudentId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        Assignment assignment = assignmentRepository.findById(request.getAssignmentId())
+                .orElseThrow(() -> new AppException(ErrorCode.ASSIGNMENT_NOT_FOUND));
 
         Submission submission = Submission.builder()
                 .title(request.getTitle())

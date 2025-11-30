@@ -24,8 +24,13 @@ public class ClassPost {
     @Column(name = "user_id", nullable = false)
     Long userId;
 
-    @Column(name = "post_type_id", nullable = false)
-    Long postTypeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "class_id", nullable = false)
+    ClassEntity classEntity;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_type_id", nullable = false)
+    PostType postType;
 
     @Column(name = "post_title", nullable = false)
     String postTitle;

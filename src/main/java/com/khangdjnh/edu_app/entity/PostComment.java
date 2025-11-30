@@ -22,11 +22,13 @@ public class PostComment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @Column(name = "post_id", nullable = false)
-    Long postId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id", nullable = false)
+    ClassPost post;
 
-    @Column(name = "user_id", nullable = false)
-    Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    User user;
 
     @Column(name = "content", nullable = false)
     String content;

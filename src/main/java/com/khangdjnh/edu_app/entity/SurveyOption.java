@@ -23,8 +23,8 @@ public class SurveyOption {
     @Column(name = "option_title", nullable = false)
     String optionTitle;
 
-    @Column(name = "index", nullable = false)
-    Integer index;
+    @Column(name = "option_index", nullable = false)
+    Integer optionIndex;
 
     @Column(name = "description")
     String description;

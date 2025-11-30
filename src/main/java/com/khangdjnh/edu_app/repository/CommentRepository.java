@@ -1,0 +1,15 @@
+package com.khangdjnh.edu_app.repository;
+
+import com.khangdjnh.edu_app.entity.ClassPost;
+import com.khangdjnh.edu_app.entity.PostComment;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface CommentRepository extends JpaRepository<PostComment, Long> {
+    List<PostComment> findByPostId(Long postId);
+
+    int countByPostId(Long postId);
+}

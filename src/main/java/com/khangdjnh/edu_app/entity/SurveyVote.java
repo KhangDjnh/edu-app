@@ -30,8 +30,8 @@ public class SurveyVote {
     @Column(name = "option_id", nullable = false)
     Long optionId;
 
-    @Column(name = "option")
-    Integer option;
+    @Column(name = "vote_option")
+    Integer voteOption;
 
     @Column(name = "created_at")
     @CreationTimestamp

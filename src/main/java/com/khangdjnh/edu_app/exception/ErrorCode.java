@@ -60,6 +60,9 @@ public enum ErrorCode {
     REPLY_TO_MESSAGE_NOT_FOUND(1036, "Message to reply to is not found", HttpStatus.NOT_FOUND),
     UPLOAD_FILE_FAIL(1037, "Fail to Upload file", HttpStatus.INTERNAL_SERVER_ERROR),
     MESSAGE_NOT_FOUND(1038, "Message not found", HttpStatus.NOT_FOUND),
+    POST_NOT_FOUND(1039, "Post not found", HttpStatus.NOT_FOUND),
+    COMMENT_NOT_FOUND(1040, "Comment not found", HttpStatus.NOT_FOUND),
+    POST_TYPE_NOT_FOUND(1041, "Post type not found", HttpStatus.NOT_FOUND),
     ;
 
     int code;
