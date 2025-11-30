@@ -2,6 +2,7 @@ package com.khangdjnh.edu_app.service;
 
 import com.khangdjnh.edu_app.config.CloudflareR2Properties;
 import com.khangdjnh.edu_app.dto.response.ApiResponse;
+import com.khangdjnh.edu_app.dto.response.FileRecordResponse;
 import com.khangdjnh.edu_app.entity.FileRecord;
 import com.khangdjnh.edu_app.exception.AppException;
 import com.khangdjnh.edu_app.exception.ErrorCode;
@@ -19,7 +20,6 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import java.io.IOException;
 import java.net.URLConnection;
 import java.time.Instant;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -84,7 +84,7 @@ public class CloudflareR2Service {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<?> uploadFile(MultipartFile file) {
+    public FileRecordResponse uploadFile(MultipartFile file) {
         try {
             // 1. Xác định folder dựa trên loại file
             String folder = determineFolder(file.getOriginalFilename());
@@ -102,25 +102,21 @@ public class CloudflareR2Service {
                     .folder(folder)
                     .build();
 
-            fileRecordRepository.save(record);
-
-            return ApiResponse.builder()
-                    .code(1000)
-                    .message("Upload thành công")
-                    .result(Map.of(
-                            "fileId", record.getId(),
-                            "url", fileUrl,
-                            "folder", folder
-                    ))
+            record = fileRecordRepository.save(record);
+            return FileRecordResponse.builder()
+                    .id(record.getId())
+                    .fileUrl(fileUrl)
+                    .fileName(file.getOriginalFilename())
+                    .fileType(getMimeType(file.getOriginalFilename()))
+                    .fileSize(file.getSize())
+                    .folder(folder)
+                    .uploadedBy(SecurityUtils.getCurrentUsername())
+                    .uploadedAt(record.getUploadedAt())
                     .build();
 
         } catch (Exception e) {
             log.error("Upload file thất bại: {}", e.getMessage(), e);
-            return ApiResponse.builder()
-                    .code(1100)
-                    .message("Upload thất bại: " + e.getMessage())
-                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .build();
+            throw new AppException(ErrorCode.UPLOAD_FILE_FAIL);
         }
     }
 

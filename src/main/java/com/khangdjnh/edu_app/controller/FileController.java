@@ -27,7 +27,11 @@ public class FileController {
 
     @PostMapping("/files/upload-file")
     public ApiResponse<?> uploadFile(@RequestParam("file") MultipartFile file) {
-        return r2Service.uploadFile(file);
+        return ApiResponse.builder()
+                .code(1000)
+                .message("success")
+                .result(r2Service.uploadFileToS3(file))
+                .build();
     }
 
     @GetMapping("/files/{fileId}")

@@ -2,6 +2,7 @@ package com.khangdjnh.edu_app.service;
 
 import com.khangdjnh.edu_app.dto.message.MessageResponse;
 import com.khangdjnh.edu_app.entity.Notice;
+import com.khangdjnh.edu_app.entity.User;
 import com.khangdjnh.edu_app.exception.AppException;
 import com.khangdjnh.edu_app.exception.ErrorCode;
 import com.khangdjnh.edu_app.repository.NoticeRepository;
@@ -63,5 +64,12 @@ public class NoticeService {
                 .orElseThrow(() -> new AppException(ErrorCode.NOTICE_NOT_FOUND));
         notice.setRead(true);
         noticeRepository.save(notice);
+    }
+
+    @Transactional(readOnly = true)
+    public long getAllUnreadNoticeCount(Long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        return noticeRepository.countByReceiverAndRead(user, false);
     }
 }

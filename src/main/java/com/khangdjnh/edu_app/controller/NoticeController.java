@@ -18,8 +18,18 @@ import java.util.List;
 public class NoticeController {
     NoticeService noticeService;
 
+    @GetMapping("/{userId}/count")
+    @PreAuthorize("hasAnyRole('USER', 'TEACHER', 'STUDENT')")
+    ApiResponse<?> getUnReadNoticeCount(@PathVariable Long userId) {
+        return ApiResponse.builder()
+                .code(1000)
+                .message("Success")
+                .result(noticeService.getAllUnreadNoticeCount(userId))
+                .build();
+    }
+
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'TEACHER', 'STUDENT')")
     ApiResponse<MessageResponse> getNoticeById(@PathVariable Long id) {
         return ApiResponse.<MessageResponse>builder()
                 .message("Success")
@@ -29,7 +39,7 @@ public class NoticeController {
     }
 
     @GetMapping("/user/{userId}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'TEACHER', 'STUDENT')")
     ApiResponse<List<MessageResponse>> getAllNoticesByUserId (@PathVariable Long userId) {
         return ApiResponse.<List<MessageResponse>>builder()
                 .message("Success")
@@ -39,7 +49,7 @@ public class NoticeController {
     }
 
     @PutMapping("/{id}/read")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'TEACHER', 'STUDENT')")
     ApiResponse<String> markNoticeAsRead (@PathVariable Long id) {
         noticeService.markNoticeAsRead(id);
         return ApiResponse.<String>builder()

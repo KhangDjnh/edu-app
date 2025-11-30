@@ -1,6 +1,7 @@
 package com.khangdjnh.edu_app.repository;
 
 import com.khangdjnh.edu_app.entity.Notice;
+import com.khangdjnh.edu_app.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,4 +10,5 @@ import java.util.List;
 @Repository
 public interface NoticeRepository extends JpaRepository<Notice, Long> {
     List<Notice> findAllByReceiverIdOrderByReadAscCreatedAtDesc(Long receiverId);
+    long countByReceiverAndRead(User user, Boolean read);
 }

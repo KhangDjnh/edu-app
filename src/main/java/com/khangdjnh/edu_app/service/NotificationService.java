@@ -1,6 +1,7 @@
 package com.khangdjnh.edu_app.service;
 
 import com.khangdjnh.edu_app.dto.message.NotificationMessage;
+import com.khangdjnh.edu_app.entity.Message;
 import com.khangdjnh.edu_app.entity.Notice;
 import com.khangdjnh.edu_app.entity.User;
 import com.khangdjnh.edu_app.enums.NoticeType;
@@ -90,5 +91,28 @@ public class NotificationService {
         );
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public void sendNewMessageNotification(User receiver, Message message) {
+        String content = "Bạn có tin nhắn mới từ " + receiver.getFirstName() + " " + receiver.getLastName()
+                + ": " + message.getContent();
+
+        Notice notice = Notice.builder()
+                .receiver(receiver)
+                .content(content)
+                .createdAt(LocalDateTime.now())
+                .read(false)
+                .type(NoticeType.NEW_MESSAGE)
+                .senderUserName(SecurityUtils.getCurrentUsername())
+                .senderUserEmail(SecurityUtils.getCurrentUserEmail())
+                .senderUserFullName(SecurityUtils.getCurrentUserFullName())
+                .build();
+
+        noticeRepository.save(notice);
+
+        messagingTemplate.convertAndSend(
+                "/topic/notifications/" + receiver.getId(),
+                new NotificationMessage(content, receiver.getId())
+        );
+    }
 
 }

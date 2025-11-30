@@ -45,6 +45,7 @@ public class Notice {
     @Column(name = "sender_user_full_name")
     String senderUserFullName;
 
+    @Enumerated(EnumType.STRING)
     NoticeType type; // Optional: leave_request, attendance, etc
 }
 

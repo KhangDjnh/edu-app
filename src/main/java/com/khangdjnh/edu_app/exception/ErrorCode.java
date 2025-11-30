@@ -55,7 +55,11 @@ public enum ErrorCode {
     NOT_FOUND_ROLE(1032, "Role not found in identity provider", HttpStatus.NOT_FOUND),
 
     ROOM_NOT_FOUND(1033, "Room not found", HttpStatus.NOT_FOUND),
-    JOIN_ROOM_HISTORY_NOT_FOUND(1034, "User join room history not found", HttpStatus.NOT_FOUND)
+    JOIN_ROOM_HISTORY_NOT_FOUND(1034, "User join room history not found", HttpStatus.NOT_FOUND),
+    CONVERSATION_NOT_FOUND(1035, "Conversation not found", HttpStatus.NOT_FOUND),
+    REPLY_TO_MESSAGE_NOT_FOUND(1036, "Message to reply to is not found", HttpStatus.NOT_FOUND),
+    UPLOAD_FILE_FAIL(1037, "Fail to Upload file", HttpStatus.INTERNAL_SERVER_ERROR),
+    MESSAGE_NOT_FOUND(1038, "Message not found", HttpStatus.NOT_FOUND),
     ;
 
     int code;
