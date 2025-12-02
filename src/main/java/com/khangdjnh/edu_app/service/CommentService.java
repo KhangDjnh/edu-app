@@ -70,7 +70,9 @@ public class CommentService {
 
     private CommentResponse toCommentResponse(PostComment comment) {
         ClassPost post = comment.getPost();
-        User poster = getUserById(comment.getUser().getId());
+        post = (ClassPost) Hibernate.unproxy(post);
+        User poster = getUserById(post.getUserId());
+        poster = (User) Hibernate.unproxy(poster);
         FileRecordResponse fileRecord = post.getAttachFileId() == null
         ? null
         : getFileRecordResponse(
@@ -80,7 +82,7 @@ public class CommentService {
         return CommentResponse.builder()
                 .id(comment.getId())
                 .post(toPostResponse(comment.getPost(), poster, fileRecord))
-                .userComment(comment.getUser())
+                .userComment((User) Hibernate.unproxy(comment.getUser()))
                 .content(comment.getContent())
                 .replyTo(comment.getReplyTo() == null
                         ? null
@@ -101,6 +103,7 @@ public class CommentService {
     }
 
     private PostResponse toPostResponse(ClassPost post, User poster, FileRecordResponse fileRecord) {
+        post = (ClassPost) Hibernate.unproxy(post);
         return PostResponse.builder()
                 .id(post.getId())
                 .poster(poster)

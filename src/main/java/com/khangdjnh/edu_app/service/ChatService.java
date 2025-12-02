@@ -87,7 +87,7 @@ public class ChatService {
     }
 
     @Transactional
-    public List<MessageResponseDTO> getConversation(Long currentUserId, Long toUserId) {
+    public ConversationMessageResponse getConversation(Long currentUserId, Long toUserId) {
         User firstUser = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         User secondUser = userRepository.findById(toUserId)
@@ -113,11 +113,17 @@ public class ChatService {
                 result.add(toMessageResponseDTO(message, secondUser));
             }
         }
-        return result;
+        return ConversationMessageResponse.builder()
+                .conversationId(conversation.getId())
+                .sender(toMessageUserDTO(firstUser))
+                .receiver(toMessageUserDTO(secondUser))
+                .listMessages(result)
+                .updatedAt(LocalDateTime.now())
+                .build();
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public MessageResponseDTO sendMessage(MessageCreationRequest request) {
+    public ConversationMessageResponse sendMessage(MessageCreationRequest request) {
         Long senderId = request.getSender();
         User sender = userRepository.findById(senderId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
@@ -146,12 +152,31 @@ public class ChatService {
         MessageResponseDTO messageResponseDTO = toMessageResponseDTO(message, sender);
 
         conversation.setUpdatedAt(LocalDateTime.now());
-        conversationRepository.save(conversation);
+        conversation = conversationRepository.save(conversation);
 
         messagingTemplate.convertAndSend("/topic/conversation/" + conversation.getId(), messageResponseDTO);
 
         notificationService.sendNewMessageNotification(receiver, message);
-        return messageResponseDTO;
+
+        int limit = 20;
+        Pageable pageable = PageRequest.of(0, limit);
+        List<Message> listMessages = messageRepository.loadMessages(conversation.getId(), null, pageable);
+        List<MessageResponseDTO> listMessageDTOs = new ArrayList<>();
+        for (Message messageItem : listMessages) {
+            Long senderItem = messageItem.getSender();
+            if (senderItem.equals(senderId)) {
+                listMessageDTOs.add(toMessageResponseDTO(message, sender));
+            } else {
+                listMessageDTOs.add(toMessageResponseDTO(message, receiver));
+            }
+        }
+        return ConversationMessageResponse.builder()
+                .conversationId(conversation.getId())
+                .sender(toMessageUserDTO(sender))
+                .receiver(toMessageUserDTO(receiver))
+                .listMessages(listMessageDTOs)
+                .updatedAt(conversation.getUpdatedAt())
+                .build();
     }
 
     @Transactional(rollbackFor = Exception.class)

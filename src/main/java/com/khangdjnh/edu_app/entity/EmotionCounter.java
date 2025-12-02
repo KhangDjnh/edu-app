@@ -1,17 +1,21 @@
 package com.khangdjnh.edu_app.entity;
 
 import com.khangdjnh.edu_app.enums.Emotion;
-import com.khangdjnh.edu_app.enums.ParentType;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "emotion_counter")
 public class EmotionCounter {
@@ -19,15 +23,21 @@ public class EmotionCounter {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @Column(name = "parent_id", nullable = false)
-    Long parentId;
+    @Column(name = "user_id")
+    Long userId;
 
-    @Column(name = "parent_type", nullable = false)
-    ParentType parentType;
+    @Column(name = "post_id")
+    Long postId;
 
-    @Column(name = "emotion", nullable = false)
+    @Column(name = "emotion")
+    @Enumerated(EnumType.STRING)
     Emotion emotion;
 
-    @Column(name = "quantity")
-    Long quantity;
+    @Column(name = "created_at")
+    @CreationTimestamp
+    LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    @UpdateTimestamp
+    LocalDateTime updatedAt;
 }

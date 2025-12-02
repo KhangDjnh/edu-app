@@ -1,5 +1,6 @@
 package com.khangdjnh.edu_app.controller;
 
+import com.khangdjnh.edu_app.dto.post.EmotionCreationRequest;
 import com.khangdjnh.edu_app.dto.post.PostCreationRequest;
 import com.khangdjnh.edu_app.dto.response.ApiResponse;
 import com.khangdjnh.edu_app.service.PostService;
@@ -47,6 +48,15 @@ public class PostController {
                 .code(1000)
                 .message("Success")
                 .result(postService.updatePost(postId, request))
+                .build();
+    }
+
+    @PostMapping("/emotion")
+    public ApiResponse<?> createEmotion(@RequestBody @Valid EmotionCreationRequest request){
+        return ApiResponse.builder()
+                .code(1000)
+                .message("Success")
+                .result(postService.emotionalPost(request.getPostId(), request.getUserId(), request.getEmotion()))
                 .build();
     }
 

@@ -12,12 +12,14 @@ import com.khangdjnh.edu_app.exception.ErrorCode;
 import com.khangdjnh.edu_app.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.util.Longs;
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,9 +33,9 @@ public class PostService {
     private final UserRepository userRepository;
     private final FileRecordRepository fileRecordRepository;
     private final ClassRepository classRepository;
-    private final EmotionCounterRepository emotionCounterRepository;
     private final CommentRepository commentRepository;
     private final PostTypeRepository postTypeRepository;
+    private final EmotionCounterRepository emotionCounterRepository;
 
     @Transactional(rollbackFor = Exception.class)
     public PostResponse createPost(PostCreationRequest request) {
@@ -56,20 +58,13 @@ public class PostService {
                 .build();
         post = postRepository.save(post);
 
-        EmotionCounter emotionCounter = EmotionCounter.builder()
-                .emotion(Emotion.LIKE)
-                .parentType(ParentType.POST)
-                .parentId(post.getId())
-                .quantity(0L)
-                .build();
-        emotionCounterRepository.save(emotionCounter);
         return toPostResponse(post, poster, fileRecord);
     }
 
     @Transactional(readOnly = true)
     public List<PostResponse> getAll(Long clasId){
         List<PostResponse> result = new ArrayList<>();
-        List<ClassPost> listPost = postRepository.findByClassEntityId(clasId);
+        List<ClassPost> listPost = postRepository.findByClassEntityIdOrderByCreatedAtDesc(clasId);
         for(ClassPost post : listPost){
             FileRecordResponse fileRecord = post.getAttachFileId() == null
                     ? null
@@ -106,15 +101,37 @@ public class PostService {
             fileRecord = cloudflareR2Service.uploadFile(request.getFile());
             post.setAttachFileId(fileRecord.getId());
         }
-        if(!request.getPostTypeId().equals(post.getPostType().getId())) {
+        Long newPostTypeId = request.getPostTypeId();
+        Long oldPostTypeId = post.getPostType().getId();
+        if(!newPostTypeId.equals(oldPostTypeId)) {
             PostType postType = postTypeRepository.findById(request.getPostTypeId())
                     .orElseThrow(() -> new AppException(ErrorCode.POST_TYPE_NOT_FOUND));
             post.setPostType(postType);
         }
-        if(post.getPostIcon() != null) post.setPostIcon(request.getPostIcon());
-        if(post.getPostBackground() != null) post.setPostBackground(request.getPostBackground());
+        if(request.getPostIcon() != null) {
+            post.setPostIcon(request.getPostIcon());
+        }
+        if(request.getPostBackground() != null) {
+            post.setPostBackground(request.getPostBackground());
+        }
         post = postRepository.save(post);
         return toPostResponse(post, poster , fileRecord);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public PostResponse emotionalPost(Long postId, Long userId, Emotion emotion) {
+        EmotionCounter emotionCounter = emotionCounterRepository.findByPostIdAndUserId(postId, userId);
+        if(emotionCounter == null) {
+            EmotionCounter newEmotionCounter = EmotionCounter.builder()
+                    .postId(postId)
+                    .userId(userId)
+                    .emotion(emotion)
+                    .build();
+            emotionCounterRepository.save(newEmotionCounter);
+        } else {
+            emotionCounter.setEmotion(emotion);
+        }
+        return getPost(postId);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -125,10 +142,10 @@ public class PostService {
 
     private PostResponse toPostResponse(ClassPost post, User poster, FileRecordResponse fileRecord) {
         List<EmotionCounter> listEmotionCounter =
-                emotionCounterRepository.findByParentIdAndParentType(post.getId(), ParentType.POST);
-        Map<Emotion, Long> emotionCounter = listEmotionCounter
-                .stream()
-                .collect(Collectors.toMap(EmotionCounter::getEmotion, EmotionCounter::getQuantity));
+                emotionCounterRepository.findByPostId(post.getId());
+        Map<Emotion, Long> emotionCounter =
+                listEmotionCounter.stream()
+                        .collect(Collectors.groupingBy(EmotionCounter::getEmotion, Collectors.counting()));
         int commentCount = commentRepository.countByPostId(post.getId());
         ClassResponse classResponse = toClassResponse(post.getClassEntity());
         return PostResponse.builder()
