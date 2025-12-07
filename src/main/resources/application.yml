@@ -7,9 +7,9 @@ server:
 
 spring:
   datasource:
-    url: ${DB_URL:jdbc:mysql://education-khangdjnh24042002-3df5.c.aivencloud.com:25123/defaultdb?sslMode=REQUIRED&verifyServerCertificate=false}
-    username: ${DB_USERNAME:avnadmin}
-    password: ${DB_PASSWORD:AVNS_rsfDdzPtBTSJMGxYjEf}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -29,7 +29,7 @@ spring:
 
   data:
     redis:
-      url: ${REDIS_URL:rediss://default:AbBIAAIncDI5MmViNjgxYjUzYjY0N2JmYmY0N2Q4NzZkYjVjZTRlNXAyNDUxMjg@mint-jay-45128.upstash.io:6379}
+      url: ${REDIS_URL}
       timeout: ${REDIS_TIMEOUT:5000ms}
 
   servlet:
@@ -59,16 +59,16 @@ spring:
 
 # Custom properties
 idp:
-  url: ${KEYCLOAK_URL:https://euc1.auth.ac/auth}
-  realm: ${KEYCLOAK_REALM:education-service}
-  client-id: ${KEYCLOAK_CLIENT_ID:education_app}
-  client-secret: ${KEYCLOAK_CLIENT_SECRET:Tt6CGN0Sy5MK7VsFGl6qd860A04aiHhf}
+  url: ${KEYCLOAK_URL}
+  realm: ${KEYCLOAK_REALM}
+  client-id: ${KEYCLOAK_CLIENT_ID}
+  client-secret: ${KEYCLOAK_CLIENT_SECRET}
 
 cloud:
   r2:
-    endpoint: ${R2_ENDPOINT:https://499ff9f796f74256796a481346726f6e.r2.cloudflarestorage.com}
-    access-key: ${R2_ACCESS_KEY:caaaf6f80bd0ca0fe384aa256a0b25a3}
-    secret-key: ${R2_SECRET_KEY:d34955c37c61fb506137d85e1e0173b551e81f87b1033dadd4f2c360e2b1aeea}
+    endpoint: ${R2_ENDPOINT}
+    access-key: ${R2_ACCESS_KEY}
+    secret-key: ${R2_SECRET_KEY}
     bucket: ${R2_BUCKET:e-learning}
     region: ${R2_REGION:auto}
 
