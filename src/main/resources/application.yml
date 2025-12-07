@@ -55,7 +55,8 @@ spring:
           writetimeout: 5000
         debug: ${MAIL_DEBUG:true}
 
-
+file:
+  upload-dir: uploads/assignments/
 
 # Custom properties
 idp:

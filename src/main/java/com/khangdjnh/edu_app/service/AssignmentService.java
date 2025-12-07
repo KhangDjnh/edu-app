@@ -40,12 +40,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AssignmentService {
-    final AssignmentRepository assignmentRepository;
-    final AssignmentFileService assignmentFileService;
-    final AssignmentFileRepository assignmentFileRepository;
-    final ClassRepository classRepository;
-    final ClassStudentRepository classStudentRepository;
-    final NotificationService notificationService;
+    private final AssignmentRepository assignmentRepository;
+    private final AssignmentFileService assignmentFileService;
+    private final AssignmentFileRepository assignmentFileRepository;
+    private final ClassRepository classRepository;
+    private final ClassStudentRepository classStudentRepository;
+    private final NotificationService notificationService;
 
     @Value("${file.upload-dir}")
     String uploadDir;
