@@ -30,7 +30,7 @@ public class PostComment {
     @JoinColumn(name = "user_id", nullable = false)
     User user;
 
-    @Column(name = "content", nullable = false)
+    @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     String content;
 
     @Column(name = "reply_to")

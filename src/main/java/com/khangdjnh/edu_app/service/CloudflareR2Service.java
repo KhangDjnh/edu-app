@@ -120,6 +120,33 @@ public class CloudflareR2Service {
         }
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public FileRecord uploadFileV2(MultipartFile file) {
+        try {
+            // 1. Xác định folder dựa trên loại file
+            String folder = determineFolder(file.getOriginalFilename());
+
+            // 2. Upload lên R2
+            String fileUrl = uploadToR2(file, folder);
+
+            // 3. Lưu vào DB
+            FileRecord record = FileRecord.builder()
+                    .fileName(file.getOriginalFilename())
+                    .fileUrl(fileUrl)
+                    .fileType(getMimeType(file.getOriginalFilename()))
+                    .fileSize(file.getSize())
+                    .uploadedBy(SecurityUtils.getCurrentUsername())
+                    .folder(folder)
+                    .build();
+
+            record = fileRecordRepository.save(record);
+            return record;
+        } catch (Exception e) {
+            log.error("Upload file thất bại: {}", e.getMessage(), e);
+            throw new AppException(ErrorCode.UPLOAD_FILE_FAIL);
+        }
+    }
+
     @Transactional(readOnly = true)
     public ApiResponse<?> getFileInfo(Long fileId) {
         FileRecord record = fileRecordRepository.findById(fileId)

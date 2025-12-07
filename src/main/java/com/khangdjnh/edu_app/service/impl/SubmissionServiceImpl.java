@@ -2,18 +2,18 @@ package com.khangdjnh.edu_app.service.impl;
 
 import com.khangdjnh.edu_app.dto.request.submission.GradeRequest;
 import com.khangdjnh.edu_app.dto.request.submission.SubmissionRequest;
-import com.khangdjnh.edu_app.dto.response.SubmissionFileResponse;
+import com.khangdjnh.edu_app.dto.response.FileRecordResponse;
 import com.khangdjnh.edu_app.dto.response.SubmissionResponse;
 import com.khangdjnh.edu_app.entity.Assignment;
+import com.khangdjnh.edu_app.entity.FileRecord;
 import com.khangdjnh.edu_app.entity.Submission;
-import com.khangdjnh.edu_app.entity.SubmissionFile;
 import com.khangdjnh.edu_app.entity.User;
 import com.khangdjnh.edu_app.exception.AppException;
 import com.khangdjnh.edu_app.exception.ErrorCode;
 import com.khangdjnh.edu_app.repository.AssignmentRepository;
-import com.khangdjnh.edu_app.repository.SubmissionFileRepository;
 import com.khangdjnh.edu_app.repository.SubmissionRepository;
 import com.khangdjnh.edu_app.repository.UserRepository;
+import com.khangdjnh.edu_app.service.CloudflareR2Service;
 import com.khangdjnh.edu_app.service.NotificationService;
 import com.khangdjnh.edu_app.service.SubmissionService;
 import lombok.RequiredArgsConstructor;
@@ -29,11 +29,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class SubmissionServiceImpl implements SubmissionService {
-
+    private final CloudflareR2Service cloudflareR2Service;
     private final SubmissionRepository submissionRepository;
     private final UserRepository userRepository;
     private final AssignmentRepository assignmentRepository;
-    private final SubmissionFileRepository submissionFileRepository;
     private final NotificationService notificationService;
 
     @Override
@@ -44,31 +43,17 @@ public class SubmissionServiceImpl implements SubmissionService {
         Assignment assignment = assignmentRepository.findById(request.getAssignmentId())
                 .orElseThrow(() -> new AppException(ErrorCode.ASSIGNMENT_NOT_FOUND));
 
+        FileRecord file = request.getFile() == null ? null : cloudflareR2Service.uploadFileV2(request.getFile());
+
         Submission submission = Submission.builder()
                 .title(request.getTitle())
                 .content(request.getContent())
                 .submittedAt(LocalDateTime.now())
                 .assignment(assignment)
                 .student(student)
+                .fileRecord(file)
                 .build();
         submission = submissionRepository.save(submission);
-
-        Submission finalSubmission = submission;
-        List<SubmissionFile> files = request.getFiles().stream().map(file -> {
-            String filePath = "uploads/" + file.getOriginalFilename();
-            SubmissionFile sf = SubmissionFile.builder()
-                    .submission(finalSubmission)
-                    .fileName(file.getOriginalFilename())
-                    .filePath(filePath)
-                    .fileSize(file.getSize())
-                    .fileType(file.getContentType())
-                    .uploadedAt(LocalDateTime.now())
-                    .isDeleted(false)
-                    .build();
-            return submissionFileRepository.save(sf);
-        }).collect(Collectors.toList());
-
-        submission.setSubmissionFiles(files);
 
         User teacher = assignment.getClassEntity().getTeacher();
         String content = "Sinh viên " + student.getFirstName() + " " + student.getLastName() + " đã nộp bài cho bài tập \"" + assignment.getTitle() + "\".";
@@ -132,6 +117,18 @@ public class SubmissionServiceImpl implements SubmissionService {
     }
 
     private SubmissionResponse toDto(Submission submission) {
+        FileRecord fileRecord = submission.getFileRecord();
+        FileRecordResponse fileResponse = fileRecord == null ? null
+                : FileRecordResponse.builder()
+                .id(fileRecord.getId())
+                .fileUrl(fileRecord.getFileUrl())
+                .fileType(fileRecord.getFileType())
+                .fileName(fileRecord.getFileName())
+                .fileSize(fileRecord.getFileSize())
+                .folder(fileRecord.getFolder())
+                .uploadedAt(fileRecord.getUploadedAt())
+                .uploadedBy(fileRecord.getUploadedBy())
+                .build();
         return SubmissionResponse.builder()
                 .id(submission.getId())
                 .title(submission.getTitle())
@@ -141,15 +138,7 @@ public class SubmissionServiceImpl implements SubmissionService {
                 .feedback(submission.getFeedback())
                 .assignmentId(submission.getAssignment().getId())
                 .studentId(submission.getStudent().getId())
-                .files(submission.getSubmissionFiles().stream().map(file -> SubmissionFileResponse.builder()
-                        .id(file.getId())
-                        .fileName(file.getFileName())
-                        .filePath(file.getFilePath())
-                        .fileType(file.getFileType())
-                        .downloadUrl("/api/files/" + file.getId())
-                        .fileSize(file.getFileSize())
-                        .uploadedAt(file.getUploadedAt())
-                        .build()).collect(Collectors.toList()))
+                .fileRecord(fileResponse)
                 .build();
     }
 }

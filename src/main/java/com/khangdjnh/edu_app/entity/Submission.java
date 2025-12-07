@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.apache.poi.hpsf.Decimal;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -37,6 +38,7 @@ public class Submission {
     User student;
 
     @Column(name = "submited_at", nullable = false)
+    @CreationTimestamp
     LocalDateTime submittedAt;
 
     @Column(precision = 10, scale = 2)
@@ -45,6 +47,7 @@ public class Submission {
     @Column(columnDefinition = "TEXT")
     String feedback;
 
-    @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    List<SubmissionFile> submissionFiles;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "file_id")
+    FileRecord fileRecord;
 }

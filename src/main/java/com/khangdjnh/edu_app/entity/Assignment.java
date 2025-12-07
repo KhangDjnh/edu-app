@@ -37,10 +37,12 @@ public class Assignment {
     @Column(name = "end_at", nullable = false)
     LocalDateTime endAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "file_id")
+    FileRecord fileRecord;
+
     @Column(name = "created_at", nullable = false)
     @CreationTimestamp
     LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    List<AssignmentFile> assignmentFiles;
 }

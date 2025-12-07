@@ -35,7 +35,7 @@ public class ClassPost {
     @Column(name = "post_title", nullable = false)
     String postTitle;
 
-    @Column(name = "post_content")
+    @Column(name = "post_content", columnDefinition = "TEXT")
     String postContent;
 
     @Column(name = "attach_file_id")

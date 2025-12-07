@@ -23,7 +23,7 @@ public interface SubmissionRepository extends JpaRepository<Submission, Long> {
 
     @Query("""
     SELECT s FROM Submission s
-    LEFT JOIN FETCH s.submissionFiles
+    LEFT JOIN FETCH s.fileRecord
     WHERE s.student.id = :studentId
       AND s.assignment.classEntity.id = :classId
 """)

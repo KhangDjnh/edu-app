@@ -17,7 +17,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -34,11 +33,10 @@ public class AssignmentController {
     @PreAuthorize("hasRole('TEACHER')")
     public ApiResponse<AssignmentResponse> createAssignment(
             @ModelAttribute @Valid AssignmentCreateRequest request,
-            @RequestPart(value = "files", required = false) List<MultipartFile> files
-    ) throws IOException {
-        request.setFiles(files);
-        log.info("Files received: " + request.getFiles());
-        log.info("Files count: " + (request.getFiles() != null ? request.getFiles().size() : 0));
+            @RequestPart(value = "file", required = false) MultipartFile file
+    ) {
+        request.setFile(file);
+        log.info("Files received: {}", request.getFile());
         return ApiResponse.<AssignmentResponse>builder()
                 .message("Success")
                 .code(1000)
@@ -89,10 +87,10 @@ public class AssignmentController {
     @PreAuthorize("hasRole('TEACHER')")
     public ApiResponse<AssignmentResponse> updateAssignment(
             @ModelAttribute @Valid AssignmentUpdateRequest request,
-            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            @RequestPart(value = "file", required = false) MultipartFile file,
             @PathVariable Long id
-    ) throws IOException {
-        request.setFiles(files);
+    ) {
+        request.setFile(file);
         return ApiResponse.<AssignmentResponse>builder()
                 .code(1000)
                 .message("Success")

@@ -28,7 +28,7 @@ public class Message {
     @Column(name = "conversation_id", nullable = false)
     Long conversationId;
 
-    @Column(name = "content", nullable = false)
+    @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     String content;
 
     @Column(name = "attach_file_id")

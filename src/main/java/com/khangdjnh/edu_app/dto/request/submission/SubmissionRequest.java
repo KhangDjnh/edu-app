@@ -17,5 +17,5 @@ public class SubmissionRequest {
     Long assignmentId;
     String title;
     String content;
-    List<MultipartFile> files = new ArrayList<>();
+    MultipartFile file;
 }

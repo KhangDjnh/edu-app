@@ -21,5 +21,5 @@ public class SubmissionResponse {
     String feedback;
     Long assignmentId;
     Long studentId;
-    List<SubmissionFileResponse> files;
+    FileRecordResponse fileRecord;
 }

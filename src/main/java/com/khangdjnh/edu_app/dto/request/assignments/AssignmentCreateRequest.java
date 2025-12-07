@@ -6,7 +6,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -21,5 +20,5 @@ public class AssignmentCreateRequest {
     LocalDateTime startAt;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     LocalDateTime endAt;
-    List<MultipartFile> files;
+    MultipartFile file;
 }

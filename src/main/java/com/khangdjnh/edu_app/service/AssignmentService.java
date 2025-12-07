@@ -2,37 +2,24 @@ package com.khangdjnh.edu_app.service;
 
 import com.khangdjnh.edu_app.dto.request.assignments.AssignmentCreateRequest;
 import com.khangdjnh.edu_app.dto.request.assignments.AssignmentUpdateRequest;
-import com.khangdjnh.edu_app.dto.response.AssignmentFileResponse;
 import com.khangdjnh.edu_app.dto.response.AssignmentResponse;
+import com.khangdjnh.edu_app.dto.response.FileRecordResponse;
 import com.khangdjnh.edu_app.entity.*;
 import com.khangdjnh.edu_app.exception.AppException;
 import com.khangdjnh.edu_app.exception.ErrorCode;
-import com.khangdjnh.edu_app.repository.AssignmentFileRepository;
-import com.khangdjnh.edu_app.repository.AssignmentRepository;
-import com.khangdjnh.edu_app.repository.ClassRepository;
-import com.khangdjnh.edu_app.repository.ClassStudentRepository;
+import com.khangdjnh.edu_app.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -41,17 +28,13 @@ import java.util.stream.Collectors;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AssignmentService {
     private final AssignmentRepository assignmentRepository;
-    private final AssignmentFileService assignmentFileService;
-    private final AssignmentFileRepository assignmentFileRepository;
     private final ClassRepository classRepository;
     private final ClassStudentRepository classStudentRepository;
     private final NotificationService notificationService;
-
-    @Value("${file.upload-dir}")
-    String uploadDir;
+    private final CloudflareR2Service cloudflareR2Service;
 
     @Transactional(rollbackFor = Exception.class)
-    public AssignmentResponse createAssignment(AssignmentCreateRequest request) throws IOException {
+    public AssignmentResponse createAssignment(AssignmentCreateRequest request) {
         ClassEntity classEntity = classRepository.findById(request.getClassId())
                 .orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
 
@@ -65,11 +48,9 @@ public class AssignmentService {
 
         assignment = assignmentRepository.save(assignment);
 
-        if (request.getFiles() != null && !request.getFiles().isEmpty()) {
-            assignmentFileService.saveFile(request.getFiles(), assignment);
-        }
+        FileRecord fileRecord = request.getFile() == null ? null : cloudflareR2Service.uploadFileV2(request.getFile());
 
-        assignment.setAssignmentFiles(assignmentFileRepository.findAllByAssignmentId(assignment.getId()));
+        assignment.setFileRecord(fileRecord);
         assignment = assignmentRepository.save(assignment);
 
         // Gửi thông báo
@@ -117,7 +98,7 @@ public class AssignmentService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public AssignmentResponse updateAssignment(AssignmentUpdateRequest request, Long id) throws IOException {
+    public AssignmentResponse updateAssignment(AssignmentUpdateRequest request, Long id) {
         Assignment assignment = assignmentRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ASSIGNMENT_NOT_FOUND));
 
@@ -127,34 +108,8 @@ public class AssignmentService {
         if (request.getEndAt() != null) assignment.setEndAt(request.getEndAt());
 
         // Nếu có file mới upload
-        if (request.getFiles() != null && !request.getFiles().isEmpty()) {
-            // Xóa hết file cũ
-            assignment.getAssignmentFiles().clear();
-
-            // Tạo danh sách file mới và add vào assignment
-            for (MultipartFile file : request.getFiles()) {
-                String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-                Path uploadPath = Paths.get(uploadDir);
-                if (!Files.exists(uploadPath)) {
-                    Files.createDirectories(uploadPath);
-                }
-                Path filePath = uploadPath.resolve(fileName);
-                Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-                AssignmentFile assignmentFile = AssignmentFile.builder()
-                        .assignment(assignment)
-                        .fileName(file.getOriginalFilename())
-                        .filePath(filePath.toString())
-                        .fileType(file.getContentType())
-                        .fileSize(file.getSize())
-                        .uploadedAt(LocalDateTime.now())
-                        .build();
-
-                assignment.getAssignmentFiles().add(assignmentFile);
-            }
-        }
-
-
+        FileRecord updatedFile = request.getFile() == null ? null : cloudflareR2Service.uploadFileV2(request.getFile());
+        assignment.setFileRecord(updatedFile);
         assignment = assignmentRepository.save(assignment);
 
         return mapAssignmentToResponse(assignment);
@@ -169,25 +124,24 @@ public class AssignmentService {
     }
 
     private AssignmentResponse mapAssignmentToResponse(Assignment assignment) {
-        List<AssignmentFileResponse> fileResponses = Optional.ofNullable(assignment.getAssignmentFiles())
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(file -> AssignmentFileResponse.builder()
-                        .fileName(file.getFileName())
-                        .fileType(file.getFileType())
-                        .filePath(file.getFilePath())
-                        .downloadUrl("/api/files/" + file.getId())
-                        .fileSize(file.getFileSize())
-                        .uploadedAt(file.getUploadedAt())
-                        .build())
-                .collect(Collectors.toList());
-
+        FileRecord fileRecord = assignment.getFileRecord();
+        FileRecordResponse fileResponse = fileRecord == null ? null
+                 : FileRecordResponse.builder()
+                .id(fileRecord.getId())
+                .fileUrl(fileRecord.getFileUrl())
+                .fileType(fileRecord.getFileType())
+                .fileName(fileRecord.getFileName())
+                .fileSize(fileRecord.getFileSize())
+                .folder(fileRecord.getFolder())
+                .uploadedAt(fileRecord.getUploadedAt())
+                .uploadedBy(fileRecord.getUploadedBy())
+                .build();
         return AssignmentResponse.builder()
                 .id(assignment.getId())
                 .title(assignment.getTitle())
                 .content(assignment.getContent())
                 .classId(assignment.getClassEntity().getId())
-                .files(fileResponses)
+                .fileRecord(fileResponse)
                 .status(resolveAssignmentStatus(assignment.getStartAt(), assignment.getEndAt()))
                 .startAt(assignment.getStartAt())
                 .endAt(assignment.getEndAt())

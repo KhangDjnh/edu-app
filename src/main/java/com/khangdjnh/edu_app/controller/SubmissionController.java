@@ -24,9 +24,9 @@ public class SubmissionController {
     @PreAuthorize("hasRole('STUDENT')")
     public ApiResponse<SubmissionResponse> createSubmission(
             @ModelAttribute @Valid SubmissionRequest request,
-            @RequestPart(value = "files", required = false) List<MultipartFile> files
+            @RequestPart(value = "files", required = false) MultipartFile file
     ) {
-        if(files != null && !files.isEmpty()) request.setFiles(files);
+        if(file != null) request.setFile(file);
         return ApiResponse.<SubmissionResponse>builder()
                 .code(1000)
                 .message("Success")
