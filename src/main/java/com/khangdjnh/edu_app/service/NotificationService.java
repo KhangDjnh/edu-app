@@ -1,6 +1,7 @@
 package com.khangdjnh.edu_app.service;
 
 import com.khangdjnh.edu_app.dto.message.NotificationMessage;
+import com.khangdjnh.edu_app.entity.ClassPost;
 import com.khangdjnh.edu_app.entity.Message;
 import com.khangdjnh.edu_app.entity.Notice;
 import com.khangdjnh.edu_app.entity.User;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -113,6 +116,32 @@ public class NotificationService {
                 "/topic/notifications/" + receiver.getId(),
                 new NotificationMessage(content, receiver.getId())
         );
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void sendNewPostNotification(List<User> receivers, ClassPost post) {
+        String content = "Lớp học " + post.getClassEntity().getName() + " có bài đăng mới! Có tiêu đề"
+                + ": " + post.getPostTitle();
+        List<Notice> listNotices = new ArrayList<>();
+        for(User receiver : receivers) {
+            Notice notice = Notice.builder()
+                    .receiver(receiver)
+                    .content(content)
+                    .createdAt(LocalDateTime.now())
+                    .read(false)
+                    .type(NoticeType.NEW_POST)
+                    .senderUserName(SecurityUtils.getCurrentUsername())
+                    .senderUserEmail(SecurityUtils.getCurrentUserEmail())
+                    .senderUserFullName(SecurityUtils.getCurrentUserFullName())
+                    .build();
+            listNotices.add(notice);
+            messagingTemplate.convertAndSend(
+                    "/topic/notifications/" + receiver.getId(),
+                    new NotificationMessage(content, receiver.getId())
+            );
+        }
+
+        noticeRepository.saveAll(listNotices);
     }
 
 }

@@ -6,20 +6,17 @@ import com.khangdjnh.edu_app.dto.response.ClassResponse;
 import com.khangdjnh.edu_app.dto.response.FileRecordResponse;
 import com.khangdjnh.edu_app.entity.*;
 import com.khangdjnh.edu_app.enums.Emotion;
-import com.khangdjnh.edu_app.enums.ParentType;
 import com.khangdjnh.edu_app.exception.AppException;
 import com.khangdjnh.edu_app.exception.ErrorCode;
 import com.khangdjnh.edu_app.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.util.Longs;
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,6 +33,8 @@ public class PostService {
     private final CommentRepository commentRepository;
     private final PostTypeRepository postTypeRepository;
     private final EmotionCounterRepository emotionCounterRepository;
+    private final NotificationService notificationService;
+    private final ClassStudentRepository classStudentRepository;
 
     @Transactional(rollbackFor = Exception.class)
     public PostResponse createPost(PostCreationRequest request) {
@@ -57,7 +56,8 @@ public class PostService {
                 .postBackground(request.getPostBackground())
                 .build();
         post = postRepository.save(post);
-
+        List<ClassStudent> listStudents = classStudentRepository.findByClassEntity_Id(request.getClassId());
+        notificationService.sendNewPostNotification(listStudents.stream().map(ClassStudent::getStudent).toList(), post);
         return toPostResponse(post, poster, fileRecord);
     }
 

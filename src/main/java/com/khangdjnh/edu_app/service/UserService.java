@@ -122,15 +122,17 @@ public class UserService {
             throw errorNormalizer.handleKeycloakException(exception);
         }
     }
+
     @PreAuthorize( "hasRole('ADMIN')")
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
     }
+
     @PreAuthorize( "hasRole('ADMIN')")
     public UserResponse getUserById(Long id) {
         return userRepository.findById(id).map(userMapper::toUserResponse).orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
-    @PreAuthorize("hasRole('USER')")
+
     public UserResponse getMyInfo(){
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         String userKeycloakId = authentication.getName();
