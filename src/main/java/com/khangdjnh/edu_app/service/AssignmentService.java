@@ -57,7 +57,7 @@ public class AssignmentService {
         List<User> students = classStudentRepository.findByClassEntity_Id(request.getClassId())
                 .stream().map(ClassStudent::getStudent).toList();
         for (User student : students) {
-            notificationService.sendNewAssignmentNotice(student, assignment.getTitle());
+            notificationService.sendNewAssignmentNotice(student, assignment.getTitle(), assignment);
         }
 
         return mapAssignmentToResponse(assignment);

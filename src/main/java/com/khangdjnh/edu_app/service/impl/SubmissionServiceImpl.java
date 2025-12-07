@@ -57,7 +57,7 @@ public class SubmissionServiceImpl implements SubmissionService {
 
         User teacher = assignment.getClassEntity().getTeacher();
         String content = "Sinh viên " + student.getFirstName() + " " + student.getLastName() + " đã nộp bài cho bài tập \"" + assignment.getTitle() + "\".";
-        notificationService.sendNewAssignmentNotice(teacher, content);
+        notificationService.sendSubmissionNotice(teacher, content, submission);
 
         return toDto(submission);
     }
@@ -105,7 +105,7 @@ public class SubmissionServiceImpl implements SubmissionService {
         User student = updated.getStudent();
         String content = "Bài nộp \"" + updated.getTitle() + "\" đã được chấm: " +
                 "Điểm: " + request.getGrade() + ", Nhận xét: \"" + request.getFeedback() + "\".";
-        notificationService.sendLeaveNotice(student, content);
+        notificationService.sendGradeSubmissionNotice(student, content, submission);
 
         return toDto(updated);
     }

@@ -40,7 +40,8 @@ public class AssignmentScheduler {
                 notificationService.sendAssignmentDeadlineNotice(
                         student,
                         assignment.getTitle(),
-                        assignment.getEndAt()
+                        assignment.getEndAt(),
+                        assignment.getId()
                 );
             }
         }

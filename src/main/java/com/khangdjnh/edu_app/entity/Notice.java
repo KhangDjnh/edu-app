@@ -1,5 +1,6 @@
 package com.khangdjnh.edu_app.entity;
 
+import com.khangdjnh.edu_app.enums.EntityType;
 import com.khangdjnh.edu_app.enums.NoticeType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -46,7 +47,14 @@ public class Notice {
     String senderUserFullName;
 
     @Enumerated(EnumType.STRING)
-    NoticeType type; // Optional: leave_request, attendance, etc
+    NoticeType type;
+
+    @Column(name = "entity_type")
+    @Enumerated(EnumType.STRING)
+    EntityType entityType;
+
+    @Column(name = "entity_id")
+    Long entityId;
 }
 
 

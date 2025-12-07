@@ -65,6 +65,10 @@ public class User {
 
     LocalDate dob;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "face_image_id")
+    FileRecord faceImage;
+
     @Column(name = "is_active")
     boolean isActive;
 
@@ -82,7 +86,7 @@ public class User {
                 "id=" + id +
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
-                ", password='***'" +  + '\'' +
+                ", password='***'" + '\'' +
                 ", keycloakUserId='" + keycloakUserId + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +

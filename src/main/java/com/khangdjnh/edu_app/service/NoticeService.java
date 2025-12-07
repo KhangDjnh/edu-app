@@ -35,6 +35,8 @@ public class NoticeService {
                 .senderUserName(notice.getSenderUserName())
                 .senderUserEmail(notice.getSenderUserEmail())
                 .senderUserFullName(notice.getSenderUserFullName())
+                .entityType(notice.getEntityType())
+                .entityId(notice.getEntityId())
                 .build();
     }
 
@@ -54,6 +56,8 @@ public class NoticeService {
                         .senderUserName(notice.getSenderUserName())
                         .senderUserEmail(notice.getSenderUserEmail())
                         .senderUserFullName(notice.getSenderUserFullName())
+                        .entityType(notice.getEntityType())
+                        .entityId(notice.getEntityId())
                         .build())
                 .toList();
     }

@@ -5,19 +5,14 @@ import com.khangdjnh.edu_app.dto.request.room.RoomCreationRequest;
 import com.khangdjnh.edu_app.dto.response.JoinRoomResponse;
 import com.khangdjnh.edu_app.dto.response.RoomActiveResponse;
 import com.khangdjnh.edu_app.dto.response.RoomResponse;
-import com.khangdjnh.edu_app.entity.ClassEntity;
-import com.khangdjnh.edu_app.entity.JoinRoomHistory;
-import com.khangdjnh.edu_app.entity.Room;
-import com.khangdjnh.edu_app.entity.User;
+import com.khangdjnh.edu_app.entity.*;
+import com.khangdjnh.edu_app.enums.AttendanceStatus;
 import com.khangdjnh.edu_app.enums.JoinRoomStatus;
 import com.khangdjnh.edu_app.enums.RoomStatus;
 import com.khangdjnh.edu_app.exception.AppException;
 import com.khangdjnh.edu_app.exception.ErrorCode;
 import com.khangdjnh.edu_app.mapper.RoomMapper;
-import com.khangdjnh.edu_app.repository.ClassRepository;
-import com.khangdjnh.edu_app.repository.JoinRoomHistoryRepository;
-import com.khangdjnh.edu_app.repository.RoomRepository;
-import com.khangdjnh.edu_app.repository.UserRepository;
+import com.khangdjnh.edu_app.repository.*;
 import com.khangdjnh.edu_app.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +22,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -39,9 +35,14 @@ public class RoomService {
     private final ClassRepository classRepository;
     private final UserRepository userRepository;
     private final JoinRoomHistoryRepository joinRoomHistoryRepository;
+    private final NotificationService notificationService;
+    private final ClassStudentRepository classStudentRepository;
+    private final AttendanceRepository attendanceRepository;
 
     @Transactional(rollbackFor = Exception.class)
     public RoomResponse createRoom(RoomCreationRequest request) {
+        ClassEntity classEntity = classRepository.findById(request.getClassId())
+                .orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
         Room newRoom = roomMapper.toRoom(request);
         newRoom.setCreatedBy(SecurityUtils.getCurrentUserEmail());
         newRoom.setRoomCode(generateRoomCode(request.getClassId()));
@@ -59,6 +60,26 @@ public class RoomService {
                 .build();
         joinRoomHistoryRepository.save(newJoinRoomHistory);
         log.info("Room created: {}", newRoom.getRoomCode());
+
+        // get data students in class
+        List<ClassStudent> listStudents = classStudentRepository.findByClassEntity_Id(request.getClassId());
+        List<User> students = listStudents.stream().map(ClassStudent::getStudent).toList();
+
+        //create attendance in class
+        List<Attendance> listAttendances = new ArrayList<>();
+        for (User student : students) {
+            Attendance attendance = Attendance.builder()
+                    .student(student)
+                    .classEntity(classEntity)
+                    .attendanceDate(LocalDate.now())
+                    .status(AttendanceStatus.ABSENT)
+                    .build();
+            listAttendances.add(attendance);
+        }
+        attendanceRepository.saveAll(listAttendances);
+
+        //notify to all students
+        notificationService.sendNewRoomNotification(students, user, newRoom);
         return roomMapper.toRoomResponse(newRoom);
     }
 
@@ -75,6 +96,17 @@ public class RoomService {
                 .joinedAt(LocalDateTime.now())
                 .build();
         newJoinRoomHistory = joinRoomHistoryRepository.save(newJoinRoomHistory);
+
+        //join room successfully -> update student's attendance
+        Attendance attendance = attendanceRepository.findByStudentIdAndClassEntity_IdAndAttendanceDate(
+                request.getUserId(),
+                room.getClassId(),
+                LocalDate.now()
+        );
+        if(attendance != null) {
+            attendance.setStatus(AttendanceStatus.PRESENT);
+            attendanceRepository.save(attendance);
+        }
         return toJoinRoomResponse(room, user, newJoinRoomHistory);
     }
 
@@ -93,7 +125,7 @@ public class RoomService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public RoomResponse calloutRoom(Long roomId){
+    public RoomResponse calloutRoom(Long roomId) {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
         room.setStatus(RoomStatus.FINISHED);
@@ -113,7 +145,7 @@ public class RoomService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public RoomResponse saveClassRoomPath (Long roomId, String path){
+    public RoomResponse saveClassRoomPath(Long roomId, String path) {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
         room.setClassRoomPath(path);
@@ -161,6 +193,7 @@ public class RoomService {
                 .build()
                 .toUriString();
     }
+
     private JoinRoomResponse toJoinRoomResponse(Room room, User user, JoinRoomHistory joinRoomHistory) {
         return JoinRoomResponse.builder()
                 .username(user.getUsername())

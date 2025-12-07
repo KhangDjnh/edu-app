@@ -35,8 +35,9 @@ public class Attendance {
     @Column(name = "attendance_date", nullable = false)
     private LocalDate attendanceDate;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AttendanceStatus status = AttendanceStatus.PRESENT;
+    private AttendanceStatus status = AttendanceStatus.ABSENT;
 
 }

@@ -114,7 +114,7 @@ public class UserService {
             User user = userMapper.toUser(request);
             user.setKeycloakUserId(userKeycloakId);
             user.setActive(true);
-            user.setAvatar("https://cdn.vectorstock.com/i/1000v/92/16/default-profile-picture-avatar-user-icon-vector-46389216.jpg");
+            user.setAvatar("https://www.svgrepo.com/show/452030/avatar-default.svg");
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             userRepository.save(user);
             return userMapper.toUserResponse(user);

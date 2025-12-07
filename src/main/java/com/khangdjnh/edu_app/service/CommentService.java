@@ -5,16 +5,10 @@ import com.khangdjnh.edu_app.dto.comment.CommentRequest;
 import com.khangdjnh.edu_app.dto.comment.CommentResponse;
 import com.khangdjnh.edu_app.dto.post.PostResponse;
 import com.khangdjnh.edu_app.dto.response.FileRecordResponse;
-import com.khangdjnh.edu_app.entity.ClassPost;
-import com.khangdjnh.edu_app.entity.FileRecord;
-import com.khangdjnh.edu_app.entity.PostComment;
-import com.khangdjnh.edu_app.entity.User;
+import com.khangdjnh.edu_app.entity.*;
 import com.khangdjnh.edu_app.exception.AppException;
 import com.khangdjnh.edu_app.exception.ErrorCode;
-import com.khangdjnh.edu_app.repository.CommentRepository;
-import com.khangdjnh.edu_app.repository.FileRecordRepository;
-import com.khangdjnh.edu_app.repository.PostRepository;
-import com.khangdjnh.edu_app.repository.UserRepository;
+import com.khangdjnh.edu_app.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
@@ -31,6 +25,8 @@ public class CommentService {
     private final UserRepository userRepository;
     private final FileRecordRepository fileRecordRepository;
     private final PostRepository postRepository;
+    private final NotificationService notificationService;
+    private final ClassStudentRepository classStudentRepository;
 
     @Transactional(rollbackFor = Exception.class)
     public CommentResponse createComment(CommentRequest request) {
@@ -44,6 +40,12 @@ public class CommentService {
                 .emotion(request.getEmotion())
                 .build();
         comment = commentRepository.save(comment);
+        List<ClassStudent> listStudents = classStudentRepository.findByClassEntity_Id(post.getClassEntity().getId());
+        notificationService.sendNewCommentNotification(
+                listStudents.stream().map(ClassStudent::getStudent).toList(),
+                comment,
+                post
+        );
         return toCommentResponse(comment);
     }
 
@@ -53,7 +55,7 @@ public class CommentService {
     }
 
     @Transactional(readOnly = true)
-    public List<CommentResponse> getAllComment(Long postId){
+    public List<CommentResponse> getAllComment(Long postId) {
         List<PostComment> listComments = commentRepository.findByPostId(postId);
         return listComments.stream()
                 .map(this::toCommentResponse)
@@ -74,8 +76,8 @@ public class CommentService {
         User poster = getUserById(post.getUserId());
         poster = (User) Hibernate.unproxy(poster);
         FileRecordResponse fileRecord = post.getAttachFileId() == null
-        ? null
-        : getFileRecordResponse(
+                ? null
+                : getFileRecordResponse(
                 fileRecordRepository.findById(post.getAttachFileId())
                         .orElseThrow(() -> new AppException(ErrorCode.FILE_NOT_FOUND))
         );
@@ -86,7 +88,7 @@ public class CommentService {
                 .content(comment.getContent())
                 .replyTo(comment.getReplyTo() == null
                         ? null
-                        :toCommentReplyResponse(getPostCommentById(comment.getReplyTo()))
+                        : toCommentReplyResponse(getPostCommentById(comment.getReplyTo()))
                 )
                 .emotion(comment.getEmotion())
                 .updatedAt(comment.getUpdatedAt())
@@ -129,7 +131,7 @@ public class CommentService {
                 .build();
     }
 
-    private PostComment getPostCommentById(Long commentId){
+    private PostComment getPostCommentById(Long commentId) {
         return commentRepository.findById(commentId)
                 .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
     }

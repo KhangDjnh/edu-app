@@ -139,7 +139,7 @@ public class ExamService {
                 + ". Bạn nhớ tham gia kì thi đúng giờ nhé!";
 
         for (User student : students) {
-            notificationService.sendNewAssignmentNotice(student, content);
+            notificationService.sendNewExamStartNotice(student, content, exam);
         }
 
         return toExamResponse(exam);

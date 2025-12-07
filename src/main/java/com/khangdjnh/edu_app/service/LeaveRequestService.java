@@ -45,12 +45,12 @@ public class LeaveRequestService {
                 .leaveDate(request.getLeaveDate())
                 .status(LeaveRequestStatus.PENDING)
                 .build();
-        leaveRequestRepository.save(leaveRequest);
+        leaveRequest = leaveRequestRepository.save(leaveRequest);
 
         User teacher = classEntity.getTeacher();
         String contentMessage = "Sinh viên " + student.getFirstName() + " " + student.getLastName() +
                 " đã yêu cầu nghỉ học ngày " + request.getLeaveDate();
-        notificationService.sendLeaveNotice(teacher, contentMessage);
+        notificationService.sendLeaveNotice(teacher, contentMessage, leaveRequest);
 
         return LeaveRequestResponse.builder()
                 .id(leaveRequest.getId())
@@ -89,7 +89,7 @@ public class LeaveRequestService {
 
         User student = leaveRequest.getStudent();
         String content = "Yêu cầu xin nghỉ học của bạn vào ngày " + leaveRequest.getLeaveDate() + " đã được giảng viên PHÊ DUYỆT!";
-        notificationService.sendLeaveNotice(student, content);
+        notificationService.sendLeaveNotice(student, content, leaveRequest);
 
         return LeaveRequestResponse.builder()
                 .id(leaveRequest.getId())
@@ -112,7 +112,7 @@ public class LeaveRequestService {
 
         User student = leaveRequest.getStudent();
         String content = "Yêu cầu xin nghỉ học của bạn vào ngày " + leaveRequest.getLeaveDate() + " đã bị giảng viên TỪ CHỐI!";
-        notificationService.sendLeaveNotice(student, content);
+        notificationService.sendLeaveNotice(student, content, leaveRequest);
 
         return LeaveRequestResponse.builder()
                 .id(leaveRequest.getId())
