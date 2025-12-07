@@ -28,7 +28,7 @@ public class ExamPdfService {
         Exam exam = examRepository.findById(examId)
                 .orElseThrow(() -> new AppException(ErrorCode.EXAM_NOT_FOUND));
 
-        List<Question> questions = exam.getQuestions();
+        List<Question> questions = (List<Question>) exam.getQuestions();
 
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             PdfWriter writer = new PdfWriter(out);

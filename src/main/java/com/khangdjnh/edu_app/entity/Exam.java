@@ -6,7 +6,8 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -32,6 +33,7 @@ public class Exam {
     @Column(columnDefinition = "TEXT")
     String description;
 
+    @Builder.Default
     @Column(name = "is_started", nullable = false)
     Boolean isStarted = false;
 
@@ -45,11 +47,12 @@ public class Exam {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+    @Builder.Default
     @ManyToMany
     @JoinTable(
             name = "exam_exam_questions",
             joinColumns = @JoinColumn(name = "exam_id"),
             inverseJoinColumns = @JoinColumn(name = "question_id")
     )
-    List<Question> questions;
+    Set<Question> questions = new HashSet<>();
 }

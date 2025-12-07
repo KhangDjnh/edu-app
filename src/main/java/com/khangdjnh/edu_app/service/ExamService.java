@@ -20,9 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.format.DateTimeFormatter;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,12 +40,12 @@ public class ExamService {
 
         List<Question> classQuestions = examQuestionRepository.findByClassEntityId(request.getClassId());
 
-        List<Question> allQuestions = new ArrayList<>();
+        Set<Question> allQuestions = new HashSet<>();
         allQuestions.addAll(getRandomQuestionsFromList(classQuestions, QuestionLevel.EASY, request.getNumberOfEasyQuestions()));
         allQuestions.addAll(getRandomQuestionsFromList(classQuestions, QuestionLevel.MEDIUM, request.getNumberOfMediumQuestions()));
         allQuestions.addAll(getRandomQuestionsFromList(classQuestions, QuestionLevel.HARD, request.getNumberOfHardQuestions()));
         allQuestions.addAll(getRandomQuestionsFromList(classQuestions, QuestionLevel.VERY_HARD, request.getNumberOfVeryHardQuestions()));
-        Collections.shuffle(allQuestions);
+        Collections.shuffle((List<?>) allQuestions);
 
         Exam exam = Exam.builder()
                 .classEntity(classEntity)
@@ -76,7 +74,7 @@ public class ExamService {
                 .isStarted(false)
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
-                .questions(questions)
+                .questions((Set<Question>) questions)
                 .build();
 
         return toExamResponse(examRepository.save(exam));

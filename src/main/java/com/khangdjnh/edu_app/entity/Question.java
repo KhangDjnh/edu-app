@@ -8,6 +8,8 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -17,10 +19,12 @@ import java.time.LocalDateTime;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "exam_questions")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Question {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -56,4 +60,9 @@ public class Question {
     @Column(name = "created_at", updatable = false)
     @CreationTimestamp
     LocalDateTime createdAt;
+
+    @Builder.Default
+    @ManyToMany(mappedBy = "questions")
+    Set<Exam> exams = new HashSet<>();
+
 }
