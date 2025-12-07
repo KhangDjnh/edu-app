@@ -15,14 +15,17 @@ import com.khangdjnh.edu_app.keycloak.UserCreationParam;
 import com.khangdjnh.edu_app.mapper.UserMapper;
 import com.khangdjnh.edu_app.repository.IdentityClient;
 import com.khangdjnh.edu_app.repository.UserRepository;
+import com.khangdjnh.edu_app.util.Constants;
 import com.khangdjnh.edu_app.util.StringUtil;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import feign.FeignException;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UserResource;
+import org.keycloak.representations.idm.RoleRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,9 +34,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +47,7 @@ public class UserService {
     private final ErrorNormalizer errorNormalizer;
     private final KeycloakClientTokenService keycloakClientTokenService;
     private final KeycloakUserTokenService keycloakUserTokenService;
+    private final Keycloak keycloak;
 
     @Value("${idp.realm}")
     private String realm;
@@ -105,6 +107,10 @@ public class UserService {
                             .build());
             //Khi goi toi api createUser de tao User tren Keycloak thi tra ve Header.Location co chua userId, ta can lay no dua vao db
             String userKeycloakId = extractUserId(creationResponse);
+            assignRoleToUser(userKeycloakId,
+                    request.getRole() != null ? request.getRole().name() : "USER"
+            );
+            log.info("Assigned role {} to user {}", request.getRole(), userKeycloakId);
             User user = userMapper.toUser(request);
             user.setKeycloakUserId(userKeycloakId);
             user.setActive(true);
@@ -182,13 +188,20 @@ public class UserService {
 
     private List<String> extractRolesFromToken(String token) {
         try {
+            List<String> result = new ArrayList<>();
             SignedJWT signedJWT = SignedJWT.parse(token);
             JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
 
             // Lấy roles từ realm_access
             Map<String, Object> realmAccess = (Map<String, Object>) claims.getClaim("realm_access");
             if (realmAccess != null && realmAccess.containsKey("roles")) {
-                return (List<String>) realmAccess.get("roles");
+                List<String> allRoles = (List<String>) realmAccess.get("roles");
+                allRoles.forEach(role -> {
+                    if(Constants.ACTOR_ROLES.contains(role)){
+                        result.add(role);
+                    }
+                });
+                return result;
             }
 
             return List.of();
@@ -201,5 +214,20 @@ public class UserService {
         String location = Objects.requireNonNull(responseEntity.getHeaders().get("Location")).getFirst();
         String[] splittedString = location.split("/");
         return splittedString[splittedString.length - 1];
+    }
+
+    private void assignRoleToUser(String userKeycloakId, String roleName) {
+        RealmResource realmResource = keycloak.realm(realm);
+        List<RoleRepresentation> allRealmRoles = realmResource.roles().list();
+
+        RoleRepresentation roleToAssign = allRealmRoles.stream()
+                .filter(r -> r.getName().equals(roleName))
+                .findFirst()
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_ROLE));
+        // Lấy user
+        UserResource userResource = realmResource.users().get(userKeycloakId);
+
+        // Gán role realm-level
+        userResource.roles().realmLevel().add(Collections.singletonList(roleToAssign));
     }
 }
