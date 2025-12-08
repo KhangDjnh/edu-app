@@ -12,13 +12,10 @@ import java.util.Optional;
 
 @Repository
 public interface SubmissionRepository extends JpaRepository<Submission, Long> {
-    @EntityGraph(attributePaths = "submissionFiles")
     Optional<Submission> findWithFilesById(Long id);
 
-    @EntityGraph(attributePaths = "submissionFiles")
     List<Submission> findWithFilesByAssignmentId(Long assignmentId);
 
-    @EntityGraph(attributePaths = "submissionFiles")
     Optional<Submission> findWithFilesByAssignmentIdAndStudentId(Long assignmentId, Long studentId);
 
     @Query("""
