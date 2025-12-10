@@ -87,6 +87,9 @@ public class UserService {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new AppException(ErrorCode.EMAIL_EXISTED_IN_DATABASE);
         }
+        if(userRepository.existsByUsername(request.getUsername())) {
+            throw new AppException(ErrorCode.USERNAME_EXISTED_IN_DATABASE);
+        }
         try {
             var token = keycloakClientTokenService.getAccessToken();
             var creationResponse = identityClient.createUser(

@@ -21,6 +21,7 @@ public enum ErrorCode {
     INVALID_KEY(1009, "Invalid key", HttpStatus.BAD_REQUEST),
     USER_EXISTED(1010, "User already existed", HttpStatus.CONFLICT),
     EMAIL_EXISTED_IN_DATABASE(1011, "Email already existed in database", HttpStatus.CONFLICT),
+    USERNAME_EXISTED_IN_DATABASE(1011, "Email already existed in database", HttpStatus.CONFLICT),
     USERNAME_IS_MISSING(1012, "Username is missing", HttpStatus.BAD_REQUEST),
     NEW_PASSWORD_SAME_AS_OLD(1013, "New password is same as old password", HttpStatus.BAD_REQUEST),
     OLD_PASSWORD_IS_INCORRECT(1014, "Old password is incorrect", HttpStatus.BAD_REQUEST),
