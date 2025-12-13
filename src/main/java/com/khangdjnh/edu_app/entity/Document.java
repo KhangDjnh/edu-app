@@ -28,8 +28,9 @@ public class Document {
     @Column(nullable = false)
     String title;
 
-    @Column(name = "file_path", nullable = false)
-    String filePath;
+    @Builder.Default
+    @Column(name = "file_path")
+    String filePath = "https://docs.github.com/en";
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "file_id")

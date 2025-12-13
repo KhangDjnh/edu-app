@@ -32,10 +32,10 @@ public class LearningRoadmapController {
                 .build();
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<?> updateLearningRoadmap(
             @PathVariable Long id,
-            @RequestBody @Valid LearningRoadmapRequest request
+            @ModelAttribute @Valid LearningRoadmapRequest request
     ) {
         return ApiResponse.builder()
                 .code(1000)

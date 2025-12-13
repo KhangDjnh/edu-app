@@ -5,8 +5,10 @@ import com.khangdjnh.edu_app.dto.response.ClassResponse;
 import com.khangdjnh.edu_app.dto.response.FileRecordResponse;
 import com.khangdjnh.edu_app.dto.response.LearningRoadmapResponse;
 import com.khangdjnh.edu_app.entity.ClassEntity;
+import com.khangdjnh.edu_app.entity.Document;
 import com.khangdjnh.edu_app.entity.FileRecord;
 import com.khangdjnh.edu_app.entity.LearningRoadmap;
+import com.khangdjnh.edu_app.repository.DocumentRepository;
 import com.khangdjnh.edu_app.repository.LearningRoadmapRepository;
 import com.khangdjnh.edu_app.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -27,10 +29,21 @@ import java.util.stream.Collectors;
 public class LearningRoadmapService {
     private final LearningRoadmapRepository learningRoadmapRepository;
     private final CloudflareR2Service cloudflareR2Service;
+    private final DocumentRepository documentRepository;
 
     @Transactional(rollbackFor = Exception.class)
     public LearningRoadmapResponse createLearningRoadmap(LearningRoadmapRequest request) {
         FileRecord fileRecord = request.getFile() == null ? null : cloudflareR2Service.uploadFileV2(request.getFile());
+        if(fileRecord != null){
+            Document document = Document.builder()
+                    .title(request.getTitle())
+                    .fileRecord(fileRecord)
+                    .classEntity(ClassEntity.builder().id(request.getClassId()).build())
+                    .uploadedBy(SecurityUtils.getCurrentUsername())
+                    .uploadedAt(LocalDateTime.now())
+                    .build();
+            documentRepository.save(document);
+        }
         int existingCount = learningRoadmapRepository.countByClassEntity_IdAndParentId(
                 request.getClassId(),
                 request.getParentId()
@@ -82,6 +95,14 @@ public class LearningRoadmapService {
         if (request.getFile() != null) {
             FileRecord fileRecord = cloudflareR2Service.uploadFileV2(request.getFile());
             roadmap.setFileRecord(fileRecord);
+            Document document = Document.builder()
+                    .title(request.getTitle())
+                    .fileRecord(fileRecord)
+                    .classEntity(ClassEntity.builder().id(request.getClassId()).build())
+                    .uploadedBy(SecurityUtils.getCurrentUsername())
+                    .uploadedAt(LocalDateTime.now())
+                    .build();
+            documentRepository.save(document);
         }
 
         roadmap.setTitle(request.getTitle());
