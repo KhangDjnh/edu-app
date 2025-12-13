@@ -13,11 +13,9 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/questions")
@@ -36,6 +34,17 @@ public class QuestionController {
                 .build();
     }
 
+    @PostMapping("/import")
+    @PreAuthorize("hasRole('TEACHER')")
+    ApiResponse<?> importQuestions(@RequestParam Long classId,
+                                   @RequestParam("file") MultipartFile file) {
+        examQuestionService.importQuestionsFromExcel(classId, file);
+        return ApiResponse.builder()
+                .message("Import successful")
+                .code(1000)
+                .build();
+    }
+
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('TEACHER')")
     ApiResponse<QuestionResponse> updateQuestion(
@@ -51,11 +60,11 @@ public class QuestionController {
 
     @PostMapping("/search")
     @PreAuthorize("hasRole('TEACHER')")
-    public ApiResponse<Page<QuestionResponse>> searchQuestions(
+    public ApiResponse<Page<QuestionDetailResponse>> searchQuestions(
             @RequestBody QuestionSearchRequest request,
             @PageableDefault(size = 10) Pageable pageable
     ) {
-        return ApiResponse.<Page<QuestionResponse>>builder()
+        return ApiResponse.<Page<QuestionDetailResponse>>builder()
                 .message("Success")
                 .code(1000)
                 .result(examQuestionService.searchQuestions(request, pageable))

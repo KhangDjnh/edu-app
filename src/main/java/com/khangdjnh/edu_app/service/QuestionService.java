@@ -6,6 +6,8 @@ import com.khangdjnh.edu_app.dto.response.QuestionDetailResponse;
 import com.khangdjnh.edu_app.dto.response.QuestionResponse;
 import com.khangdjnh.edu_app.entity.ClassEntity;
 import com.khangdjnh.edu_app.entity.Question;
+import com.khangdjnh.edu_app.enums.AnswerOption;
+import com.khangdjnh.edu_app.enums.QuestionLevel;
 import com.khangdjnh.edu_app.exception.AppException;
 import com.khangdjnh.edu_app.exception.ErrorCode;
 import com.khangdjnh.edu_app.repository.ClassRepository;
@@ -14,6 +16,7 @@ import jakarta.persistence.criteria.Predicate;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.apache.poi.ss.usermodel.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,10 +25,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,8 +37,9 @@ import java.util.stream.Collectors;
 public class QuestionService {
     QuestionRepository examQuestionRepository;
     private final ClassRepository classRepository;
+    private final QuestionRepository questionRepository;
 
-    public Page<QuestionResponse> searchQuestions(QuestionSearchRequest request, Pageable pageable) {
+    public Page<QuestionDetailResponse> searchQuestions(QuestionSearchRequest request, Pageable pageable) {
         Specification<Question> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -63,11 +68,15 @@ public class QuestionService {
         };
 
         return examQuestionRepository.findAll(spec, pageable)
-                .map(q -> QuestionResponse.builder()
+                .map(q -> QuestionDetailResponse.builder()
                         .id(q.getId())
                         .classId(q.getClassEntity().getId())
                         .chapter(q.getChapter())
                         .question(q.getQuestion())
+                        .optionA(q.getOptionA())
+                        .optionB(q.getOptionB())
+                        .optionC(q.getOptionC())
+                        .optionD(q.getOptionD())
                         .answer(q.getAnswer())
                         .level(q.getLevel())
                         .build());
@@ -176,5 +185,62 @@ public class QuestionService {
         examQuestionRepository.deleteById(id);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public void importQuestionsFromExcel(Long classId, MultipartFile file) {
+        List<Question> questions = new ArrayList<>();
+
+        try (InputStream is = file.getInputStream();
+             Workbook workbook = WorkbookFactory.create(is)) {
+
+            Sheet sheet = workbook.getSheetAt(0);
+
+            // Bỏ qua dòng header (bắt đầu từ row 1)
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null || getCellString(row, 0).isEmpty()) continue;
+
+                String questionText = getCellString(row, 1);
+                String optionA = getCellString(row, 2);
+                String optionB = getCellString(row, 3);
+                String optionC = getCellString(row, 4);
+                String optionD = getCellString(row, 5);
+                String answer = getCellString(row, 6);
+                Integer chapter = Integer.valueOf(getCellString(row, 7));
+                String level = getCellString(row, 8);
+
+                Question q = Question.builder()
+                        .classEntity(ClassEntity.builder().id(classId).build())
+                        .chapter(chapter)
+                        .question(questionText)
+                        .optionA(optionA)
+                        .optionB(optionB)
+                        .optionC(optionC)
+                        .optionD(optionD)
+                        .answer(AnswerOption.valueOf(answer.toUpperCase()))
+                        .level(QuestionLevel.valueOf(level.toUpperCase()))
+                        .build();
+
+                questions.add(q);
+            }
+            questionRepository.saveAll(questions);
+        } catch (Exception e) {
+            throw new RuntimeException("Error while importing Excel: " + e.getMessage());
+        }
+
+    }
+
+
+    // Helper đọc cell an toàn
+    private String getCellString(Row row, int cellIndex) {
+        Cell cell = row.getCell(cellIndex);
+        if (cell == null) return "";
+
+        return switch (cell.getCellType()) {
+            case STRING -> cell.getStringCellValue().trim();
+            case NUMERIC -> String.valueOf((int) cell.getNumericCellValue());
+            case BOOLEAN -> String.valueOf(cell.getBooleanCellValue());
+            default -> "";
+        };
+    }
 
 }
