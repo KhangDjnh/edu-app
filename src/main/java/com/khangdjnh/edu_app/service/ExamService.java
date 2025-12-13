@@ -67,6 +67,8 @@ public class ExamService {
 
         List<Question> questions = getValidatedQuestions(request.getQuestionIds(), request.getClassId());
 
+        Set<Question> questionSet = new HashSet<>(questions);
+
         Exam exam = Exam.builder()
                 .classEntity(classEntity)
                 .title(request.getTitle())
@@ -74,7 +76,7 @@ public class ExamService {
                 .isStarted(false)
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
-                .questions((Set<Question>) questions)
+                .questions(questionSet)
                 .build();
 
         return toExamResponse(examRepository.save(exam));

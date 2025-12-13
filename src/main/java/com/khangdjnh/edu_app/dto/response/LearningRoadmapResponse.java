@@ -4,17 +4,23 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class DocumentResponse {
+public class LearningRoadmapResponse {
     Long id;
     String title;
-    String filePath;
-    String uploadedBy;
+    String description;
     FileRecordResponse fileRecord;
-    LocalDateTime uploadedAt;
+    ClassResponse classResponse;
+    String backgroundImage;
+    String iconImage;
+    List<LearningRoadmapResponse> children;
+    Integer roadmapIndex;
+    String createdBy;
+    LocalDateTime createdAt;
 }

@@ -2,8 +2,6 @@ package com.khangdjnh.edu_app.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
-import org.apache.http.entity.FileEntity;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -14,9 +12,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "documents")
-public class Document {
+@Table(name = "learning_roadmaps")
+public class LearningRoadmap {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -25,21 +22,30 @@ public class Document {
     @JoinColumn(name = "class_id", nullable = false)
     ClassEntity classEntity;
 
-    @Column(nullable = false)
     String title;
 
-    @Column(name = "file_path", nullable = false)
-    String filePath;
+    String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "file_id")
     FileRecord fileRecord;
 
-    @Column(name = "uploaded_by", nullable = false)
-    String uploadedBy;
+    @Column(name = "background_image")
+    String backgroundImage;
 
-    @Column(name = "uploaded_at", nullable = false)
+    @Column(name = "icon_image")
+    String iconImage;
+
+    @Column(name = "roadmap_index")
+    Integer roadmapIndex;
+
+    @Column(name = "parent_id")
+    Long parentId;
+
+    @Column(name = "created_by")
+    String createdBy;
+
     @CreationTimestamp
-    LocalDateTime uploadedAt;
-
+    @Column(name = "created_at")
+    LocalDateTime createdAt;
 }

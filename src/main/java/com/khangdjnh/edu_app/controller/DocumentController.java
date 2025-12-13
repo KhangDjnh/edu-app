@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,9 +22,9 @@ import java.util.List;
 public class DocumentController {
     DocumentService documentService;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('TEACHER')")
-    ApiResponse<DocumentResponse> createDocument(@RequestBody @Valid DocumentCreateRequest request) {
+    ApiResponse<DocumentResponse> createDocument(@ModelAttribute @Valid DocumentCreateRequest request) {
         return ApiResponse.<DocumentResponse>builder()
                 .message("Success")
                 .code(1000)
