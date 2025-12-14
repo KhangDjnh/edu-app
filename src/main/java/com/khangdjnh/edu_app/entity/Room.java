@@ -48,6 +48,7 @@ public class Room {
     @Column(name = "description")
     String description;
 
+    @Builder.Default
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     RoomStatus status = RoomStatus.STARTED;
@@ -64,4 +65,8 @@ public class Room {
 
     @Column(name = "created_by")
     String createdBy;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "exam_id")
+    Exam exam;
 }

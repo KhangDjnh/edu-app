@@ -4,19 +4,21 @@ import com.khangdjnh.edu_app.dto.request.exam.ExamCreateChooseRequest;
 import com.khangdjnh.edu_app.dto.request.exam.ExamCreateRandomRequest;
 import com.khangdjnh.edu_app.dto.request.exam.ExamUpdateRequest;
 import com.khangdjnh.edu_app.dto.response.ExamResponse;
+import com.khangdjnh.edu_app.dto.response.MarkExamStartResponse;
 import com.khangdjnh.edu_app.dto.response.StudentExamResponse;
 import com.khangdjnh.edu_app.entity.*;
-import com.khangdjnh.edu_app.enums.ExamSubmissionStatus;
-import com.khangdjnh.edu_app.enums.QuestionLevel;
+import com.khangdjnh.edu_app.enums.*;
 import com.khangdjnh.edu_app.exception.AppException;
 import com.khangdjnh.edu_app.exception.ErrorCode;
+import com.khangdjnh.edu_app.mapper.RoomMapper;
 import com.khangdjnh.edu_app.repository.*;
 import com.khangdjnh.edu_app.util.SecurityUtils;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 import java.time.LocalDateTime;
@@ -25,15 +27,20 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ExamService {
-    ExamRepository examRepository;
-    ClassRepository classRepository;
-    QuestionRepository examQuestionRepository;
-    ClassStudentRepository classStudentRepository;
-    NotificationService notificationService;
-    ExamSubmissionRepository examSubmissionRepository;
+    private final ExamRepository examRepository;
+    private final ClassRepository classRepository;
+    private final QuestionRepository examQuestionRepository;
+    private final ClassStudentRepository classStudentRepository;
+    private final NotificationService notificationService;
+    private final ExamSubmissionRepository examSubmissionRepository;
     private final UserRepository userRepository;
+    private final RoomRepository roomRepository;
+    private final RoomMapper roomMapper;
+    private final AttendanceRepository attendanceRepository;
+
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     @Transactional(rollbackFor = Exception.class)
     public ExamResponse createRandomExam(ExamCreateRandomRequest request) {
@@ -47,7 +54,8 @@ public class ExamService {
         allQuestions.addAll(getRandomQuestionsFromList(classQuestions, QuestionLevel.MEDIUM, request.getNumberOfMediumQuestions()));
         allQuestions.addAll(getRandomQuestionsFromList(classQuestions, QuestionLevel.HARD, request.getNumberOfHardQuestions()));
         allQuestions.addAll(getRandomQuestionsFromList(classQuestions, QuestionLevel.VERY_HARD, request.getNumberOfVeryHardQuestions()));
-        Collections.shuffle((List<?>) allQuestions);
+        List<?> tempList = new ArrayList<>(allQuestions);
+        Collections.shuffle(tempList);
 
         Exam exam = Exam.builder()
                 .classEntity(classEntity)
@@ -104,7 +112,7 @@ public class ExamService {
         String studentEmail = SecurityUtils.getCurrentUserEmail();
         User currentUser = userRepository.findByEmail(studentEmail)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        return examRepository.findAllByClassEntityIdAndIsStarted(classId, true)
+        return examRepository.findAllByClassEntityId(classId)
                 .stream()
                 .map(item -> toStudentExamResponse(item, currentUser.getId()))
                 .toList();
@@ -128,18 +136,62 @@ public class ExamService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public ExamResponse markExamStarted (Long examId) {
+    public MarkExamStartResponse markExamStarted (Long examId) {
+        String userEmail = SecurityUtils.getCurrentUserEmail();
+        User currentUser = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         Exam exam = examRepository.findById(examId)
                 .orElseThrow(() -> new AppException(ErrorCode.EXAM_NOT_FOUND));
+
+        if(exam.getIsStarted()) {
+            throw new AppException(ErrorCode.EXAM_ALREADY_STARTED);
+        }
         exam.setIsStarted(true);
         examRepository.save(exam);
+
+        String roomCode = "EXAM-" + exam.getId();
+
+        Room room = Room.builder()
+                .roomName(exam.getTitle())
+                .roomCode(roomCode)
+                .teacherId(exam.getClassEntity().getTeacher().getId())
+                .classId(exam.getClassEntity().getId())
+                .startTime(LocalDateTime.now())
+                .status(RoomStatus.STARTED)
+                .isActive(true)
+                .createdBy(SecurityUtils.getCurrentUsername())
+                .exam(exam)
+                .build();
+        room = roomRepository.save(room);
+
+        String classRoomPath = frontendUrl + "/classRoom?roomCode=" + roomCode + "&roomId=" + room.getId() + "&userId="
+                + currentUser.getId() + "&userName=" + currentUser.getUsername();
+        room.setClassRoomPath(classRoomPath);
+        roomRepository.save(room);
+
+        // get data students in class
+        ClassEntity classEntity = exam.getClassEntity();
+        List<ClassStudent> listStudents = classStudentRepository.findByClassEntity_Id(classEntity.getId());
+        List<User> students = listStudents.stream().map(ClassStudent::getStudent).toList();
+
+        //create attendance in class
+        List<Attendance> listAttendances = new ArrayList<>();
+        for (User student : students) {
+            Attendance attendance = Attendance.builder()
+                    .student(student)
+                    .classEntity(classEntity)
+                    .attendanceDate(LocalDate.now())
+                    .status(AttendanceStatus.ABSENT)
+                    .exam(exam)
+                    .build();
+            listAttendances.add(attendance);
+        }
+        attendanceRepository.saveAll(listAttendances);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
         // Format lại thời gian bắt đầu kỳ thi
         String examStartTime = exam.getStartTime().format(formatter);
-        List<User> students = classStudentRepository.findByClassEntity_Id(exam.getClassEntity().getId())
-                .stream().map(ClassStudent::getStudent).toList();
         String content = "Giáo viên của bạn lớp " + exam.getClassEntity().getName()
                 + " đã bắt đầu kì thi " + exam.getTitle()
                 + " lúc " + examStartTime
@@ -149,7 +201,16 @@ public class ExamService {
             notificationService.sendNewExamStartNotice(student, content, exam);
         }
 
-        return toExamResponse(exam);
+        return MarkExamStartResponse.builder()
+                .id(exam.getId())
+                .classId(exam.getClassEntity().getId())
+                .title(exam.getTitle())
+                .description(exam.getDescription())
+                .startTime(exam.getStartTime())
+                .endTime(exam.getEndTime())
+                .createdAt(exam.getCreatedAt())
+                .room(roomMapper.toRoomResponse(room))
+                .build();
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -232,6 +293,7 @@ public class ExamService {
                 .endTime(exam.getEndTime())
                 .description(exam.getDescription())
                 .createdAt(exam.getCreatedAt())
+                .isStarted(exam.getIsStarted())
                 .build();
         result.setStatus(submission == null ? ExamSubmissionStatus.NOT_STARTED : submission.getStatus());
         return result;

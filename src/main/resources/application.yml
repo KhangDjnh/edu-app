@@ -65,6 +65,9 @@ idp:
   client-id: ${KEYCLOAK_CLIENT_ID}
   client-secret: ${KEYCLOAK_CLIENT_SECRET}
 
+frontend:
+  url: http://localhost:3000
+
 cloud:
   r2:
     endpoint: ${R2_ENDPOINT}

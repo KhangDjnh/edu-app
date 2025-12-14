@@ -1,7 +1,6 @@
 package com.khangdjnh.edu_app.dto.response;
 
 
-import com.khangdjnh.edu_app.enums.ExamSubmissionStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -12,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class StudentExamResponse {
+public class MarkExamStartResponse {
     Long id;
     String title;
     String description;
@@ -20,6 +19,5 @@ public class StudentExamResponse {
     LocalDateTime startTime;
     LocalDateTime endTime;
     LocalDateTime createdAt;
-    Boolean isStarted;
-    ExamSubmissionStatus status;
+    RoomResponse room;
 }

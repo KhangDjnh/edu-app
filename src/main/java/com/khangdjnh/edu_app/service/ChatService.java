@@ -165,9 +165,9 @@ public class ChatService {
         for (Message messageItem : listMessages) {
             Long senderItem = messageItem.getSender();
             if (senderItem.equals(senderId)) {
-                listMessageDTOs.add(toMessageResponseDTO(message, sender));
+                listMessageDTOs.add(toMessageResponseDTO(messageItem, sender));
             } else {
-                listMessageDTOs.add(toMessageResponseDTO(message, receiver));
+                listMessageDTOs.add(toMessageResponseDTO(messageItem, receiver));
             }
         }
         return ConversationMessageResponse.builder()

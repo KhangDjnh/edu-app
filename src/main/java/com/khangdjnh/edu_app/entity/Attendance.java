@@ -40,4 +40,8 @@ public class Attendance {
     @Column(nullable = false)
     private AttendanceStatus status = AttendanceStatus.ABSENT;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "exam_id")
+    private Exam exam;
+
 }

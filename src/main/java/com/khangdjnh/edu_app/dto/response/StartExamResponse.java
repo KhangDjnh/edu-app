@@ -1,6 +1,5 @@
 package com.khangdjnh.edu_app.dto.response;
 
-import com.khangdjnh.edu_app.entity.ExamAnswer;
 import com.khangdjnh.edu_app.enums.ExamSubmissionStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,5 +23,6 @@ public class StartExamResponse {
     private LocalDateTime startedAt;
     private LocalDateTime completedAt;
     private BigDecimal score;
-    private List<ExamAnswer> listExamAnswers;
+    private List<ExamAnswerResponse> listExamAnswers;
+    private RoomResponse room;
 }

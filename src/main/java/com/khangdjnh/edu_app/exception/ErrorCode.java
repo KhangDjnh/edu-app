@@ -56,6 +56,7 @@ public enum ErrorCode {
     NOT_FOUND_ROLE(1032, "Role not found in identity provider", HttpStatus.NOT_FOUND),
 
     ROOM_NOT_FOUND(1033, "Room not found", HttpStatus.NOT_FOUND),
+    EXAM_ROOM_NOT_FOUND(1042, "Exam room not found", HttpStatus.NOT_FOUND),
     JOIN_ROOM_HISTORY_NOT_FOUND(1034, "User join room history not found", HttpStatus.NOT_FOUND),
     CONVERSATION_NOT_FOUND(1035, "Conversation not found", HttpStatus.NOT_FOUND),
     REPLY_TO_MESSAGE_NOT_FOUND(1036, "Message to reply to is not found", HttpStatus.NOT_FOUND),
@@ -64,6 +65,7 @@ public enum ErrorCode {
     POST_NOT_FOUND(1039, "Post not found", HttpStatus.NOT_FOUND),
     COMMENT_NOT_FOUND(1040, "Comment not found", HttpStatus.NOT_FOUND),
     POST_TYPE_NOT_FOUND(1041, "Post type not found", HttpStatus.NOT_FOUND),
+    EXAM_ALREADY_STARTED(1043, "Exam has already started", HttpStatus.BAD_REQUEST),
     ;
 
     int code;

@@ -5,6 +5,7 @@ import com.khangdjnh.edu_app.dto.request.exam.ExamCreateRandomRequest;
 import com.khangdjnh.edu_app.dto.request.exam.ExamUpdateRequest;
 import com.khangdjnh.edu_app.dto.response.ApiResponse;
 import com.khangdjnh.edu_app.dto.response.ExamResponse;
+import com.khangdjnh.edu_app.dto.response.MarkExamStartResponse;
 import com.khangdjnh.edu_app.service.ExamService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -84,8 +85,8 @@ public class ExamController {
 
     @PutMapping("/{examId}/start")
     @PreAuthorize("hasRole('TEACHER')")
-    ApiResponse<ExamResponse> markExamStarted (@PathVariable Long examId) {
-        return ApiResponse.<ExamResponse>builder()
+    ApiResponse<MarkExamStartResponse> markExamStarted (@PathVariable Long examId) {
+        return ApiResponse.<MarkExamStartResponse>builder()
                 .code(1000)
                 .message("Success")
                 .result(examService.markExamStarted(examId))

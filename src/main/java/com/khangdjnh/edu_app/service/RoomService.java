@@ -169,7 +169,7 @@ public class RoomService {
         String userEmail = SecurityUtils.getCurrentUserEmail();
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        List<Room> listActiveRooms = roomRepository.findByClassIdAndStatus(classId, RoomStatus.STARTED);
+        List<Room> listActiveRooms = roomRepository.findByClassIdAndStatusAndExam(classId, RoomStatus.STARTED, null);
         listActiveRooms.forEach(room -> room.setClassRoomPath(generateClassRoomPathForUser(room.getClassRoomPath(), user.getId(), userEmail)));
         if (!listActiveRooms.isEmpty()) {
             return RoomActiveResponse.builder()

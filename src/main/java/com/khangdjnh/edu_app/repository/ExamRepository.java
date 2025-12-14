@@ -10,5 +10,5 @@ import java.util.List;
 public interface ExamRepository extends JpaRepository<Exam, Long> {
     List<Exam> findAllByClassEntityIdOrderByCreatedAt(Long classId);
     List<Exam> findAllByClassEntityIdOrderByCreatedAtDesc(Long classId);
-    List<Exam> findAllByClassEntityIdAndIsStarted(Long classId, Boolean isStarted);
+    List<Exam> findAllByClassEntityId(Long classId);
 }

@@ -1,14 +1,14 @@
 package com.khangdjnh.edu_app.service;
 
+import com.khangdjnh.edu_app.dto.response.ExamAnswerResponse;
 import com.khangdjnh.edu_app.dto.response.ExamSubmissionResultResponse;
+import com.khangdjnh.edu_app.dto.response.RoomResponse;
 import com.khangdjnh.edu_app.dto.response.StartExamResponse;
-import com.khangdjnh.edu_app.entity.Exam;
-import com.khangdjnh.edu_app.entity.ExamAnswer;
-import com.khangdjnh.edu_app.entity.ExamSubmission;
-import com.khangdjnh.edu_app.entity.Score;
+import com.khangdjnh.edu_app.entity.*;
 import com.khangdjnh.edu_app.enums.ExamSubmissionStatus;
 import com.khangdjnh.edu_app.exception.AppException;
 import com.khangdjnh.edu_app.exception.ErrorCode;
+import com.khangdjnh.edu_app.mapper.RoomMapper;
 import com.khangdjnh.edu_app.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -36,6 +37,8 @@ public class ExamSubmissionService {
     UserRepository userRepository;
     ExamAnswerRepository examAnswerRepository;
     ScoreRepository scoreRepository;
+    RoomRepository roomRepository;
+    RoomMapper roomMapper;
 
     @Transactional(rollbackFor = Exception.class)
     public StartExamResponse startExam(Long examId) {
@@ -65,6 +68,20 @@ public class ExamSubmissionService {
                 });
         List<ExamAnswer> listExamAnswers = examAnswerRepository.findAllBySubmissionId(submission.getId());
 
+        // tìm phòng họp đang diễn ra cho lớp học và exam này
+        Room room = roomRepository.findByExamId(examId);
+        if(room == null) {
+            throw new AppException(ErrorCode.EXAM_ROOM_NOT_FOUND);
+        }
+        RoomResponse roomResponse = roomMapper.toRoomResponse(room);
+        String oldClassRoomPath = roomResponse.getClassRoomPath();
+        String newClassRoomPath = generateClassRoomPathForUser(
+                oldClassRoomPath,
+                currentStudent.getId(),
+                currentStudent.getUsername()
+        );
+        roomResponse.setClassRoomPath(newClassRoomPath);
+
         return StartExamResponse.builder()
                 .submissionId(submission.getId())
                 .examTitle(exam.getTitle())
@@ -74,8 +91,28 @@ public class ExamSubmissionService {
                 .startedAt(submission.getStartedAt())
                 .completedAt(submission.getCompletedAt())
                 .score(submission.getScore())
-                .listExamAnswers(listExamAnswers == null ? new ArrayList<>() : listExamAnswers)
+                .listExamAnswers(listExamAnswers == null
+                        ? new ArrayList<>()
+                        : listExamAnswers.stream().map(this::toAnswerResponse).toList())
+                .room(roomResponse)
                 .build();
+    }
+
+    private ExamAnswerResponse toAnswerResponse(ExamAnswer answer) {
+        return ExamAnswerResponse.builder()
+                .questionId(answer.getQuestion().getId())
+                .selectedOption(answer.getSelectedOption())
+                .build();
+    }
+
+    private String generateClassRoomPathForUser(String rootUrl, Long userId, String userName) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(rootUrl);
+
+        return builder
+                .replaceQueryParam("userId", userId)
+                .replaceQueryParam("userName", userName)
+                .build()
+                .toUriString();
     }
 
     @Transactional(readOnly = true)
