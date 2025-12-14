@@ -1,5 +1,7 @@
 package com.khangdjnh.edu_app.dto.response;
 
+
+import com.khangdjnh.edu_app.enums.ExamSubmissionStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -10,15 +12,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AssignmentResponse {
+public class StudentExamResponse {
     Long id;
     String title;
-    String content;
+    String description;
     Long classId;
-    FileRecordResponse fileRecord;
-    String status;
-    LocalDateTime startAt;
-    LocalDateTime endAt;
+    LocalDateTime startTime;
+    LocalDateTime endTime;
     LocalDateTime createdAt;
-    SubmissionResponse submission;
+    ExamSubmissionStatus status;
 }

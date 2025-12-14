@@ -8,6 +8,7 @@ import com.khangdjnh.edu_app.dto.response.RoomResponse;
 import com.khangdjnh.edu_app.entity.*;
 import com.khangdjnh.edu_app.enums.AttendanceStatus;
 import com.khangdjnh.edu_app.enums.JoinRoomStatus;
+import com.khangdjnh.edu_app.enums.LeaveRequestStatus;
 import com.khangdjnh.edu_app.enums.RoomStatus;
 import com.khangdjnh.edu_app.exception.AppException;
 import com.khangdjnh.edu_app.exception.ErrorCode;
@@ -38,6 +39,7 @@ public class RoomService {
     private final NotificationService notificationService;
     private final ClassStudentRepository classStudentRepository;
     private final AttendanceRepository attendanceRepository;
+    private final LeaveRequestRepository leaveRequestRepository;
 
     @Transactional(rollbackFor = Exception.class)
     public RoomResponse createRoom(RoomCreationRequest request) {
@@ -67,6 +69,11 @@ public class RoomService {
 
         //create attendance in class
         List<Attendance> listAttendances = new ArrayList<>();
+        List<LeaveRequest> leaveRequests = leaveRequestRepository
+                .findByClassEntity_IdAndLeaveDateAndStatus(request.getClassId(), LocalDate.now(), LeaveRequestStatus.APPROVED);
+        List<Long> studentIdsOnLeave = leaveRequests.stream()
+                .map(leaveRequest -> leaveRequest.getStudent().getId())
+                .toList();
         for (User student : students) {
             Attendance attendance = Attendance.builder()
                     .student(student)
@@ -74,6 +81,9 @@ public class RoomService {
                     .attendanceDate(LocalDate.now())
                     .status(AttendanceStatus.ABSENT)
                     .build();
+            if(studentIdsOnLeave.contains(student.getId())) {
+                attendance.setStatus(AttendanceStatus.PRESENT);
+            }
             listAttendances.add(attendance);
         }
         attendanceRepository.saveAll(listAttendances);

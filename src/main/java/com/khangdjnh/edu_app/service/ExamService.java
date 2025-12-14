@@ -4,14 +4,14 @@ import com.khangdjnh.edu_app.dto.request.exam.ExamCreateChooseRequest;
 import com.khangdjnh.edu_app.dto.request.exam.ExamCreateRandomRequest;
 import com.khangdjnh.edu_app.dto.request.exam.ExamUpdateRequest;
 import com.khangdjnh.edu_app.dto.response.ExamResponse;
+import com.khangdjnh.edu_app.dto.response.StudentExamResponse;
 import com.khangdjnh.edu_app.entity.*;
+import com.khangdjnh.edu_app.enums.ExamSubmissionStatus;
 import com.khangdjnh.edu_app.enums.QuestionLevel;
 import com.khangdjnh.edu_app.exception.AppException;
 import com.khangdjnh.edu_app.exception.ErrorCode;
-import com.khangdjnh.edu_app.repository.ClassRepository;
-import com.khangdjnh.edu_app.repository.ClassStudentRepository;
-import com.khangdjnh.edu_app.repository.QuestionRepository;
-import com.khangdjnh.edu_app.repository.ExamRepository;
+import com.khangdjnh.edu_app.repository.*;
+import com.khangdjnh.edu_app.util.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -32,6 +32,8 @@ public class ExamService {
     QuestionRepository examQuestionRepository;
     ClassStudentRepository classStudentRepository;
     NotificationService notificationService;
+    ExamSubmissionRepository examSubmissionRepository;
+    private final UserRepository userRepository;
 
     @Transactional(rollbackFor = Exception.class)
     public ExamResponse createRandomExam(ExamCreateRandomRequest request) {
@@ -98,10 +100,13 @@ public class ExamService {
     }
 
     @Transactional(readOnly = true)
-    public List<ExamResponse> getExamsInClassIdByStudent(Long classId) {
+    public List<StudentExamResponse> getExamsInClassIdByStudent(Long classId) {
+        String studentEmail = SecurityUtils.getCurrentUserEmail();
+        User currentUser = userRepository.findByEmail(studentEmail)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         return examRepository.findAllByClassEntityIdAndIsStarted(classId, true)
                 .stream()
-                .map(this::toExamResponse)
+                .map(item -> toStudentExamResponse(item, currentUser.getId()))
                 .toList();
     }
 
@@ -214,5 +219,21 @@ public class ExamService {
                 .description(exam.getDescription())
                 .createdAt(exam.getCreatedAt())
                 .build();
+    }
+
+    private StudentExamResponse toStudentExamResponse(Exam exam, Long studentId) {
+        ExamSubmission submission = examSubmissionRepository.findByExamIdAndStudentId(exam.getId(), studentId)
+                .orElse(null);
+        StudentExamResponse result = StudentExamResponse.builder()
+                .id(exam.getId())
+                .classId(exam.getClassEntity().getId())
+                .title(exam.getTitle())
+                .startTime(exam.getStartTime())
+                .endTime(exam.getEndTime())
+                .description(exam.getDescription())
+                .createdAt(exam.getCreatedAt())
+                .build();
+        result.setStatus(submission == null ? ExamSubmissionStatus.NOT_STARTED : submission.getStatus());
+        return result;
     }
 }

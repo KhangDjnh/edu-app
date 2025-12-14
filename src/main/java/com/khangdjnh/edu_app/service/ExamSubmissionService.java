@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,12 +63,18 @@ public class ExamSubmissionService {
                             .build();
                     return examSubmissionRepository.save(newSubmission);
                 });
+        List<ExamAnswer> listExamAnswers = examAnswerRepository.findAllBySubmissionId(submission.getId());
 
         return StartExamResponse.builder()
                 .submissionId(submission.getId())
                 .examTitle(exam.getTitle())
                 .startTime(exam.getStartTime())
                 .endTime(exam.getEndTime())
+                .status(submission.getStatus())
+                .startedAt(submission.getStartedAt())
+                .completedAt(submission.getCompletedAt())
+                .score(submission.getScore())
+                .listExamAnswers(listExamAnswers == null ? new ArrayList<>() : listExamAnswers)
                 .build();
     }
 

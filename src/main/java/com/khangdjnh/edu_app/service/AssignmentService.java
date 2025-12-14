@@ -4,10 +4,13 @@ import com.khangdjnh.edu_app.dto.request.assignments.AssignmentCreateRequest;
 import com.khangdjnh.edu_app.dto.request.assignments.AssignmentUpdateRequest;
 import com.khangdjnh.edu_app.dto.response.AssignmentResponse;
 import com.khangdjnh.edu_app.dto.response.FileRecordResponse;
+import com.khangdjnh.edu_app.dto.response.SubmissionResponse;
 import com.khangdjnh.edu_app.entity.*;
+import com.khangdjnh.edu_app.enums.UserRole;
 import com.khangdjnh.edu_app.exception.AppException;
 import com.khangdjnh.edu_app.exception.ErrorCode;
 import com.khangdjnh.edu_app.repository.*;
+import com.khangdjnh.edu_app.util.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -32,6 +35,8 @@ public class AssignmentService {
     private final ClassStudentRepository classStudentRepository;
     private final NotificationService notificationService;
     private final CloudflareR2Service cloudflareR2Service;
+    private final UserRepository userRepository;
+    private final SubmissionRepository submissionRepository;
 
     @Transactional(rollbackFor = Exception.class)
     public AssignmentResponse createAssignment(AssignmentCreateRequest request) {
@@ -63,19 +68,24 @@ public class AssignmentService {
         return mapAssignmentToResponse(assignment);
     }
 
+    @Transactional(readOnly = true)
     public AssignmentResponse getAssignmentById(Long id) {
         Assignment assignment = assignmentRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ASSIGNMENT_NOT_FOUND));
         return mapAssignmentToResponse(assignment);
     }
 
+    @Transactional(readOnly = true)
     public List<AssignmentResponse> getAllAssignmentsByClassId(Long classId) {
+        String currentEmail = SecurityUtils.getCurrentUserEmail();
+        User currentUser = userRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         if (!classRepository.existsById(classId)) {
             throw new AppException(ErrorCode.CLASS_NOT_FOUND);
         }
 
         return assignmentRepository.findAllByClassEntityIdOrderByCreatedAtDesc(classId).stream()
-                .map(this::mapAssignmentToResponse)
+                .map(item -> mapStudentAssignmentToResponse(item, currentUser))
                 .collect(Collectors.toList());
     }
 
@@ -146,6 +156,43 @@ public class AssignmentService {
                 .startAt(assignment.getStartAt())
                 .endAt(assignment.getEndAt())
                 .createdAt(assignment.getCreatedAt())
+                .build();
+    }
+
+    private AssignmentResponse mapStudentAssignmentToResponse(Assignment assignment, User user) {
+        AssignmentResponse result = mapAssignmentToResponse(assignment);
+        if(user.getRole() == UserRole.STUDENT) {
+            Submission submission = submissionRepository.findWithFilesByAssignmentIdAndStudentId(assignment.getId(), user.getId())
+                    .orElse(null);
+            result.setSubmission(toDto(submission));
+        }
+        return result;
+    }
+
+    private SubmissionResponse toDto(Submission submission) {
+        if (submission == null) return null;
+        FileRecord fileRecord = submission.getFileRecord();
+        FileRecordResponse fileResponse = fileRecord == null ? null
+                : FileRecordResponse.builder()
+                .id(fileRecord.getId())
+                .fileUrl(fileRecord.getFileUrl())
+                .fileType(fileRecord.getFileType())
+                .fileName(fileRecord.getFileName())
+                .fileSize(fileRecord.getFileSize())
+                .folder(fileRecord.getFolder())
+                .uploadedAt(fileRecord.getUploadedAt())
+                .uploadedBy(fileRecord.getUploadedBy())
+                .build();
+        return SubmissionResponse.builder()
+                .id(submission.getId())
+                .title(submission.getTitle())
+                .content(submission.getContent())
+                .submittedAt(submission.getSubmittedAt())
+                .grade(submission.getGrade())
+                .feedback(submission.getFeedback())
+                .assignmentId(submission.getAssignment().getId())
+                .studentId(submission.getStudent().getId())
+                .fileRecord(fileResponse)
                 .build();
     }
 

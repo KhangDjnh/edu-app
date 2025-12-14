@@ -1,7 +1,5 @@
 package com.khangdjnh.edu_app.enums;
 
-import jakarta.ws.rs.POST;
-
 public enum EntityType {
     CLASS,
     CONVERSATION,

@@ -64,8 +64,8 @@ public class ExamController {
 
     @GetMapping("/class/{classId}/student")
     @PreAuthorize("hasRole('STUDENT')")
-    ApiResponse<List<ExamResponse>> getExamsInClassIdByStudent (@PathVariable Long classId) {
-        return ApiResponse.<List<ExamResponse>>builder()
+    ApiResponse<?> getExamsInClassIdByStudent (@PathVariable Long classId) {
+        return ApiResponse.builder()
                 .message("Success")
                 .code(1000)
                 .result(examService.getExamsInClassIdByStudent(classId))

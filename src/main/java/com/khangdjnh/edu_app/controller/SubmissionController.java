@@ -45,7 +45,7 @@ public class SubmissionController {
     }
 
     @GetMapping("/assignment/{assignmentId}/student/{studentId}")
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAnyRole('STUDENT', 'TEACHER')")
     public ApiResponse<SubmissionResponse> getSubmissionsByAssignmentAndStudent(@PathVariable Long assignmentId, @PathVariable Long studentId) {
         return ApiResponse.<SubmissionResponse>builder()
                 .code(1000)
