@@ -12,12 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(
-        name = "attendances",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"class_id", "student_id", "attendance_date"})
-        }
-)
+@Table(name = "attendances")
 public class Attendance {
 
     @Id
