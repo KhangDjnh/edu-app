@@ -7,6 +7,7 @@ import com.khangdjnh.edu_app.dto.request.user.UserUpdateRequest;
 import com.khangdjnh.edu_app.dto.response.LoginResponse;
 import com.khangdjnh.edu_app.dto.response.UserResponse;
 import com.khangdjnh.edu_app.entity.User;
+import com.khangdjnh.edu_app.enums.UserRole;
 import com.khangdjnh.edu_app.exception.AppException;
 import com.khangdjnh.edu_app.exception.ErrorCode;
 import com.khangdjnh.edu_app.exception.ErrorNormalizer;
@@ -27,6 +28,10 @@ import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -126,14 +131,34 @@ public class UserService {
         }
     }
 
-    @PreAuthorize( "hasRole('ADMIN')")
-    public List<UserResponse> getAllUsers() {
-        return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
+    @PreAuthorize("hasRole('ADMIN')")
+    public Page<UserResponse> getAllUsers(String commonSearch, String role) {
+
+        Pageable pageable = PageRequest.of(
+                0,
+                20,
+                Sort.by("createdAt").descending()
+        );
+
+        UserRole userRole = null;
+        if (role != null && !role.isBlank()) {
+            userRole = UserRole.valueOf(role.toUpperCase());
+        }
+
+        Page<User> userPage = userRepository.searchUsers(
+                (commonSearch == null || commonSearch.isBlank()) ? null : commonSearch,
+                userRole,
+                pageable
+        );
+
+        return userPage.map(userMapper::toUserResponse);
     }
+
 
     @PreAuthorize( "hasRole('ADMIN')")
     public UserResponse getUserById(Long id) {
-        return userRepository.findById(id).map(userMapper::toUserResponse).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        return userRepository.findById(id).map(userMapper::toUserResponse)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
     }
 
     public UserResponse getMyInfo(){

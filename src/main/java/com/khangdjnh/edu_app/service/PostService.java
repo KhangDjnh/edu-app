@@ -64,7 +64,7 @@ public class PostService {
     @Transactional(readOnly = true)
     public List<PostResponse> getAll(Long clasId){
         List<PostResponse> result = new ArrayList<>();
-        List<ClassPost> listPost = postRepository.findByClassEntityIdOrderByCreatedAtDesc(clasId);
+        List<ClassPost> listPost = postRepository.findByClassEntityIdOrderByCreatedAtAsc(clasId);
         for(ClassPost post : listPost){
             FileRecordResponse fileRecord = post.getAttachFileId() == null
                     ? null

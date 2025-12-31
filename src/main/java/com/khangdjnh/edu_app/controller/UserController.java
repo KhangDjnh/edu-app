@@ -35,11 +35,14 @@ public class UserController {
     }
 
     @GetMapping
-    ApiResponse<List<UserResponse>> getAllUsers () {
-        return ApiResponse.<List<UserResponse>>builder()
+    ApiResponse<?> getAllUsers (
+            @RequestParam(required = false) String commonSearch,
+            @RequestParam(required = false) String role
+    ) {
+        return ApiResponse.builder()
                 .code(1000)
                 .message("Success")
-                .result(userService.getAllUsers())
+                .result(userService.getAllUsers(commonSearch, role))
                 .build();
     }
 
