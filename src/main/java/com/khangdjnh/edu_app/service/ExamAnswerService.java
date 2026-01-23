@@ -31,11 +31,12 @@ public class ExamAnswerService {
 
         Question question = questionRepository.findById(request.getQuestionId())
                 .orElseThrow(() -> new AppException(ErrorCode.QUESTION_NOT_FOUND));
-
+        AnswerOption correctOption = question.getAnswer();
         ExamAnswer answer = examAnswerRepository.findBySubmissionIdAndQuestionId(submissionId, request.getQuestionId())
                 .orElse(ExamAnswer.builder().submission(submission).question(question).build());
 
         answer.setSelectedOption(request.getAnswerOption());
+        answer.setIsCorrect(correctOption == request.getAnswerOption());
         examAnswerRepository.save(answer);
     }
 }
