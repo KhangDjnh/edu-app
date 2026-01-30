@@ -1,5 +1,6 @@
 package com.khangdjnh.edu_app.dto.response;
 
+import com.khangdjnh.edu_app.enums.ClassType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -18,5 +19,8 @@ public class ClassResponse {
     String semester;
     Long teacherId;
     String teacherName;
+    ClassType classType;
+    String powerBy;
+    String classIntroduction;
     LocalDateTime createdAt;
 }

@@ -4,6 +4,7 @@ import com.khangdjnh.edu_app.dto.request.classentity.ClassCreateRequest;
 import com.khangdjnh.edu_app.dto.request.classentity.ClassUpdateRequest;
 import com.khangdjnh.edu_app.dto.response.ClassResponse;
 import com.khangdjnh.edu_app.entity.ClassEntity;
+import com.khangdjnh.edu_app.enums.ClassType;
 import com.khangdjnh.edu_app.exception.AppException;
 import com.khangdjnh.edu_app.exception.ErrorCode;
 import com.khangdjnh.edu_app.mapper.ClassMapper;
@@ -55,6 +56,14 @@ public class ClassService {
     @Transactional(readOnly = true)
     public List<ClassResponse> getAllClasses() {
         return classRepository.findAll().stream().map(classMapper::toClassResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ClassResponse> getSuggestedClasses() {
+        return classRepository.findByClassTypeOrderByCreatedAtDesc(ClassType.COURSE)
+                .stream()
+                .map(classMapper::toClassResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)

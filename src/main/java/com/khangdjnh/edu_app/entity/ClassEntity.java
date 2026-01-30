@@ -1,5 +1,6 @@
 package com.khangdjnh.edu_app.entity;
 
+import com.khangdjnh.edu_app.enums.ClassType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -38,6 +39,16 @@ public class ClassEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "teacher_id", nullable = false)
     User teacher;
+
+    @Column(name = "class_type")
+    @Enumerated(EnumType.STRING)
+    ClassType classType;
+
+    @Column(name = "power_by")
+    String powerBy;
+
+    @Column(name = "class_introduction", columnDefinition = "TEXT")
+    String classIntroduction;
 
     @Column(name = "created_at", updatable = false)
     @CreationTimestamp

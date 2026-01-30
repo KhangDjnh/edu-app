@@ -11,6 +11,9 @@ public interface ClassMapper {
     ClassEntity toClass(ClassCreateRequest request);
 
     @Mapping(source = "teacher.id", target = "teacherId")
+    @Mapping(source = "classType", target = "classType")
+    @Mapping(source = "powerBy", target = "powerBy")
+    @Mapping(source = "classIntroduction", target = "classIntroduction")
     ClassResponse toClassResponse(ClassEntity classEntity);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

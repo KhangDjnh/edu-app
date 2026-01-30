@@ -41,6 +41,15 @@ public class ClassController {
                 .build();
     }
 
+    @GetMapping("/suggested")
+    ApiResponse<?> getSuggestedClasses() {
+        return ApiResponse.builder()
+                .message("Success")
+                .code(1000)
+                .result(classService.getSuggestedClasses())
+                .build();
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
     ApiResponse<ClassResponse> getClassById(@PathVariable Long id) {
