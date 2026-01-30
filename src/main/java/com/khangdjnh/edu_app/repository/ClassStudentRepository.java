@@ -20,7 +20,7 @@ public interface ClassStudentRepository extends JpaRepository<ClassStudent, Long
     @Query("SELECT sc.classEntity.id FROM ClassStudent sc WHERE sc.student.id = :studentId")
     List<Long> findClassIdsByStudentId(@Param("studentId") Long studentId);
 
-    List<ClassStudent> findByClassEntity_Id(Long classId);
+    List<ClassStudent> findByClassEntity_IdAndIsConfirmed(Long classId, Boolean isConfirmed);
 
     List<ClassStudent> findByStudent_IdOrderByJoinAtDesc(Long studentId);
 }

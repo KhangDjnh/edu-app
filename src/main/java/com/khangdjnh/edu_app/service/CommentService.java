@@ -40,7 +40,7 @@ public class CommentService {
                 .emotion(request.getEmotion())
                 .build();
         comment = commentRepository.save(comment);
-        List<ClassStudent> listStudents = classStudentRepository.findByClassEntity_Id(post.getClassEntity().getId());
+        List<ClassStudent> listStudents = classStudentRepository.findByClassEntity_IdAndIsConfirmed(post.getClassEntity().getId(), true);
         notificationService.sendNewCommentNotification(
                 listStudents.stream().map(ClassStudent::getStudent).toList(),
                 comment,

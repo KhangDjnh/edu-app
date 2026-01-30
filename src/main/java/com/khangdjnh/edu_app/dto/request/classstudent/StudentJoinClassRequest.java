@@ -16,6 +16,5 @@ public class StudentJoinClassRequest {
     Long classId;
 
     @NotNull
-    @Positive
-    Long studentId;
+    String studentUsername;
 }

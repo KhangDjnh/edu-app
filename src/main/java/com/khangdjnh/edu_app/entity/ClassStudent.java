@@ -38,6 +38,9 @@ public class ClassStudent implements Serializable {
     @Column(name = "absence_number")
     Integer absenceNumber;
 
+    @Column(name = "is_confirmed")
+    Boolean isConfirmed;
+
     @Column(name = "joined_at")
     @CreationTimestamp
     LocalDateTime joinAt;

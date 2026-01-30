@@ -64,7 +64,7 @@ public class RoomService {
         log.info("Room created: {}", newRoom.getRoomCode());
 
         // get data students in class
-        List<ClassStudent> listStudents = classStudentRepository.findByClassEntity_Id(request.getClassId());
+        List<ClassStudent> listStudents = classStudentRepository.findByClassEntity_IdAndIsConfirmed(request.getClassId(), true);
         List<User> students = listStudents.stream().map(ClassStudent::getStudent).toList();
 
         //create attendance in class

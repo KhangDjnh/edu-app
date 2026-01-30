@@ -70,6 +70,25 @@ public class ClassStudentController {
                 .build();
     }
 
+    @GetMapping("/class/{classId}/get-confirm")
+    ApiResponse<?> getAllStudentsIsNotConfirmed( @PathVariable Long classId) {
+        return ApiResponse.builder()
+                .message("Success")
+                .code(1000)
+                .result(classStudentService.getAllStudentsIsNotConfirmed(classId))
+                .build();
+    }
+
+    @PutMapping("/confirm-student")
+    ApiResponse<?> confirmStudentInClass(@RequestParam Long classId, @RequestParam Long studentId) {
+        classStudentService.confirmStudentInClass(classId, studentId);
+        return ApiResponse.builder()
+                .message("Success")
+                .code(1000)
+                .result("Confirm Student Successfully")
+                .build();
+    }
+
     @PreAuthorize("hasRole('TEACHER')")
     @DeleteMapping()
     ApiResponse<String> deleteStudentInClassId (@RequestParam Long classId, @RequestParam Long studentId) {

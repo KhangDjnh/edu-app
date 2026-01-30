@@ -39,11 +39,12 @@ public class ClassStudentService {
     public StudentJoinClassResponse createClassStudent(StudentJoinClassRequest request) {
         ClassEntity classEntity = classRepository.findById(request.getClassId())
                 .orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
-        User student = userRepository.findById(request.getStudentId())
+        User student = userRepository.findByUsername(request.getStudentUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         ClassStudent classStudent = new ClassStudent();
         classStudent.setClassEntity(classEntity);
         classStudent.setStudent(student);
+        classStudent.setIsConfirmed(true);
         classStudentRepository.save(classStudent);
         return StudentJoinClassResponse.builder()
                 .classId(request.getClassId())
@@ -56,7 +57,7 @@ public class ClassStudentService {
         if(!classStudentRepository.existsByClassEntity_Id(classId)) {
             throw new AppException(ErrorCode.CLASS_NOT_FOUND);
         }
-        List<ClassStudent> classStudents = classStudentRepository.findByClassEntity_Id(classId);
+        List<ClassStudent> classStudents = classStudentRepository.findByClassEntity_IdAndIsConfirmed(classId, true);
 
         return classStudents.stream()
                 .map(classStudent -> userMapper.toUserResponse(classStudent.getStudent()))
@@ -68,7 +69,7 @@ public class ClassStudentService {
         if(!classStudentRepository.existsByClassEntity_Id(classId)) {
             throw new AppException(ErrorCode.CLASS_NOT_FOUND);
         }
-        List<ClassStudent> classStudents = classStudentRepository.findByClassEntity_Id(classId);
+        List<ClassStudent> classStudents = classStudentRepository.findByClassEntity_IdAndIsConfirmed(classId, true);
 
         return classStudents.stream()
                 .map(this::toUserAttendanceResponse)
@@ -106,11 +107,33 @@ public class ClassStudentService {
         ClassStudent classStudent = new ClassStudent();
         classStudent.setClassEntity(classEntity);
         classStudent.setStudent(student);
+        classStudent.setIsConfirmed(false);
         classStudentRepository.save(classStudent);
         return StudentJoinClassResponse.builder()
                 .classId(classEntity.getId())
                 .studentId(student.getId())
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserResponse> getAllStudentsIsNotConfirmed(Long classId) {
+        return classStudentRepository.findByClassEntity_IdAndIsConfirmed(classId, false)
+                .stream()
+                .map(classStudent -> userMapper.toUserResponse(classStudent.getStudent()))
+                .toList();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void confirmStudentInClass(Long classId, Long studentId) {
+        ClassStudent classStudent = classStudentRepository.findByClassEntity_IdAndStudent_Id(classId, studentId);
+        if(classStudent == null) {
+            throw new AppException(ErrorCode.CLASS_STUDENT_NOT_FOUND);
+        }
+        if(classStudent.getIsConfirmed()) {
+            throw new AppException(ErrorCode.CLASS_STUDENT_ALREADY_CONFIRMED);
+        }
+        classStudent.setIsConfirmed(true);
+        classStudentRepository.save(classStudent);
     }
 
     @Transactional(rollbackFor = Exception.class)

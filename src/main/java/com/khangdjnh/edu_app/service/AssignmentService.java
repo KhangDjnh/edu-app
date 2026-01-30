@@ -59,7 +59,7 @@ public class AssignmentService {
         assignment = assignmentRepository.save(assignment);
 
         // Gửi thông báo
-        List<User> students = classStudentRepository.findByClassEntity_Id(request.getClassId())
+        List<User> students = classStudentRepository.findByClassEntity_IdAndIsConfirmed(request.getClassId(), true)
                 .stream().map(ClassStudent::getStudent).toList();
         for (User student : students) {
             notificationService.sendNewAssignmentNotice(student, assignment.getTitle(), assignment);

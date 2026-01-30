@@ -171,7 +171,7 @@ public class ExamService {
 
         // get data students in class
         ClassEntity classEntity = exam.getClassEntity();
-        List<ClassStudent> listStudents = classStudentRepository.findByClassEntity_Id(classEntity.getId());
+        List<ClassStudent> listStudents = classStudentRepository.findByClassEntity_IdAndIsConfirmed(classEntity.getId(), true);
         List<User> students = listStudents.stream().map(ClassStudent::getStudent).toList();
 
         //create attendance in class

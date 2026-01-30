@@ -6,7 +6,6 @@ import com.khangdjnh.edu_app.entity.User;
 import com.khangdjnh.edu_app.repository.AssignmentRepository;
 import com.khangdjnh.edu_app.repository.ClassStudentRepository;
 import com.khangdjnh.edu_app.service.NotificationService;
-import com.khangdjnh.edu_app.service.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -34,7 +33,10 @@ public class AssignmentScheduler {
 
         for (Assignment assignment : assignments) {
             Long classId = assignment.getClassEntity().getId();
-            List<User> students = classStudentRepository.findByClassEntity_Id(classId).stream().map(ClassStudent::getStudent).toList();
+            List<User> students = classStudentRepository.findByClassEntity_IdAndIsConfirmed(classId, true)
+                    .stream()
+                    .map(ClassStudent::getStudent)
+                    .toList();
 
             for (User student : students) {
                 notificationService.sendAssignmentDeadlineNotice(

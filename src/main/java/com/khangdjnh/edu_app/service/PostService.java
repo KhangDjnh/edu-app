@@ -56,7 +56,7 @@ public class PostService {
                 .postBackground(request.getPostBackground())
                 .build();
         post = postRepository.save(post);
-        List<ClassStudent> listStudents = classStudentRepository.findByClassEntity_Id(request.getClassId());
+        List<ClassStudent> listStudents = classStudentRepository.findByClassEntity_IdAndIsConfirmed(request.getClassId(), true);
         notificationService.sendNewPostNotification(listStudents.stream().map(ClassStudent::getStudent).toList(), post);
         return toPostResponse(post, poster, fileRecord);
     }

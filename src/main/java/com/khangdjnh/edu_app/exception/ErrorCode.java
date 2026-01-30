@@ -66,6 +66,7 @@ public enum ErrorCode {
     COMMENT_NOT_FOUND(1040, "Comment not found", HttpStatus.NOT_FOUND),
     POST_TYPE_NOT_FOUND(1041, "Post type not found", HttpStatus.NOT_FOUND),
     EXAM_ALREADY_STARTED(1043, "Exam has already started", HttpStatus.BAD_REQUEST),
+    CLASS_STUDENT_ALREADY_CONFIRMED(1044, "Class student already confirmed", HttpStatus.BAD_REQUEST)
     ;
 
     int code;
