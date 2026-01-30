@@ -80,6 +80,15 @@ public class ClassController {
                 .build();
     }
 
+    @GetMapping("/search")
+    ApiResponse<List<ClassResponse>> searchClassesByKeyword(@RequestParam String keyword) {
+        return ApiResponse.<List<ClassResponse>>builder()
+                .message("Success")
+                .code(1000)
+                .result(classService.searchClassesByKeyword(keyword))
+                .build();
+    }
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('TEACHER')")
     ApiResponse<String> deleteClassById(@PathVariable Long id) {

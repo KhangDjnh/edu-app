@@ -74,6 +74,13 @@ public class ClassService {
         return classRepository.findAllByTeacherIdOrderByCreatedAtDesc(teacher.getId()).stream().map(classMapper::toClassResponse).toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<ClassResponse> searchClassesByKeyword(String keyword) {
+        return classRepository.searchByKeyword(keyword).stream()
+                .map(classMapper::toClassResponse)
+                .toList();
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public ClassResponse updateClassById(Long id, ClassUpdateRequest request) {
         ClassEntity classEntity = classRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
